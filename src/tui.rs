@@ -125,8 +125,9 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     let prompt = "↑/↓ navigate  Enter select";
     draw_select_list(f, chunks[2], &items, &descs, prompt, state);
 
-    // Whale always patrols the bottom row
+    // Whale bar
     draw_whale_separator(f, chunks[3], app);
+    draw_status_bar(f, chunks[4], app);
 }
 
 /// Draw the disclaimer popup with full warning text.
@@ -285,7 +286,7 @@ pub fn draw_sub_menu(
     f.render_widget(title_p, chunks[1]);
 
     draw_select_list(f, chunks[2], items, descs, "↑/↓ navigate  Enter select  Esc back", state);
-    draw_status_bar(f, chunks[3], app);
+    draw_status_bar(f, chunks[4], app);
 }
 
 /// Draw a simple text screen with a "press any key" prompt.
@@ -305,7 +306,7 @@ pub fn draw_text_screen(
         Style::default().fg(Color::DarkGray),
     ))
     .alignment(Alignment::Center);
-    f.render_widget(prompt_p, chunks[3]);
+    f.render_widget(prompt_p, chunks[4]);
 }
 
 /// Draw a file/folder picker list.
@@ -334,7 +335,7 @@ pub fn draw_picker_with_info(
 
     let prompt = "↑/↓ navigate  Enter select  Esc cancel";
     draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, selected_info);
-    draw_status_bar(f, chunks[3], app);
+    draw_status_bar(f, chunks[4], app);
 }
 
 // ── internal drawing helpers ───────────────────────────────────────────────
@@ -346,7 +347,8 @@ fn standard_layout(area: Rect, menu_items: usize) -> Vec<Rect> {
         .constraints([
             Constraint::Length(3),                          // header
             Constraint::Length(2),                          // dashboard
-            Constraint::Min(menu_height.min(area.height.saturating_sub(6))), // menu
+            Constraint::Min(menu_height.min(area.height.saturating_sub(7))), // menu
+            Constraint::Length(1),                          // whale bar
             Constraint::Length(1),                          // status bar
         ])
         .split(area).to_vec()
@@ -616,7 +618,7 @@ fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
     );
     let elapsed = app.whale_start.elapsed().as_millis() as u64;
     let bar_w = area.width as u64;
-    let speed_ms: u64 = 60;
+    let speed_ms: u64 = 180;
     let cooldown_ticks: u64 = 166;
     let total = bar_w + cooldown_ticks;
     let t = (elapsed / speed_ms) % total;
