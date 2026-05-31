@@ -431,7 +431,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 name.to_string()
             };
             let date = s.mtime.as_deref().unwrap_or("?");
-            let save_type = if s.is_online { "Online" } else { "Local" };
+            let save_type = if s.is_online { "Multiplayer" } else { "Single Player" };
             format!(
                 "  {:<8}  {:<26}  {:<6}  {:>6}  {}",
                 label_col,
@@ -506,8 +506,8 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                     // Mode change warning
                     let mode_entry = target_meta.as_ref().and_then(|(_, _, live, _)| {
                         if *live != chosen.is_online {
-                            let from = if *live { "Online" } else { "Local" };
-                            let to = if chosen.is_online { "Online" } else { "Local" };
+                            let from = if *live { "Multiplayer" } else { "Single Player" };
+                            let to = if chosen.is_online { "Multiplayer" } else { "Single Player" };
                             Some(("⚠ Mode change", format!("{from} → {to}")))
                         } else { None }
                     });
@@ -938,7 +938,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
                         let fields: Vec<(&str, &str, String)> = vec![
                             ("SlotName", ":", meta.slot_name.as_deref().unwrap_or("?").into()),
                             ("DisplayName", ":", meta.display_name.as_deref().unwrap_or("(unnamed)").into()),
-                            ("Online", ":", (if meta.is_online { "yes" } else { "no" }).into()),
+                            ("Multiplayer", ":", (if meta.is_online { "yes" } else { "no" }).into()),
                             ("Was Multi", ":", (if meta.was_multiplayer { "yes" } else { "no" }).into()),
                             ("GameMode", ":", meta.game_mode.as_deref().unwrap_or("?").into()),
                             ("Level", ":", meta.level_name.as_deref().unwrap_or("?").into()),

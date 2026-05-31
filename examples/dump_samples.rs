@@ -60,7 +60,7 @@ fn main() {
         let first = seen.insert(slot.clone());
         let label = if first { format!("Slot {label_num}") } else { String::new() };
 
-        let typ = if is_online { "Online" } else { "Local" };
+        let typ = if is_online { "Multiplayer" } else { "Single Player" };
         let sz = if size < 1024 {
             format!("{size} B")
         } else if size < 1024 * 1024 {
