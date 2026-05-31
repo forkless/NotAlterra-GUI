@@ -32,6 +32,9 @@ All notable changes to NotAlterra are documented in this file.
 - `--version` / `-v` CLI flag
 - MIT License and README with build, usage, and unpack instructions
 
+### Changed
+- Improved game-running exit message — explains why save files are at risk
+
 ### Fixed
 - Background scan thread panic no longer hangs the application
 - Arrow-key navigation no longer overshoots — `KeyEventKind::Release` events filtered
