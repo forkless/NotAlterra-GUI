@@ -630,10 +630,15 @@ fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
             if t < bar_w {
                 let x = bar_w - t - 1;
                 let switch = ((elapsed / 400) * 7 + (elapsed / 600) * 13) % 2;
-                let whale = if switch == 0 { "🐋" } else { "🐳" };
+                #[cfg(target_os = "windows")]
+                let variants: &[&str] = &[".oOo.", "~oOo~"];
+                #[cfg(not(target_os = "windows"))]
+                let variants: &[&str] = &["🐋", "🐳"];
+                let whale = variants[(switch % variants.len() as u64) as usize];
+                let w = if cfg!(target_os = "windows") { 6u16 } else { 4u16 };
                 f.render_widget(
                     Paragraph::new(Span::styled(whale, Style::default().fg(Color::Cyan))),
-                    Rect { x: area.x + (x as u16), y: area.y, width: 4, height: 1 },
+                    Rect { x: area.x + (x as u16), y: area.y, width: w, height: 1 },
                 );
             }
         }
