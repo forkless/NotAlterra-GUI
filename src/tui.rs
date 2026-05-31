@@ -75,7 +75,7 @@ impl Default for AppState {
 pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save_found: bool) {
     let items: Vec<&str> = if save_found {
         vec![
-            "  Recover .sav file from .bak",
+            "  Recover save file",
             "  Create full backup",
             "  Restore full backup",
             "  Inspect save files",
@@ -86,7 +86,7 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     } else {
         vec![
             "  Locate Subnautica save files",
-            "  Recover .sav file from .bak",
+            "  Recover save file",
             "  Create full backup",
             "  Restore full backup",
             "  Inspect save files",
@@ -97,7 +97,7 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     };
     let descs: Vec<&str> = if save_found {
         vec![
-            "Restore a .sav file from its .bak backup",
+            "Restore a save file from a backup",
             "Copy the savegame files to NotAlterra_Backups",
             "Restore a full backup from NotAlterra_Backups",
             "View detailed GVAS metadata for each save file",
@@ -108,7 +108,7 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     } else {
         vec![
             "Scan all drives for Subnautica 2 save folders",
-            "Restore a .sav file from its .bak backup",
+            "Restore a save file from a backup",
             "Copy the savegame files to NotAlterra_Backups",
             "Restore a full backup from NotAlterra_Backups",
             "View detailed GVAS metadata for each save file",

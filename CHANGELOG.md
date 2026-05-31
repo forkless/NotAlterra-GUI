@@ -7,6 +7,7 @@ All notable changes to NotAlterra are documented in this file.
 ## [v0.1.1] — 2026-05-31
 
 ### Changed
+- "Recover .sav file from .bak" renamed to "Recover save file" (less technical)
 - Dashboard stats now filter by `savegame_*` prefix, matching the file picker
 - Save/Backup labels pluralize based on count
 

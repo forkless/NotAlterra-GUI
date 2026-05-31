@@ -75,7 +75,7 @@ Run the binary. On first launch it auto-scans for your save folder. The menu is 
 
 ### Menu
 
-1. **Recover .sav from .bak** — pick a backup, preview metadata, overwrite the live save
+1. **Recover save file** — pick a backup, preview metadata, overwrite the live save
 2. **Create full backup** — copies all `savegame_*` files to `NotAlterra_Backups`
 3. **Restore full backup** — overwrite the save folder from a previous backup
 4. **Inspect save files** — view all GVAS properties of any `.sav` / `.bak`
