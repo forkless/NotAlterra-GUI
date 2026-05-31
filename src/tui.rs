@@ -122,6 +122,12 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
 
     let prompt = "↑/↓ navigate  Enter select";
     draw_select_list(f, chunks[2], &items, &descs, prompt, state);
+
+    // Whale patrol separator
+    let sep_y = chunks[2].y + chunks[2].height;
+    let sep_area = Rect { x: chunks[2].x, y: sep_y, width: chunks[2].width, height: 1 };
+    draw_whale_separator(f, sep_area, app);
+
     draw_status_bar(f, chunks[3], app);
 }
 
@@ -600,19 +606,30 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
         f.render_widget(Paragraph::new(line), area);
     }
 
-    // Whale spinner — bounces across the status bar
+}
+
+/// Separator line with a whale bouncing along it.
+fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
+    // Draw separator line (full width)
+    let sep = "─".repeat(area.width as usize);
+    f.render_widget(
+        Paragraph::new(Span::styled(sep, Style::default().fg(Color::DarkGray))),
+        area,
+    );
+
+    // Whale bouncing along it
     if app.spinner_active {
         if let Some(start) = app.spinner_start {
             let elapsed = start.elapsed().as_millis() as u64;
             let bar_w = area.width.saturating_sub(4) as u64;
             let period = bar_w.max(2) * 2;
-            let t = (elapsed / 80) % period;
+            let t = (elapsed / 100) % period;
             let x = if t < bar_w { t } else { period - t };
-            let whale = if (elapsed / 160) % 2 == 0 { "🐋" } else { "🐳" };
+            let whale = if (elapsed / 200) % 2 == 0 { "🐋" } else { "🐳" };
             let x_u16 = (x as u16).min(area.width.saturating_sub(8));
             f.render_widget(
                 Paragraph::new(Span::styled(whale, Style::default().fg(Color::Cyan))),
-                Rect { x: area.x + 2 + x_u16, y: area.y, width: 4, height: 1 },
+                Rect { x: area.x + x_u16, y: area.y, width: 4, height: 1 },
             );
         }
     }
