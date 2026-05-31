@@ -314,6 +314,7 @@ pub struct BakFileSummary {
     pub is_online: bool,
     pub size: u64,
     pub mtime: Option<String>,
+    pub playtime_seconds: Option<f64>,
 }
 
 /// List .bak files with parsed GVAS metadata.
@@ -362,6 +363,7 @@ pub fn list_bak_files_with_meta(save_folder: &Path) -> Vec<BakFileSummary> {
         let meta = extract_metadata(&path).ok();
         let display_name = meta.as_ref().and_then(|m| m.display_name.clone());
         let is_online = meta.as_ref().map(|m| m.is_online).unwrap_or(false);
+        let playtime_seconds = meta.as_ref().and_then(|m| m.playtime_seconds);
 
         files.push(BakFileSummary {
             path,
@@ -371,6 +373,7 @@ pub fn list_bak_files_with_meta(save_folder: &Path) -> Vec<BakFileSummary> {
             is_online,
             size,
             mtime,
+            playtime_seconds,
         });
     }
 

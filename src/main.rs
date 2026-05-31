@@ -432,11 +432,13 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
             };
             let date = s.mtime.as_deref().unwrap_or("?");
             let save_type = if s.is_online { "Multiplayer" } else { "Single Player" };
+            let playtime = format_playtime(s.playtime_seconds);
             format!(
-                " {:<8}  {:<26}  {:<13}  {:>6}  {}",
+                " {:<8}  {:<26}  {:<13}  {:>8}  {:>6}  {}",
                 label_col,
                 name_col,
                 save_type,
+                playtime,
                 format_size(s.size),
                 date,
             )
@@ -947,6 +949,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
                             ("Saves", ":", meta.saves_count.map_or("?".into(), |n| n.to_string())),
                             ("Ver", ":", meta.latest_version.map_or("?".into(), |n| n.to_string())),
                             ("DataVer", ":", meta.data_version.map_or("?".into(), |n| n.to_string())),
+                            ("Playtime", ":", format_playtime(meta.playtime_seconds)),
                         ];
                         let max_label: usize = fields.iter().map(|(k, _, _)| k.len()).max().unwrap_or(8);
                         for (key, sep, value) in fields {
@@ -1188,6 +1191,22 @@ fn draw_too_small(f: &mut Frame) {
 /// Read file metadata.
 fn fs_meta(path: &Path) -> Result<std::fs::Metadata, ()> {
     std::fs::metadata(path).map_err(|_| ())
+}
+
+fn format_playtime(seconds: Option<f64>) -> String {
+    match seconds {
+        Some(s) if s >= 3600.0 => {
+            let h = (s / 3600.0) as u32;
+            let m = ((s % 3600.0) / 60.0) as u32;
+            format!("{h}h {m}m")
+        }
+        Some(s) if s >= 60.0 => {
+            let m = (s / 60.0) as u32;
+            format!("{m}m")
+        }
+        Some(_) => String::from("—"),
+        None => String::from("—"),
+    }
 }
 
 /// Format a byte size human-readably.

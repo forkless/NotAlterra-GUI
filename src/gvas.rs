@@ -199,6 +199,26 @@ fn extract_bool_property(data: &[u8], prop_name: &str) -> Option<bool> {
 }
 
 /// Find an IntProperty by name and return its u32 value.
+fn extract_double_property(data: &[u8], prop_name: &str) -> Option<f64> {
+    let target = prop_name.as_bytes();
+    let mut offset = 0usize;
+    let mut attempts = 0u32;
+    while offset < data.len().saturating_sub(30) && attempts < 100 {
+        let found = data[offset..].windows(target.len()).position(|w| w == target);
+        let found = match found { Some(p) => offset + p, None => return None };
+        if found < 4 { offset = found + 1; attempts += 1; continue; }
+        let expected: usize = target.len() + 1;
+        if read_u32(data, found - 4) != Some(expected) { offset = found + 1; attempts += 1; continue; }
+        if data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
+        let (next_name, next_offset) = read_fname(data, found + target.len() + 1);
+        if next_name.as_deref() != Some("DoubleProperty") { offset = found + 1; attempts += 1; continue; }
+        let val_offset = next_offset + 9;
+        if val_offset + 8 > data.len() { offset = found + 1; attempts += 1; continue; }
+        return Some(f64::from_le_bytes(data[val_offset..val_offset+8].try_into().ok()?));
+    }
+    None
+}
+
 fn extract_int_property(data: &[u8], prop_name: &str) -> Option<u32> {
     let target = prop_name.as_bytes();
     let mut offset = 0usize;
@@ -234,6 +254,7 @@ pub struct FullMetadata {
     pub saves_count: Option<u32>,
     pub latest_version: Option<u32>,
     pub data_version: Option<u32>,
+    pub playtime_seconds: Option<f64>,
 }
 
 /// Parse a `.sav` or `.bak` file and return all known GVAS metadata.
@@ -252,6 +273,7 @@ pub fn extract_full_metadata(path: &Path) -> Result<FullMetadata> {
         saves_count: extract_int_property(&data, "SavesCount"),
         latest_version: extract_int_property(&data, "LatestVersion"),
         data_version: extract_int_property(&data, "DataVersion"),
+        playtime_seconds: extract_double_property(&data, "ElapsedTimeDouble"),
     })
 }
 
@@ -264,6 +286,8 @@ pub struct SaveMetadata {
     pub display_name: Option<String>,
     /// Current online/multiplayer status (bIsMultiplayerSave)
     pub is_online: bool,
+    /// Total playtime in seconds
+    pub playtime_seconds: Option<f64>,
     /// Any extraction errors (non-fatal)
     pub errors: Vec<String>,
 }
@@ -290,10 +314,12 @@ pub fn extract_metadata(path: &Path) -> Result<SaveMetadata> {
     };
     let is_online = extract_bool_property(&data, "bIsMultiplayerSave").unwrap_or(false);
 
+    let playtime_seconds = extract_double_property(&data, "ElapsedTimeDouble");
     Ok(SaveMetadata {
         slot_name,
         display_name,
         is_online,
+        playtime_seconds,
         errors,
     })
 }
