@@ -485,7 +485,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 selected_info,
             );
         })?;
-        let key = read_key_event()?;
+        if let Some(key) = poll_key(250)? {
                 match key.code {
                 KeyCode::Up => {
                     let i = state.selected().unwrap_or(0);
@@ -588,6 +588,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 KeyCode::Esc => break,
                 _ => {}
             }
+        }
     }
 
     refresh_stats(&mut app.tui_state, Some(&save_folder));
@@ -664,7 +665,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
         terminal.draw(|f| {
             tui::draw_picker(f, &app.tui_state, &item_refs, &descs, &mut state);
         })?;
-        let key = read_key_event()?;
+        if let Some(key) = poll_key(250)? {
             match key.code {
                 KeyCode::Up => {
                     let i = state.selected().unwrap_or(0);
@@ -703,6 +704,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
                 KeyCode::Esc => break,
                 _ => {}
             }
+        }
     }
 
     refresh_stats(&mut app.tui_state, Some(&save_folder));
@@ -731,7 +733,7 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
         terminal.draw(|f| {
             tui::draw_sub_menu(f, &app.tui_state, "Config (.ini) Management", &items, &descs, &mut state);
         })?;
-        let key = read_key_event()?;
+        if let Some(key) = poll_key(250)? {
                 match key.code {
                 KeyCode::Up => {
                     let i = state.selected().unwrap_or(0);
@@ -753,6 +755,7 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
                 KeyCode::Esc => break,
                 _ => {}
                 }
+        }
     }
 
     refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
@@ -815,7 +818,7 @@ fn ini_restore_action<B: Backend>(
         terminal.draw(|f| {
             tui::draw_picker(f, &app.tui_state, &item_refs, &descs, &mut state);
         })?;
-        let key = read_key_event()?;
+        if let Some(key) = poll_key(250)? {
             match key.code {
                 KeyCode::Up => {
                     let i = state.selected().unwrap_or(0);
@@ -844,6 +847,7 @@ fn ini_restore_action<B: Backend>(
                 KeyCode::Esc => break,
                 _ => {}
             }
+        }
     }
 
     Ok(())
@@ -1109,7 +1113,7 @@ fn confirm_modal<B: Backend>(
             }
             tui::draw_confirm_popup(f, &app.tui_state, title, details, selected_yes);
         })?;
-        let key = read_key_event()?;
+        if let Some(key) = poll_key(250)? {
         match key.code {
             KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down => {
                 selected_yes = !selected_yes;
@@ -1118,6 +1122,7 @@ fn confirm_modal<B: Backend>(
             KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => return Ok(false),
             KeyCode::Enter => return Ok(selected_yes),
             _ => {}
+        }
         }
     }
 }

@@ -170,7 +170,7 @@ pub fn draw_disclaimer_popup(f: &mut Frame, app: &AppState, selected_yes: bool) 
 /// Draw a simple confirmation popup with [ Yes ] [ No ] buttons.
 pub fn draw_confirm_popup(
     f: &mut Frame,
-    _app: &AppState,
+    app: &AppState,
     title: &str,
     details: &[(&str, &str)],
     selected_yes: bool,
@@ -223,6 +223,10 @@ pub fn draw_confirm_popup(
         Paragraph::new(buttons).alignment(Alignment::Center),
         Rect { y: inner.y + inner.height.saturating_sub(1), height: 1, ..inner },
     );
+
+    // Whale
+    let bar = Rect { x: 0, y: f.area().height.saturating_sub(1), width: f.area().width, height: 1 };
+    draw_whale_separator(f, bar, app);
 }
 
 pub fn draw_ok_dialog(f: &mut Frame, app: &AppState, title: &str, message: &str) {
