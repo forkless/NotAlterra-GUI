@@ -1,6 +1,6 @@
 # NotAlterra
 
-**Subnautica 2 save-file manager — cross-platform terminal application.**
+**Subnautica 2 Save Manager**
 
 NotAlterra is an unofficial tool for managing Subnautica 2 save files. It locates your save folders, backs up and restores `.sav` / `.bak` files, and lets you inspect the internal metadata of every save.
 
