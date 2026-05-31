@@ -1053,9 +1053,10 @@ fn slot_number(slot: &str) -> String {
 fn ok_dialog_styled<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, lines: &[Line]) -> Result<()> {
     loop {
         terminal.draw(|f| tui::draw_ok_dialog_styled(f, &app.tui_state, title, lines))?;
-        let key = read_key_event()?;
-        if matches!(key.code, KeyCode::Enter | KeyCode::Char(' ')) {
-            return Ok(());
+        if let Some(key) = poll_key(250)? {
+            if matches!(key.code, KeyCode::Enter | KeyCode::Char(' ')) {
+                return Ok(());
+            }
         }
     }
 }
@@ -1063,9 +1064,10 @@ fn ok_dialog_styled<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &s
 fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg: &str) -> Result<()> {
     loop {
         terminal.draw(|f| tui::draw_ok_dialog(f, &app.tui_state, title, msg))?;
-        let key = read_key_event()?;
-        if matches!(key.code, KeyCode::Enter | KeyCode::Char(' ')) {
-            return Ok(());
+        if let Some(key) = poll_key(250)? {
+            if matches!(key.code, KeyCode::Enter | KeyCode::Char(' ')) {
+                return Ok(());
+            }
         }
     }
 }

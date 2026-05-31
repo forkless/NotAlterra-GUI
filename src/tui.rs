@@ -225,7 +225,7 @@ pub fn draw_confirm_popup(
     );
 }
 
-pub fn draw_ok_dialog(f: &mut Frame, _app: &AppState, title: &str, message: &str) {
+pub fn draw_ok_dialog(f: &mut Frame, app: &AppState, title: &str, message: &str) {
     let content_w = message.lines().map(|l| l.len()).max().unwrap_or(20).max(title.len()) as u16 + 10;
     let popup_w = content_w.max(50).min(f.area().width.saturating_sub(4));
     let popup_h = (message.lines().count() as u16 + 7).min(f.area().height.saturating_sub(4));
@@ -239,9 +239,13 @@ pub fn draw_ok_dialog(f: &mut Frame, _app: &AppState, title: &str, message: &str
     f.render_widget(Paragraph::new(message.to_string()).style(Style::default().fg(Color::Gray)).alignment(Alignment::Left), Rect { x: inner.x + 2, y: inner.y + 2, width: inner.width.saturating_sub(4), height: msg_h });
     let ok = Span::styled("[ OK ]", Style::default().fg(Color::Black).bg(Color::Cyan).add_modifier(Modifier::BOLD));
     f.render_widget(Paragraph::new(ok).alignment(Alignment::Center), Rect { y: inner.y + inner.height.saturating_sub(2), height: 1, ..inner });
+
+    // Whale
+    let bar = Rect { x: 0, y: f.area().height.saturating_sub(1), width: f.area().width, height: 1 };
+    draw_whale_separator(f, bar, app);
 }
 
-pub fn draw_ok_dialog_styled(f: &mut Frame, _app: &AppState, title: &str, lines: &[Line]) {
+pub fn draw_ok_dialog_styled(f: &mut Frame, app: &AppState, title: &str, lines: &[Line]) {
     let content_w = lines.iter().map(|l| l.width() as u16).max().unwrap_or(20).max(title.len() as u16) + 10;
     let popup_w = content_w.max(50).min(f.area().width.saturating_sub(4));
     let popup_h = (lines.len() as u16 + 7).min(f.area().height.saturating_sub(4));
@@ -254,6 +258,10 @@ pub fn draw_ok_dialog_styled(f: &mut Frame, _app: &AppState, title: &str, lines:
     f.render_widget(Paragraph::new(lines.to_vec()).style(Style::default()).alignment(Alignment::Left), Rect { x: inner.x + 2, y: inner.y + 2, width: inner.width.saturating_sub(4), height: lines.len() as u16 });
     let ok = Span::styled("[ OK ]", Style::default().fg(Color::Black).bg(Color::Cyan).add_modifier(Modifier::BOLD));
     f.render_widget(Paragraph::new(ok).alignment(Alignment::Center), Rect { y: inner.y + inner.height.saturating_sub(2), height: 1, ..inner });
+
+    // Whale
+    let bar = Rect { x: 0, y: f.area().height.saturating_sub(1), width: f.area().width, height: 1 };
+    draw_whale_separator(f, bar, app);
 }
 
 fn centered_rect_size(w: u16, h: u16, r: Rect) -> Rect {
