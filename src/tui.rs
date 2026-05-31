@@ -123,10 +123,13 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     let prompt = "↑/↓ navigate  Enter select";
     draw_select_list(f, chunks[2], &items, &descs, prompt, state);
 
-    // Whale patrol separator
+    // Separator line between menu and status bar
     let sep_y = chunks[2].y + chunks[2].height;
-    let sep_area = Rect { x: chunks[2].x, y: sep_y, width: chunks[2].width, height: 1 };
-    draw_whale_separator(f, sep_area, app);
+    let sep_line = "─".repeat(chunks[2].width as usize);
+    f.render_widget(
+        Paragraph::new(Span::styled(sep_line, Style::default().fg(Color::DarkGray))),
+        Rect { x: chunks[2].x, y: sep_y, width: chunks[2].width, height: 1 },
+    );
 
     draw_status_bar(f, chunks[3], app);
 }
@@ -606,43 +609,6 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
         f.render_widget(Paragraph::new(line), area);
     }
 
-}
-
-/// Separator line with a whale patrolling right-to-left.
-/// Disappears for a short cooldown before reappearing from the right.
-fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
-    // Draw separator line (full width)
-    let sep = "─".repeat(area.width as usize);
-    f.render_widget(
-        Paragraph::new(Span::styled(sep, Style::default().fg(Color::DarkGray))),
-        area,
-    );
-
-    if app.spinner_active {
-        if let Some(start) = app.spinner_start {
-            let elapsed = start.elapsed().as_millis() as u64;
-            let bar_w = area.width as u64;
-            let speed_ms: u64 = 60;
-            let cooldown_ticks: u64 = 166; // ~10 s
-            let total = bar_w + cooldown_ticks;
-            let t = (elapsed / speed_ms) % total;
-
-            if t < bar_w {
-                let x = bar_w - t - 1;
-                let switch = ((elapsed / 400) * 7 + (elapsed / 600) * 13) % 2;
-                #[cfg(target_os = "windows")]
-                let variants: &[&str] = &[".oOo.", "~oOo~"];
-                #[cfg(not(target_os = "windows"))]
-                let variants: &[&str] = &["🐋", "🐳"];
-                let whale = variants[(switch % variants.len() as u64) as usize];
-                let w = if cfg!(target_os = "windows") { 6u16 } else { 4u16 };
-                f.render_widget(
-                    Paragraph::new(Span::styled(whale, Style::default().fg(Color::Cyan))),
-                    Rect { x: area.x + (x as u16), y: area.y, width: w, height: 1 },
-                );
-            }
-        }
-    }
 }
 
 /// Truncate a path to show the tail (most specific directories).
