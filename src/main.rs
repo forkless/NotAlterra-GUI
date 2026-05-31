@@ -433,7 +433,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
             let date = s.mtime.as_deref().unwrap_or("?");
             let save_type = if s.is_online { "Multiplayer" } else { "Single Player" };
             format!(
-                "  {:<8}  {:<26}  {:<6}  {:>6}  {}",
+                "  {:<8}  {:<26}  {:<15}  {:>6}  {}",
                 label_col,
                 name_col,
                 save_type,
