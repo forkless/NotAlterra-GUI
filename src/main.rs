@@ -862,6 +862,16 @@ fn ini_delete_action<B: Backend>(
     config_path: &Path,
     backup_root: &Path,
 ) -> Result<()> {
+    if !app.tui_state.has_ini_backup {
+        ok_dialog(terminal, app, "No Backup Found",
+            "No .ini backup directory found.\n\
+             \n\
+             Run \"Backup .ini files\" first to create a snapshot\n\
+             before deleting the live .ini files.",
+        )?;
+        return Ok(());
+    }
+
     match ops::delete_ini_files(config_path, backup_root) {
         Ok(n) => {
             let msg = format!("Deleted {n} .ini file(s).\nThe game will regenerate defaults on next launch.");
