@@ -141,19 +141,14 @@ fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
 fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
     let mut app = App::new()?;
 
-    // Guard: warn if game is running, then exit
-    if guard::game_running() {
-        ok_dialog(terminal, &app, "Game Running",
-            "NotAlterra has detected that Subnautica 2 is currently running.\n\
-             \n\
-             The game holds file locks on your save files while active.\n\
-             Backing up or restoring saves while the game is running can\n\
-             result in incomplete, corrupt, or overwritten save files.\n\
-             \n\
-             Close Subnautica 2, then relaunch NotAlterra.",
-        )?;
-        return Ok(());
-    }
+    // Reminder — the user should close the game before using the tool
+    ok_dialog(terminal, &app, "Before You Begin",
+        "Please close Subnautica 2 before using NotAlterra.\n\
+         \n\
+         The game holds file locks on your save files while active.\n\
+         Backing up or restoring saves with the game running can\n\
+         result in incomplete, corrupt, or overwritten save files.",
+    )?;
 
     // Disclaimer flow
     if !app.config.disclaimer_accepted {
@@ -395,14 +390,6 @@ fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) ->
 fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let save_folder = ensure_save_folder(terminal, app)?;
 
-    // Warn if game is running
-    if guard::game_running() {
-        app.set_status(
-            "Subnautica 2 is running — save files may be locked!",
-            tui::StatusStyle::Warning,
-        );
-    }
-
     // Show spinner while parsing metadata
     app.set_status("Reading save metadata…", tui::StatusStyle::Info);
     app.set_spinner(true);
@@ -598,10 +585,6 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
 fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let save_folder = ensure_save_folder(terminal, app)?;
 
-    if guard::game_running() {
-        app.set_status("Subnautica 2 is running — files may be locked.", tui::StatusStyle::Warning);
-    }
-
     app.set_status("Creating backup…", tui::StatusStyle::Info);
     app.set_spinner(true);
     terminal.draw(|f| {
@@ -771,10 +754,6 @@ fn ini_backup_action<B: Backend>(
     config_path: &Path,
     backup_root: &Path,
 ) -> Result<()> {
-    if guard::game_running() {
-        app.set_status("Subnautica 2 is running — files may be locked.", tui::StatusStyle::Warning);
-    }
-
     match ops::backup_ini_files(config_path, backup_root) {
         Ok(result) => {
             let verified = if result.verified { "verified" } else { "unverified" };
@@ -1055,22 +1034,6 @@ fn get_config_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Re
     }
 
     anyhow::bail!("Cannot determine Config/Windows path. Run 'Locate Subnautica save files' first.")
-}
-
-/// Derive the target .sav name from a .bak filename.
-/// Read the next keyboard event, silently skipping KeyRelease events.
-/// Key-repeat and initial press are both accepted.
-fn read_key_event() -> Result<crossterm::event::KeyEvent> {
-    loop {
-        if event::poll(std::time::Duration::from_millis(100))? {
-            if let Event::Key(key) = event::read()? {
-                if key.kind != KeyEventKind::Release {
-                    return Ok(key);
-                }
-            }
-        }
-        // Other events (terminal changes etc) trigger a loop → redraw
-    }
 }
 
 /// Determine if a save folder is cloud-backed (Xbox/Game Pass wgs path).

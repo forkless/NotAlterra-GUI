@@ -15,6 +15,12 @@ use std::path::{Path, PathBuf};
 /// Return `true` if Subnautica 2 appears to be running.
 #[cfg(target_os = "windows")]
 pub fn game_running() -> bool {
+    // Process detection disabled — avoid AV false-positives.
+    // Close Subnautica 2 manually before using NotAlterra.
+    false
+}
+#[allow(dead_code)]
+fn _game_running_windows() -> bool {
     let out = std::process::Command::new("tasklist")
         .args(["/FI", "IMAGENAME eq Subnautica2.exe", "/NH"])
         .output();
@@ -26,6 +32,10 @@ pub fn game_running() -> bool {
 
 #[cfg(not(target_os = "windows"))]
 pub fn game_running() -> bool {
+    false
+}
+#[allow(dead_code)]
+fn _game_running_linux() -> bool {
     let patterns = &["Subnautica2", "Subnautica2-Win64-Shipping"];
     for pat in patterns {
         if let Ok(out) = std::process::Command::new("pgrep")
