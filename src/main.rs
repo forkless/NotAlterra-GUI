@@ -784,13 +784,15 @@ fn ini_backup_action<B: Backend>(
             );
             guard::log_action("CONFIG_BAK", &result.dest_dir.display().to_string(), "OK", &app.log_path)?;
             refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
+            let verified = if result.verified { "verified" } else { "unverified" };
+            let msg = format!("{} .ini file(s) backed up ({verified}).", result.files_copied);
+            ok_dialog(terminal, app, ".ini Backup Complete", &msg)?;
         }
         Err(e) => {
-            app.set_status(&format!("Config backup failed: {e}"), tui::StatusStyle::Error);
+            ok_dialog(terminal, app, ".ini Backup Failed", &format!("{e}"))?;
         }
     }
 
-    wait_for_key(terminal, app)?;
     Ok(())
 }
 
