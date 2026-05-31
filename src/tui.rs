@@ -129,7 +129,10 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
 }
 
 /// Draw the disclaimer popup with full warning text.
-pub fn draw_disclaimer_popup(f: &mut Frame, _app: &AppState, selected_yes: bool) {
+pub fn draw_disclaimer_popup(f: &mut Frame, app: &AppState, selected_yes: bool) {
+    // Whale at bottom row
+    let bar = Rect { x: 0, y: f.area().height.saturating_sub(1), width: f.area().width, height: 1 };
+    draw_whale_separator(f, bar, app);
     let popup_w = 60.min(f.area().width.saturating_sub(4));
     let popup_h = 18.min(f.area().height.saturating_sub(4));
     let area = centered_rect_size(popup_w, popup_h, f.area());
