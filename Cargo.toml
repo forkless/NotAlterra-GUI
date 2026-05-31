@@ -1,0 +1,26 @@
+[package]
+name = "notalterra"
+version = "0.3.0"
+edition = "2021"
+authors = ["NotAlterra"]
+license = "MIT"
+description = "Subnautica 2 save-file manager — cross-platform terminal application"
+
+[dependencies]
+ratatui = "0.29"
+crossterm = "0.28"
+nom = "7"
+chrono = "0.4"
+dirs = "5"
+sysinfo = "0.33"
+regex = "1"
+anyhow = "1"
+log = "0.4"
+simplelog = "0.12"
+unicode-width = "0.2"
+
+[profile.release]
+opt-level = 2
+lto = true
+strip = true
+codegen-units = 1
