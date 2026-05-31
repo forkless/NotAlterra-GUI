@@ -1013,7 +1013,7 @@ fn get_config_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Re
 /// Key-repeat and initial press are both accepted.
 fn read_key_event() -> Result<crossterm::event::KeyEvent> {
     loop {
-        if event::poll(std::time::Duration::from_millis(100))? {
+        if event::poll(std::time::Duration::from_millis(16))? {
             if let Event::Key(key) = event::read()? {
                 if key.kind != KeyEventKind::Release {
                     return Ok(key);
