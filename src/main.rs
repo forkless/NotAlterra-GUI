@@ -864,7 +864,14 @@ fn ini_delete_action<B: Backend>(
     config_path: &Path,
     backup_root: &Path,
 ) -> Result<()> {
-    if !app.tui_state.has_ini_backup {
+    let has_backup = backup_root.exists()
+    && std::fs::read_dir(backup_root)
+        .map(|entries| entries.flatten().any(|e| {
+            e.file_name().to_string_lossy().starts_with("ini_backup_")
+        }))
+        .unwrap_or(false);
+
+    if !has_backup {
         ok_dialog(terminal, app, "No Backup Found",
             "No .ini backup directory found.\n\
              \n\
