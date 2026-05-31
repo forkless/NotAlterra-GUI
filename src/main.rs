@@ -259,32 +259,34 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
             }
             tui::draw_disclaimer_popup(f, &app.tui_state, selected_yes);
         })?;
-        let key = read_key_event()?;
-        match key.code {
-            KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down => selected_yes = !selected_yes,
-            KeyCode::Char('y') | KeyCode::Char('Y') => {
-                guard::log_action("LICENSE", "accepted", "OK", &app.log_path)?;
-                app.config.disclaimer_accepted = true;
-                crate::config::save_config(&app.config_path, &app.config)?;
-                return Ok(Some(true));
+        if let Some(key) = poll_key(250)? {
+            match key.code {
+                KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down => selected_yes = !selected_yes,
+                KeyCode::Char('y') | KeyCode::Char('Y') => {
+                    guard::log_action("LICENSE", "accepted", "OK", &app.log_path)?;
+                    app.config.disclaimer_accepted = true;
+                    crate::config::save_config(&app.config_path, &app.config)?;
+                    return Ok(Some(true));
+                }
+                KeyCode::Char('n') | KeyCode::Char('N') => {
+                    guard::log_action("LICENSE", "declined", "OK", &app.log_path)?;
+                    app.config.disclaimer_accepted = false;
+                    crate::config::save_config(&app.config_path, &app.config)?;
+                    return Ok(Some(false));
+                }
+                KeyCode::Esc => {
+                    return Ok(None);
+                }
+                KeyCode::Enter => {
+                    let accepted = selected_yes;
+                    let detail = if accepted { "accepted" } else { "declined" };
+                    guard::log_action("LICENSE", detail, "OK", &app.log_path)?;
+                    app.config.disclaimer_accepted = accepted;
+                    crate::config::save_config(&app.config_path, &app.config)?;
+                    return Ok(Some(accepted));
+                }
+                _ => {}
             }
-            KeyCode::Char('n') | KeyCode::Char('N') => {
-                guard::log_action("LICENSE", "declined", "OK", &app.log_path)?;
-                app.config.disclaimer_accepted = false;
-                crate::config::save_config(&app.config_path, &app.config)?;
-                return Ok(Some(false));
-            }
-            KeyCode::Esc => {
-                return Ok(None);
-            }
-            KeyCode::Enter => {
-                guard::log_action("LICENSE", if selected_yes { "accepted" } else { "declined" }, "OK", &app.log_path)?;
-                let accepted = selected_yes;
-                app.config.disclaimer_accepted = accepted;
-                crate::config::save_config(&app.config_path, &app.config)?;
-                return Ok(Some(accepted));
-            }
-            _ => {}
         }
     }
 }
@@ -955,6 +957,17 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
 }
 
 // ── helpers ────────────────────────────────────────────────────────────────
+
+fn poll_key(timeout_ms: u64) -> Result<Option<crossterm::event::KeyEvent>> {
+    if event::poll(std::time::Duration::from_millis(timeout_ms))? {
+        if let Event::Key(key) = event::read()? {
+            if key.kind != KeyEventKind::Release {
+                return Ok(Some(key));
+            }
+        }
+    }
+    Ok(None)
+}
 
 /// Ensure we have a save folder — prompt discovery if not.
 fn ensure_save_folder<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Result<PathBuf> {
