@@ -53,6 +53,22 @@ pub fn discover_save_folders() -> Vec<DiscoveredFolder> {
     }
     #[cfg(not(target_os = "windows"))]
     {
+        if let Some(home) = dirs::home_dir() {
+            let proton_paths = &[
+                ".steam/steam/steamapps/compatdata/1962700/pfx/drive_c/users/steamuser/AppData/Local/Subnautica2/Saved/SaveGames",
+                ".local/share/Steam/steamapps/compatdata/1962700/pfx/drive_c/users/steamuser/AppData/Local/Subnautica2/Saved/SaveGames",
+            ];
+            for rel in proton_paths {
+                let candidate = home.join(rel);
+                if candidate.exists() && has_save_files(&candidate) {
+                    found.push(DiscoveredFolder {
+                        label: "Proton / Steam Deck".into(),
+                        path: candidate,
+                    });
+                    return found;
+                }
+            }
+        }
         if let Some(data) = dirs::data_local_dir() {
             let primary = data.join("Subnautica2").join("Saved").join("SaveGames");
             if primary.exists() && has_save_files(&primary) {
