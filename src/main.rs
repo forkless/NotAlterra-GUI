@@ -149,8 +149,9 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
 
     // Disclaimer flow
     if !app.config.disclaimer_accepted {
-        if !run_disclaimer(terminal, &mut app)? {
-            return Ok(()); // declined
+        match run_disclaimer(terminal, &mut app)? {
+            Some(true) => {}  // accepted
+            _ => return Ok(()), // declined or cancelled on first launch → exit
         }
     }
 
@@ -218,8 +219,9 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
                         4 => action_inspect_saves(terminal, &mut app)?,
                         5 => run_ini_submenu(terminal, &mut app)?,
                         6 => {
-                            if !run_disclaimer(terminal, &mut app)? {
-                                return Ok(()); // revoked → exit
+                            match run_disclaimer(terminal, &mut app)? {
+                                Some(false) => return Ok(()), // declined → exit
+                                _ => {} // accepted or cancelled → stay
                             }
                         }
                         7 => return Ok(()), // Exit
@@ -239,7 +241,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
 
 // ── disclaimer ─────────────────────────────────────────────────────────────
 
-fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<bool> {
+fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<Option<bool>> {
     let mut selected_yes = true;
     loop {
         terminal.draw(|f| {
@@ -256,20 +258,23 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
                 guard::log_action("LICENSE", "accepted", "OK", &app.log_path)?;
                 app.config.disclaimer_accepted = true;
                 crate::config::save_config(&app.config_path, &app.config)?;
-                return Ok(true);
+                return Ok(Some(true));
             }
-            KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
+            KeyCode::Char('n') | KeyCode::Char('N') => {
                 guard::log_action("LICENSE", "declined", "OK", &app.log_path)?;
                 app.config.disclaimer_accepted = false;
                 crate::config::save_config(&app.config_path, &app.config)?;
-                return Ok(false);
+                return Ok(Some(false));
+            }
+            KeyCode::Esc => {
+                return Ok(None);
             }
             KeyCode::Enter => {
                 guard::log_action("LICENSE", if selected_yes { "accepted" } else { "declined" }, "OK", &app.log_path)?;
                 let accepted = selected_yes;
                 app.config.disclaimer_accepted = accepted;
                 crate::config::save_config(&app.config_path, &app.config)?;
-                return Ok(accepted);
+                return Ok(Some(accepted));
             }
             _ => {}
         }
