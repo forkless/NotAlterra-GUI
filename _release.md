@@ -13,4 +13,4 @@ extract, and run.
 • "Back" option added to .ini management submenu
 • Game-running guard shows informative dialog instead of silent exit
 
-_Builds:  Linux (amd64)  •  Windows x64 console_
+_Builds:  Linux (amd64)  •  Windows x64_

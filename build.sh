@@ -43,7 +43,7 @@ rm -f notalterra
 echo "  $LINUX_ARCHIVE"
 
 if [ "$WINDOWS_SKIP" -eq 0 ]; then
-    WIN_ARCHIVE="notalterra-v${VERSION}-windows-amd64.zip"
+    WIN_ARCHIVE="notalterra-v${VERSION}-windows-x64.zip"
     cp target/x86_64-pc-windows-gnu/release/notalterra.exe notalterra.exe
     zip -q "$WIN_ARCHIVE" notalterra.exe
     rm -f notalterra.exe

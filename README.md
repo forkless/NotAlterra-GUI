@@ -54,7 +54,7 @@ chmod +x notalterra
 Extract the `.zip` archive and double-click `notalterra.exe`, or run from a terminal:
 
 ```powershell
-Expand-Archive notalterra-v0.1.0-windows-amd64.zip -DestinationPath .
+Expand-Archive notalterra-v0.1.0-windows-x64.zip -DestinationPath .
 .\notalterra.exe
 ```
 
