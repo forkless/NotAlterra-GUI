@@ -39,7 +39,7 @@ cargo build --release --target x86_64-pc-windows-gnu
 
 ## How to Run
 
-Download the archive for your platform from the [releases page](https://github.com/forkless/NotAlterra/releases).
+Download the pre-compiled executable for your platform from the [releases page](https://github.com/forkless/NotAlterra/releases).
 
 ### Linux
 
