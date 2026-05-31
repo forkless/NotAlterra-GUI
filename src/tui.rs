@@ -125,6 +125,7 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     let prompt = "↑/↓ navigate  Enter select";
     draw_select_list(f, chunks[2], &items, &descs, prompt, state);
 
+    draw_status_bar(f, chunks[3], app);
     draw_whale_separator(f, chunks[3], app);
 }
 
