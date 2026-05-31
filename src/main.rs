@@ -37,6 +37,13 @@ use std::path::{Path, PathBuf};
 const VERSION: &str = concat!("v", env!("CARGO_PKG_VERSION"));
 
 fn main() -> Result<()> {
+    for arg in std::env::args().skip(1) {
+        if arg == "--version" || arg == "-v" {
+            println!("notalterra {}", VERSION);
+            return Ok(());
+        }
+    }
+
     // ── setup terminal ─────────────────────────────────────────────────
     enable_raw_mode()?;
     let mut stdout = io::stdout();
