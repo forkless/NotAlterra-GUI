@@ -721,11 +721,13 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
         "Backup .ini files",
         "Restore .ini files from backup",
         "Delete .ini files (requires backup)",
+        "Back",
     ];
     let descs: Vec<&str> = vec![
         "Copy all .ini files from Config/Windows to NotAlterra_Backups",
         "Restore .ini files from a previous backup",
         "Remove .ini files — game regenerates defaults (backup required first)",
+        "Return to main menu",
     ];
     let mut state = ListState::default().with_selected(Some(0));
 
@@ -741,7 +743,7 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
                 }
                 KeyCode::Down => {
                     let i = state.selected().unwrap_or(0);
-                    state.select(Some((i + 1).min(2)));
+                    state.select(Some((i + 1).min(3)));
                 }
                 KeyCode::Enter => {
                     let idx = state.selected().unwrap_or(0);
@@ -749,6 +751,7 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
                         0 => ini_backup_action(terminal, app, &config_path, &backup_root)?,
                         1 => ini_restore_action(terminal, app, &config_path, &backup_root)?,
                         2 => ini_delete_action(terminal, app, &config_path, &backup_root)?,
+                        3 => break,
                         _ => {}
                     }
                 }
