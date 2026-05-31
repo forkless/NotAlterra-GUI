@@ -4,6 +4,22 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.1.1] — 2026-05-31
+
+### Changed
+- Dashboard stats now filter by `savegame_*` prefix, matching the file picker
+- Save/Backup labels pluralize based on count
+
+### Added
+- 🐋 animated leviathan patrols the status bar
+- Non-blocking event poll across all screens — animates everywhere
+- Whale rendered on popups, dialogs, and file pickers
+- "Back" option in .ini management submenu
+
+### Fixed
+- Game-running guard shows informative OK dialog instead of silent exit
+- OK dialog width padding prevents text clipping on long lines
+
 ## [v0.1.0] — 2026-05-31
 
 ### Added

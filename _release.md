@@ -1,4 +1,4 @@
-### v0.1.0 — First public release
+### v0.1.1 — Leviathan Update
 
 NotAlterra is an unofficial Subnautica 2 save-file manager.
 Cross-platform terminal application.  No admin, no network.
@@ -6,15 +6,11 @@ Cross-platform terminal application.  No admin, no network.
 Pre-compiled binaries — no installation, no dependencies.  Just download,
 extract, and run.
 
-### Features:
+### What's New:
 
-• Recover .sav from .bak with rollback and slot-aware targeting
-• Full backup / restore (savegame_* files only) with pre-restore snapshots
-• UE5 Config (.ini) management — backup, restore, guarded delete
-• GVAS save inspector with full metadata dump
-• Online / Local detection with mode-change and name-change warnings
-• Auto-locates save folders (Windows, Proton/Steam Deck)
-• Game-running guard, transaction log, and backup safety checks
-• Keyboard-driven TUI with popups, pickers, and resize support
+• 🐋 Animated leviathan patrols the status bar across all screens
+• Dashboard stats now match file picker filtering
+• "Back" option added to .ini management submenu
+• Game-running guard shows informative dialog instead of silent exit
 
 _Builds:  Linux (amd64)  •  Windows x64 console_
