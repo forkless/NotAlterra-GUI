@@ -123,15 +123,14 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     let prompt = "↑/↓ navigate  Enter select";
     draw_select_list(f, chunks[2], &items, &descs, prompt, state);
 
-    // Separator line between menu and status bar
-    let sep_y = chunks[2].y + chunks[2].height;
-    let sep_line = "─".repeat(chunks[2].width as usize);
+    // Separator line
+    let sep_line = "─".repeat(chunks[3].width as usize);
     f.render_widget(
         Paragraph::new(Span::styled(sep_line, Style::default().fg(Color::DarkGray))),
-        Rect { x: chunks[2].x, y: sep_y, width: chunks[2].width, height: 1 },
+        chunks[3],
     );
 
-    draw_status_bar(f, chunks[3], app);
+    draw_status_bar(f, chunks[4], app);
 }
 
 /// Draw the disclaimer popup with full warning text.
@@ -290,7 +289,15 @@ pub fn draw_sub_menu(
     f.render_widget(title_p, chunks[1]);
 
     draw_select_list(f, chunks[2], items, descs, "↑/↓ navigate  Enter select  Esc back", state);
-    draw_status_bar(f, chunks[3], app);
+
+    // Separator
+    let sep_line = "─".repeat(chunks[3].width as usize);
+    f.render_widget(
+        Paragraph::new(Span::styled(sep_line, Style::default().fg(Color::DarkGray))),
+        chunks[3],
+    );
+
+    draw_status_bar(f, chunks[4], app);
 }
 
 /// Draw a simple text screen with a "press any key" prompt.
@@ -310,7 +317,13 @@ pub fn draw_text_screen(
         Style::default().fg(Color::DarkGray),
     ))
     .alignment(Alignment::Center);
-    f.render_widget(prompt_p, chunks[3]);
+    // Separator
+    let sep_line = "─".repeat(chunks[3].width as usize);
+    f.render_widget(
+        Paragraph::new(Span::styled(sep_line, Style::default().fg(Color::DarkGray))),
+        chunks[3],
+    );
+    f.render_widget(prompt_p, chunks[4]);
 }
 
 /// Draw a file/folder picker list.
@@ -339,7 +352,15 @@ pub fn draw_picker_with_info(
 
     let prompt = "↑/↓ navigate  Enter select  Esc cancel";
     draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, selected_info);
-    draw_status_bar(f, chunks[3], app);
+
+    // Separator
+    let sep_line = "─".repeat(chunks[3].width as usize);
+    f.render_widget(
+        Paragraph::new(Span::styled(sep_line, Style::default().fg(Color::DarkGray))),
+        chunks[3],
+    );
+
+    draw_status_bar(f, chunks[4], app);
 }
 
 // ── internal drawing helpers ───────────────────────────────────────────────
@@ -351,7 +372,8 @@ fn standard_layout(area: Rect, menu_items: usize) -> Vec<Rect> {
         .constraints([
             Constraint::Length(3),                          // header
             Constraint::Length(2),                          // dashboard
-            Constraint::Min(menu_height.min(area.height.saturating_sub(6))), // menu
+            Constraint::Min(menu_height.min(area.height.saturating_sub(7))), // menu
+            Constraint::Length(1),                          // separator
             Constraint::Length(1),                          // status bar
         ])
         .split(area).to_vec()
