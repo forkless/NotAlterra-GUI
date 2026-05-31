@@ -141,14 +141,17 @@ fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
 fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
     let mut app = App::new()?;
 
-    // Guard: exit if game is running
+    // Guard: warn if game is running, then exit
     if guard::game_running() {
-        println!("NotAlterra has detected that Subnautica 2 is currently running.\n");
-println!("The game holds file locks on your save files while active.");
-println!("Backing up or restoring saves while the game is running can result in");
-println!("incomplete, corrupt, or overwritten save files.\n");
-println!("To protect your save files, NotAlterra will now exit.\n");
-println!(" → Close Subnautica 2, then relaunch NotAlterra.");
+        ok_dialog(terminal, &app, "Game Running",
+            "NotAlterra has detected that Subnautica 2 is currently running.\n\
+             \n\
+             The game holds file locks on your save files while active.\n\
+             Backing up or restoring saves while the game is running can\n\
+             result in incomplete, corrupt, or overwritten save files.\n\
+             \n\
+             Close Subnautica 2, then relaunch NotAlterra.",
+        )?;
         return Ok(());
     }
 
