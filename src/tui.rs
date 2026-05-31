@@ -611,11 +611,6 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
 /// Separator line with a whale patrolling right-to-left.
 /// Disappears for ~10 s after reaching the left edge.
 fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
-    let sep = "─".repeat(area.width as usize);
-    f.render_widget(
-        Paragraph::new(Span::styled(sep, Style::default().fg(Color::DarkGray))),
-        area,
-    );
     let elapsed = app.whale_start.elapsed().as_millis() as u64;
     let bar_w = area.width as u64;
     let speed_ms: u64 = 180;
