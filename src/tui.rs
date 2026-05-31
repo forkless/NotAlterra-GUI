@@ -123,7 +123,12 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     let prompt = "↑/↓ navigate  Enter select";
     draw_select_list(f, chunks[2], &items, &descs, prompt, state);
 
-    draw_status_bar(f, chunks[3], app);
+    // Whale patrols the status bar when spinner is active
+    if app.spinner_active {
+        draw_whale_separator(f, chunks[3], app);
+    } else {
+        draw_status_bar(f, chunks[3], app);
+    }
 }
 
 /// Draw the disclaimer popup with full warning text.
@@ -601,6 +606,36 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
         f.render_widget(Paragraph::new(line), area);
     }
 
+}
+
+/// Separator line with a whale patrolling right-to-left.
+/// Disappears for ~10 s after reaching the left edge.
+fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
+    let sep = "─".repeat(area.width as usize);
+    f.render_widget(
+        Paragraph::new(Span::styled(sep, Style::default().fg(Color::DarkGray))),
+        area,
+    );
+    if app.spinner_active {
+        if let Some(start) = app.spinner_start {
+            let elapsed = start.elapsed().as_millis() as u64;
+            let bar_w = area.width as u64;
+            let speed_ms: u64 = 60;
+            let cooldown_ticks: u64 = 166;
+            let total = bar_w + cooldown_ticks;
+            let t = (elapsed / speed_ms) % total;
+            if t < bar_w {
+                let x = bar_w - t - 1;
+                let switch = ((elapsed / 400) * 7 + (elapsed / 600) * 13) % 2;
+                let variants: &[&str] = &["🐋", "🐳"];
+                let whale = variants[(switch % variants.len() as u64) as usize];
+                f.render_widget(
+                    Paragraph::new(Span::styled(whale, Style::default().fg(Color::Cyan))),
+                    Rect { x: area.x + (x as u16), y: area.y, width: 4, height: 1 },
+                );
+            }
+        }
+    }
 }
 
 /// Truncate a path to show the tail (most specific directories).
