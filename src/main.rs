@@ -689,8 +689,8 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
                     if accepted {
                         guard::log_action("AUTO_BAK", &format!("pre-restore → {}", save_folder.display()), "OK", &app.log_path)?;
                         match ops::restore_full_backup(chosen, &save_folder, &backup_root) {
-                            Ok(()) => {
-                                app.set_status("Restore complete. Previous files preserved.", tui::StatusStyle::Success);
+                            Ok(n) => {
+                                app.set_status(&format!("{n} save files restored."), tui::StatusStyle::Success);
                                 guard::log_action("RESTORE", &format!("{} → {}", name, save_folder.display()), "OK", &app.log_path)?;
                             }
                             Err(e) => {
@@ -839,9 +839,10 @@ fn ini_restore_action<B: Backend>(
 
                     guard::log_action("AUTO_BAK", &format!("ini pre-restore → {}", config_path.display()), "OK", &app.log_path)?;
                     match ops::restore_ini_files(chosen, config_path, backup_root) {
-                        Ok(()) => {
+                        Ok(n) => {
                             guard::log_action("CONFIG_RESTORE", &chosen.display().to_string(), "OK", &app.log_path)?;
-                            ok_dialog(terminal, app, ".ini Restore Complete", ".ini files restored.")?;
+                            let msg = format!("{n} .ini file(s) restored.");
+                            ok_dialog(terminal, app, ".ini Restore Complete", &msg)?;
                         }
                         Err(e) => {
                             ok_dialog(terminal, app, ".ini Restore Failed", &format!("{e}"))?;

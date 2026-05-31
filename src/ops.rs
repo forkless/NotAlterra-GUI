@@ -128,7 +128,7 @@ pub fn restore_full_backup(
     backup_dir: &Path,
     save_folder: &Path,
     backup_root: &Path,
-) -> Result<()> {
+) -> Result<usize> {
     // Pre-restore safety backup
     let ts = Local::now().format("%Y-%m-%d_%H%M%S");
     let pre_restore = backup_root.join(format!("pre_restore_{ts}"));
@@ -141,9 +141,11 @@ pub fn restore_full_backup(
     }
 
     // Overwrite save folder with backup
-    copy_save_files(backup_dir, save_folder, &mut dummy, &mut dummy_size)?;
+    let mut count = 0usize;
+    let mut _sz = 0u64;
+    copy_save_files(backup_dir, save_folder, &mut count, &mut _sz)?;
 
-    Ok(())
+    Ok(count)
 }
 
 // ── .ini management ────────────────────────────────────────────────────────
@@ -197,7 +199,7 @@ pub fn restore_ini_files(
     backup_dir: &Path,
     config_path: &Path,
     backup_root: &Path,
-) -> Result<()> {
+) -> Result<usize> {
     // Pre-restore safety
     let ts = Local::now().format("%Y-%m-%d_%H%M%S");
     let pre_restore = backup_root.join(format!("ini_pre_restore_{ts}"));
@@ -214,12 +216,14 @@ pub fn restore_ini_files(
     }
 
     // Copy all files from backup → config_path
+    let mut count = 0usize;
     for entry in fs::read_dir(backup_dir)? {
         let entry = entry?;
         fs::copy(entry.path(), config_path.join(entry.file_name()))?;
+        count += 1;
     }
 
-    Ok(())
+    Ok(count)
 }
 
 /// Delete all .ini files from the Config\Windows folder.
