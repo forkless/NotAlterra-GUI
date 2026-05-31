@@ -45,5 +45,5 @@ echo ""
 echo "=== Build complete ==="
 ls -lh notalterra-linux
 if [ "$WINDOWS_SKIP" -eq 0 ]; then
-    ls -lh target/x86_64-pc-windows-gnu/release/notalterra.exe
+    ls -lh notalterra-windows.exe
 fi
