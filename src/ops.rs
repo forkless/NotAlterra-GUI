@@ -353,7 +353,7 @@ pub fn list_bak_files_with_meta(save_folder: &Path) -> Vec<BakFileSummary> {
                 Local
                     .timestamp_opt(secs as i64, 0)
                     .single()
-                    .map(|dt| dt.format("%Y-%m-%d %H:%M").to_string())
+                    .map(|dt| dt.format("%Y-%b-%d %H:%M").to_string())
             });
 
         // Use filename-derived slot for grouping (authoritative).

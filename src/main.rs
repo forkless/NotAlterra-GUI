@@ -531,7 +531,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                     ];
                     let tgt_line: String;
                     if let Some((sz, mt, _, _)) = &target_meta {
-                        tgt_line = format!("{}  {}  {}", target, format_size(*sz), mt.map(|d| d.format("%Y-%m-%d %H:%M").to_string()).as_deref().unwrap_or("?"));
+                        tgt_line = format!("{}  {}  {}", target, format_size(*sz), mt.map(|d| d.format("%Y-%b-%d %H:%M").to_string()).as_deref().unwrap_or("?"));
                         details.push(("Replace", tgt_line.as_str()));
                     } else {
                         details.push(("Create", target.as_str()));

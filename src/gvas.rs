@@ -417,7 +417,7 @@ mod tests {
             let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
             let mtime = entry.metadata().ok().and_then(|m| m.modified().ok())
                 .and_then(|t| { let s = t.duration_since(std::time::UNIX_EPOCH).ok()?.as_secs(); chrono::Local.timestamp_opt(s as i64,0).single() })
-                .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string());
+                .map(|dt| dt.format("%Y-%b-%d %H:%M").to_string());
             let meta = extract_metadata(&path).ok();
             let slot = meta.as_ref().and_then(|m| m.slot_name.clone())
                 .unwrap_or_else(|| derive_slot_from_filename(&name).unwrap_or_else(|| "?".into()));
