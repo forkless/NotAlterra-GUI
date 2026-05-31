@@ -220,7 +220,7 @@ pub fn draw_confirm_popup(
 }
 
 pub fn draw_ok_dialog(f: &mut Frame, _app: &AppState, title: &str, message: &str) {
-    let content_w = message.lines().map(|l| l.len()).max().unwrap_or(20).max(title.len()) as u16 + 6;
+    let content_w = message.lines().map(|l| l.len()).max().unwrap_or(20).max(title.len()) as u16 + 10;
     let popup_w = content_w.max(50).min(f.area().width.saturating_sub(4));
     let popup_h = (message.lines().count() as u16 + 7).min(f.area().height.saturating_sub(4));
     let area = centered_rect_size(popup_w, popup_h, f.area());
