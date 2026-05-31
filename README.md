@@ -58,6 +58,10 @@ Expand-Archive notalterra-v0.1.0-windows-amd64.zip -DestinationPath .
 .\notalterra.exe
 ```
 
+> You can also extract the `.zip` using Windows Explorer (right-click →
+> **Extract All**), then open **Command Prompt** or **PowerShell** in that
+> folder and run `.\notalterra.exe`.
+
 > First run may take a moment while the tool scans for save folders.
 
 ## Usage
