@@ -905,7 +905,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
         terminal.draw(|f| {
             tui::draw_picker_with_info(f, &app.tui_state, &item_refs, &desc_refs, &mut state, selected_info);
         })?;
-        let key = read_key_event()?;
+        if let Some(key) = poll_key(250)? {
         match key.code {
             KeyCode::Up => { let i = state.selected().unwrap_or(0); state.select(Some(i.saturating_sub(1))); }
             KeyCode::Down => { let i = state.selected().unwrap_or(0); state.select(Some((i+1).min(files.len().saturating_sub(1)))); }
@@ -951,6 +951,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
             }
             KeyCode::Esc => break,
             _ => {}
+        }
         }
     }
     Ok(())
