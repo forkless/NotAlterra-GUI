@@ -143,7 +143,12 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
 
     // Guard: exit if game is running
     if guard::game_running() {
-        println!("Subnautica 2 is running. Close the game and relaunch NotAlterra.");
+        println!("NotAlterra has detected that Subnautica 2 is currently running.\n");
+println!("The game holds file locks on your save files while active.");
+println!("Backing up or restoring saves while the game is running can result in");
+println!("incomplete, corrupt, or overwritten save files.\n");
+println!("To protect your save files, NotAlterra will now exit.\n");
+println!(" → Close Subnautica 2, then relaunch NotAlterra.");
         return Ok(());
     }
 
