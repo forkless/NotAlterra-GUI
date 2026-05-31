@@ -34,9 +34,16 @@ if [ "$WINDOWS_SKIP" -eq 0 ]; then
 fi
 
 echo ""
-echo "=== Build complete ==="
+echo "=== Copying release binaries ==="
+cp target/release/notalterra "notalterra-linux"
+echo "  notalterra-linux"
+if [ "$WINDOWS_SKIP" -eq 0 ]; then
+    cp target/x86_64-pc-windows-gnu/release/notalterra.exe "notalterra-windows.exe"
+    echo "  notalterra-windows.exe"
+fi
 echo ""
-ls -lh target/release/notalterra
+echo "=== Build complete ==="
+ls -lh notalterra-linux
 if [ "$WINDOWS_SKIP" -eq 0 ]; then
     ls -lh target/x86_64-pc-windows-gnu/release/notalterra.exe
 fi
