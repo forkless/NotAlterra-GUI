@@ -608,7 +608,8 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
 
 }
 
-/// Separator line with a whale bouncing along it.
+/// Separator line with a whale patrolling right-to-left.
+/// Disappears for a short cooldown before reappearing from the right.
 fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
     // Draw separator line (full width)
     let sep = "─".repeat(area.width as usize);
@@ -617,20 +618,24 @@ fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
         area,
     );
 
-    // Whale bouncing along it
     if app.spinner_active {
         if let Some(start) = app.spinner_start {
             let elapsed = start.elapsed().as_millis() as u64;
-            let bar_w = area.width.saturating_sub(4) as u64;
-            let period = bar_w.max(2) * 2;
-            let t = (elapsed / 100) % period;
-            let x = if t < bar_w { t } else { period - t };
-            let whale = if (elapsed / 200) % 2 == 0 { "🐋" } else { "🐳" };
-            let x_u16 = (x as u16).min(area.width.saturating_sub(8));
-            f.render_widget(
-                Paragraph::new(Span::styled(whale, Style::default().fg(Color::Cyan))),
-                Rect { x: area.x + x_u16, y: area.y, width: 4, height: 1 },
-            );
+            let bar_w = area.width as u64;
+            let speed_ms: u64 = 60;
+            let cooldown_ticks: u64 = 20;
+            let total = bar_w + cooldown_ticks;
+            let t = (elapsed / speed_ms) % total;
+
+            if t < bar_w {
+                let x = bar_w - t - 1;
+                let switch = ((elapsed / 400) * 7 + (elapsed / 600) * 13) % 2;
+                let whale = if switch == 0 { "🐋" } else { "🐳" };
+                f.render_widget(
+                    Paragraph::new(Span::styled(whale, Style::default().fg(Color::Cyan))),
+                    Rect { x: area.x + (x as u16), y: area.y, width: 4, height: 1 },
+                );
+            }
         }
     }
 }
