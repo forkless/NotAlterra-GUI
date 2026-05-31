@@ -286,6 +286,7 @@ pub fn draw_sub_menu(
 
     draw_select_list(f, chunks[2], items, descs, "↑/↓ navigate  Enter select  Esc back", state);
     draw_status_bar(f, chunks[3], app);
+    draw_whale_separator(f, chunks[3], app);
 }
 
 /// Draw a simple text screen with a "press any key" prompt.
@@ -306,6 +307,7 @@ pub fn draw_text_screen(
     ))
     .alignment(Alignment::Center);
     f.render_widget(prompt_p, chunks[3]);
+    draw_whale_separator(f, chunks[3], app);
 }
 
 /// Draw a file/folder picker list.
@@ -335,6 +337,7 @@ pub fn draw_picker_with_info(
     let prompt = "↑/↓ navigate  Enter select  Esc cancel";
     draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, selected_info);
     draw_status_bar(f, chunks[3], app);
+    draw_whale_separator(f, chunks[3], app);
 }
 
 // ── internal drawing helpers ───────────────────────────────────────────────
