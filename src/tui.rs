@@ -608,10 +608,11 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
 /// Separator line with a whale patrolling right-to-left.
 /// Disappears for ~10 s after reaching the left edge.
 fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
+    if area.width < 4 { return; }
     let elapsed = app.whale_start.elapsed().as_millis() as u64;
     let bar_w = area.width as u64;
     let speed_ms: u64 = 180;
-    let cooldown_ticks: u64 = 83;
+    let cooldown_ticks: u64 = 30;
     let total = bar_w + cooldown_ticks;
     let t = (elapsed / speed_ms) % total;
     if t < bar_w {
@@ -621,7 +622,7 @@ fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
         let whale = variants[(switch % variants.len() as u64) as usize];
         f.render_widget(
             Paragraph::new(Span::styled(whale, Style::default().fg(Color::Cyan))),
-            Rect { x: area.x + (x as u16), y: area.y, width: 4, height: 1 },
+            Rect { x: area.x + (x as u16).min(area.width.saturating_sub(4)), y: area.y, width: 4, height: 1 },
         );
     }
 }
