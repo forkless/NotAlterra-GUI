@@ -339,14 +339,13 @@ pub fn draw_picker_with_info(
 
 // ── internal drawing helpers ───────────────────────────────────────────────
 
-fn standard_layout(area: Rect, menu_items: usize) -> Vec<Rect> {
-    let menu_height = menu_items as u16 + 4; // items + gaps + prompt line
+fn standard_layout(area: Rect, _menu_items: usize) -> Vec<Rect> {
     Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(3),                          // header
             Constraint::Length(2),                          // dashboard
-            Constraint::Min(menu_height.min(area.height.saturating_sub(6))), // menu
+            Constraint::Min(1),                          // menu (fills remaining)
             Constraint::Length(1),                          // status bar
         ])
         .split(area).to_vec()
