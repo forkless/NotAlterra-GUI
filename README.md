@@ -114,6 +114,15 @@ Delete `config.ini` to force a fresh scan on next launch.
 
 ---
 
+## Platform Support
+
+- **Windows** — fully tested and supported.
+- **Linux** — builds and runs, but automatic save-file detection has not been
+  tested on a Linux/Steam Deck install yet. The directory layout should be the
+  same, but feedback and bug reports are appreciated.
+
+---
+
 ## Safety
 
 - Runs in your user context — no admin privileges required
