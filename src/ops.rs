@@ -398,9 +398,9 @@ pub fn folder_stats(
             for e in entries.flatten() {
                 let name = e.file_name();
                 let name_str = name.to_string_lossy();
-                if name_str.ends_with(".sav") {
+                if name_str.starts_with("savegame_") && name_str.ends_with(".sav") {
                     l += 1;
-                } else if name_str.ends_with(".bak") {
+                } else if name_str.starts_with("savegame_") && name_str.ends_with(".bak") {
                     b += 1;
                 }
             }
