@@ -98,6 +98,18 @@ Run the binary. On first launch it auto-scans for your save folder. The menu is 
     ...
 ```
 
+### Linux (Proton / Steam Deck)
+
+```
+~/.steam/steam/steamapps/compatdata/1962700/pfx/drive_c/users/steamuser/AppData/Local/Subnautica2/Saved/SaveGames/
+    savegame_0.sav
+    savegame_0.bak
+    ...
+```
+
+> For older Steam installs, replace `~/.steam` with
+> `~/.local/share/Steam` — NotAlterra checks both.
+
 Backups are stored in `NotAlterra_Backups\` alongside the binary.
 
 ---
