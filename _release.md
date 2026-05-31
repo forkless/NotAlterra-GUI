@@ -1,4 +1,4 @@
-### v0.1.1 — Leviathan Update
+### v0.1.2 — False-Positive Fix
 
 NotAlterra is an unofficial Subnautica 2 save-file manager.
 Cross-platform terminal application.  No admin, no network.
@@ -8,9 +8,10 @@ extract, and run.
 
 ### What's New:
 
+• Replaced process detection with startup warning — fixes Windows Defender
+  false-positive (Trojan:Win32/Wacatac.C!ml)
+• All save/ini operations now show file counts in confirmation dialogs
+• .ini delete requires actual backup files, not just empty directories
 • 🐋 Animated leviathan patrols the status bar across all screens
-• Dashboard stats now match file picker filtering
-• "Back" option added to .ini management submenu
-• Game-running guard shows informative dialog instead of silent exit
 
 _Builds:  Linux (amd64)  •  Windows x64_

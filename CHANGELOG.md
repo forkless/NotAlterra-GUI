@@ -4,6 +4,12 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.1.2] — 2026-06-01
+
+### Changed
+- Replaced process detection (`tasklist`/`pgrep`) with startup warning modal
+  to avoid Windows Defender false-positive (Trojan:Win32/Wacatac.C!ml)
+
 ## [v0.1.1] — 2026-05-31
 
 ### Changed
