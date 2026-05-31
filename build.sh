@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # NotAlterra release build script
-# Produces: target/release/notalterra (Linux)
-#           target/x86_64-pc-windows-gnu/release/notalterra.exe (Windows)
+# Produces: notalterra-v{version}-linux-amd64.tar.gz
+#           notalterra-v{version}-windows-amd64.zip
 
 VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 echo "=== NotAlterra v${VERSION} ==="
@@ -34,16 +34,25 @@ if [ "$WINDOWS_SKIP" -eq 0 ]; then
 fi
 
 echo ""
-echo "=== Copying release binaries ==="
-cp target/release/notalterra "notalterra-linux"
-echo "  notalterra-linux"
+echo "=== Packaging release ==="
+
+LINUX_ARCHIVE="notalterra-v${VERSION}-linux-amd64.tar.gz"
+cp target/release/notalterra notalterra
+tar -czf "$LINUX_ARCHIVE" notalterra
+rm -f notalterra
+echo "  $LINUX_ARCHIVE"
+
 if [ "$WINDOWS_SKIP" -eq 0 ]; then
-    cp target/x86_64-pc-windows-gnu/release/notalterra.exe "notalterra-windows.exe"
-    echo "  notalterra-windows.exe"
+    WIN_ARCHIVE="notalterra-v${VERSION}-windows-amd64.zip"
+    cp target/x86_64-pc-windows-gnu/release/notalterra.exe notalterra.exe
+    zip -q "$WIN_ARCHIVE" notalterra.exe
+    rm -f notalterra.exe
+    echo "  $WIN_ARCHIVE"
 fi
+
 echo ""
 echo "=== Build complete ==="
-ls -lh notalterra-linux
+ls -lh "$LINUX_ARCHIVE"
 if [ "$WINDOWS_SKIP" -eq 0 ]; then
-    ls -lh notalterra-windows.exe
+    ls -lh "$WIN_ARCHIVE"
 fi
