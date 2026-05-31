@@ -62,8 +62,6 @@ Expand-Archive notalterra-v0.1.0-windows-amd64.zip -DestinationPath .
 > **Extract All**), then open **Command Prompt** or **PowerShell** in that
 > folder and run `.\notalterra.exe`.
 
-> First run may take a moment while the tool scans for save folders.
-
 ## Usage
 
 Run the binary. On first launch it auto-scans for your save folder. The menu is keyboard-driven:
