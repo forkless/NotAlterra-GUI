@@ -1152,26 +1152,9 @@ fn wait_for_key<B: Backend>(terminal: &mut Terminal<B>, app: &App) -> Result<()>
             let p = Paragraph::new(prompt_span)
                 .alignment(Alignment::Center);
             f.render_widget(p, centered_bottom(f.area()));
-            // Also show the status message if set
-            if let Some(ref msg) = app.tui_state.status_message {
-                let color = match app.tui_state.status_style {
-                    tui::StatusStyle::Success => Color::Green,
-                    tui::StatusStyle::Warning => Color::Yellow,
-                    tui::StatusStyle::Error => Color::Red,
-                    tui::StatusStyle::Info => Color::Cyan,
-                    tui::StatusStyle::Neutral => Color::Gray,
-                };
-                let line = Line::from(Span::styled(format!(" [{msg}]"), Style::default().fg(color)));
-                f.render_widget(
-                    Paragraph::new(line),
-                    Rect {
-                        x: f.area().x,
-                        y: f.area().height.saturating_sub(2),
-                        width: f.area().width,
-                        height: 1,
-                    },
-                );
-            }
+            // Whale at bottom
+            let bar = Rect { x: 0, y: f.area().height.saturating_sub(1), width: f.area().width, height: 1 };
+            tui::draw_whale_separator(f, bar, &app.tui_state);
         })?;
         if let Event::Key(_) = event::read()? {
             break;

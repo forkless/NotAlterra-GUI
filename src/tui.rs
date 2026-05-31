@@ -591,37 +591,12 @@ fn draw_select_list_with_info(
 }
 
 fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
-    if let Some(ref msg) = app.status_message {
-        let color = match app.status_style {
-            StatusStyle::Success => Color::Green,
-            StatusStyle::Warning => Color::Yellow,
-            StatusStyle::Error => Color::Red,
-            StatusStyle::Info => Color::Cyan,
-            StatusStyle::Neutral => Color::Gray,
-        };
-
-        let icon = match app.status_style {
-            StatusStyle::Success => "√",
-            StatusStyle::Warning => "!",
-            StatusStyle::Error => "×",
-            StatusStyle::Info => "i",
-            StatusStyle::Neutral => " ",
-        };
-
-        let line = Line::from(vec![
-            Span::styled(
-                format!(" [{icon}] {msg}"),
-                Style::default().fg(color),
-            ),
-        ]);
-        f.render_widget(Paragraph::new(line), area);
-    }
     draw_whale_separator(f, area, app);
 }
 
 /// Separator line with a whale patrolling right-to-left.
 /// Disappears for ~10 s after reaching the left edge.
-fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
+pub fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
     if area.width < 4 { return; }
     let elapsed = app.whale_start.elapsed().as_millis() as u64;
     let bar_w = area.width as u64;
