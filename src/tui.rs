@@ -600,24 +600,19 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
         f.render_widget(Paragraph::new(line), area);
     }
 
-    // Spinner
+    // Whale spinner — bounces across the status bar
     if app.spinner_active {
         if let Some(start) = app.spinner_start {
             let elapsed = start.elapsed().as_millis() as u64;
-            let frames = &["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-            let idx = ((elapsed / 80) % frames.len() as u64) as usize;
-            let spinner = Paragraph::new(Span::styled(
-                frames[idx],
-                Style::default().fg(Color::Cyan),
-            ));
+            let bar_w = area.width.saturating_sub(4) as u64;
+            let period = bar_w.max(2) * 2;
+            let t = (elapsed / 80) % period;
+            let x = if t < bar_w { t } else { period - t };
+            let whale = if (elapsed / 160) % 2 == 0 { "🐋" } else { "🐳" };
+            let x_u16 = (x as u16).min(area.width.saturating_sub(8));
             f.render_widget(
-                spinner,
-                Rect {
-                    x: area.width.saturating_sub(4),
-                    y: area.y,
-                    width: 3,
-                    height: 1,
-                },
+                Paragraph::new(Span::styled(whale, Style::default().fg(Color::Cyan))),
+                Rect { x: area.x + 2 + x_u16, y: area.y, width: 4, height: 1 },
             );
         }
     }
