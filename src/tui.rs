@@ -126,7 +126,6 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save
     draw_select_list(f, chunks[2], &items, &descs, prompt, state);
 
     draw_status_bar(f, chunks[3], app);
-    draw_whale_separator(f, chunks[3], app);
 }
 
 /// Draw the disclaimer popup with full warning text.
@@ -602,7 +601,7 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
         ]);
         f.render_widget(Paragraph::new(line), area);
     }
-
+    draw_whale_separator(f, area, app);
 }
 
 /// Separator line with a whale patrolling right-to-left.
