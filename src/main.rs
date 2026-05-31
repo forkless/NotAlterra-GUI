@@ -867,7 +867,15 @@ fn ini_delete_action<B: Backend>(
     let has_backup = backup_root.exists()
     && std::fs::read_dir(backup_root)
         .map(|entries| entries.flatten().any(|e| {
-            e.file_name().to_string_lossy().starts_with("ini_backup_")
+            let file_name = e.file_name();
+            let name = file_name.to_string_lossy();
+            name.starts_with("ini_backup_")
+                && e.path().is_dir()
+                && std::fs::read_dir(e.path()).map_or(false, |mut d| {
+                    d.any(|f| f.ok().map_or(false, |f| {
+                        f.file_name().to_string_lossy().ends_with(".ini")
+                    }))
+                })
         }))
         .unwrap_or(false);
 
