@@ -404,11 +404,11 @@ fn draw_header(f: &mut Frame, area: Rect, app: &AppState) {
 
 fn draw_status_dashboard(f: &mut Frame, area: Rect, app: &AppState) {
     let live = Span::styled(
-        format!(" Save: {} ", if app.save_path.is_some() { app.live_save_count.to_string() } else { "—".into() }),
+        format!(" Save{}: {} ", if app.live_save_count == 1 { "" } else { "s" }, if app.save_path.is_some() { app.live_save_count.to_string() } else { "—".into() }),
         Style::default().fg(Color::Green),
     );
     let bak = Span::styled(
-        format!(" Backups: {} ", app.backup_count),
+        format!(" Backup{}: {} ", if app.backup_count == 1 { "" } else { "s" }, app.backup_count),
         Style::default().fg(Color::Yellow),
     );
     let ini = Span::styled(
