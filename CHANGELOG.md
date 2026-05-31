@@ -32,13 +32,6 @@ All notable changes to NotAlterra are documented in this file.
 - `--version` / `-v` CLI flag
 - MIT License and README with build, usage, and unpack instructions
 
-### Changed
-- Ported from Windows PowerShell (`pleasework.ps1`) and Python (`extract_save_name.py`) to Rust
-- Slot grouping uses filename-derived slot (`savegame_N`) instead of internal GVAS `SlotName`
-- `.bak` copy target uses canonical `savegame_N.sav`, not versioned `savegame_N_M.sav`
-- Full backups now only copy `savegame_*` files — no other SaveGames fluff
-- Version number reads from `Cargo.toml` at compile time
-
 ### Fixed
 - Arrow-key navigation no longer overshoots — `KeyEventKind::Release` events filtered
 - GVAS metadata popup renders all 11 fields (was clipped to 2 because of `Paragraph::new(Span)`)
