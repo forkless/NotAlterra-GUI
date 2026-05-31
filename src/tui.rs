@@ -623,7 +623,7 @@ fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
             let elapsed = start.elapsed().as_millis() as u64;
             let bar_w = area.width as u64;
             let speed_ms: u64 = 60;
-            let cooldown_ticks: u64 = 20;
+            let cooldown_ticks: u64 = 166; // ~10 s
             let total = bar_w + cooldown_ticks;
             let t = (elapsed / speed_ms) % total;
 
