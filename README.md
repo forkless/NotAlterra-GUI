@@ -44,7 +44,7 @@ Download the pre-compiled executable for your platform from the [releases page](
 ### Linux
 
 ```bash
-tar -xzf notalterra-v0.1.0-linux-amd64.tar.gz
+tar -xzf notalterra-v0.1.1-linux-amd64.tar.gz
 chmod +x notalterra
 ./notalterra
 ```
@@ -54,7 +54,7 @@ chmod +x notalterra
 Extract the `.zip` archive and double-click `notalterra.exe`, or run from a terminal:
 
 ```powershell
-Expand-Archive notalterra-v0.1.0-windows-x64.zip -DestinationPath .
+Expand-Archive notalterra-v0.1.1-windows-x64.zip -DestinationPath .
 .\notalterra.exe
 ```
 
