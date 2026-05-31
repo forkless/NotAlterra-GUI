@@ -323,8 +323,10 @@ fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) ->
             );
         })?;
 
-        if let Ok(f) = rx.try_recv() {
-            break f;
+        match rx.try_recv() {
+            Ok(f) => break f,
+            Err(std::sync::mpsc::TryRecvError::Disconnected) => break Vec::new(),
+            _ => {}
         }
         std::thread::sleep(std::time::Duration::from_millis(100));
     };

@@ -33,6 +33,7 @@ All notable changes to NotAlterra are documented in this file.
 - MIT License and README with build, usage, and unpack instructions
 
 ### Fixed
+- Background scan thread panic no longer hangs the application
 - Arrow-key navigation no longer overshoots — `KeyEventKind::Release` events filtered
 - GVAS metadata popup renders all 11 fields (was clipped to 2 because of `Paragraph::new(Span)`)
 - Header path now shows tail of path (e.g. `…\Subnautica2\Saved\SaveGames`) instead of truncated prefix
