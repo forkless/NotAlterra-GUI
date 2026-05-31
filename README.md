@@ -37,6 +37,29 @@ cargo build --release --target x86_64-pc-windows-gnu
 
 ---
 
+## How to Run
+
+Download the archive for your platform from the [releases page](https://github.com/forkless/NotAlterra/releases).
+
+### Linux
+
+```bash
+tar -xzf notalterra-v0.1.0-linux-amd64.tar.gz
+chmod +x notalterra
+./notalterra
+```
+
+### Windows
+
+Extract the `.zip` archive and double-click `notalterra.exe`, or run from a terminal:
+
+```powershell
+Expand-Archive notalterra-v0.1.0-windows-amd64.zip -DestinationPath .
+.\notalterra.exe
+```
+
+> First run may take a moment while the tool scans for save folders.
+
 ## Usage
 
 Run the binary. On first launch it auto-scans for your save folder. The menu is keyboard-driven:
