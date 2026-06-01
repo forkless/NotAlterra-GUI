@@ -39,6 +39,7 @@ echo "=== Packaging release ==="
 LINUX_ARCHIVE="notalterra-v${VERSION}-linux-amd64.tar.gz"
 cp target/release/notalterra notalterra
 tar -czf "$LINUX_ARCHIVE" notalterra
+cp target/release/notalterra notalterra-linux
 rm -f notalterra
 echo "  $LINUX_ARCHIVE"
 
@@ -46,6 +47,7 @@ if [ "$WINDOWS_SKIP" -eq 0 ]; then
     WIN_ARCHIVE="notalterra-v${VERSION}-windows-x64.zip"
     cp target/x86_64-pc-windows-gnu/release/notalterra.exe notalterra.exe
     zip -q "$WIN_ARCHIVE" notalterra.exe
+    cp target/x86_64-pc-windows-gnu/release/notalterra.exe notalterra-windows.exe
     rm -f notalterra.exe
     echo "  $WIN_ARCHIVE"
 fi
