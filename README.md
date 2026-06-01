@@ -6,7 +6,6 @@ NotAlterra is an unofficial tool for managing Subnautica 2 save files. It locate
 
 Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 
----
 
 ## Features
 
@@ -22,7 +21,6 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 - **Transaction log** — all actions timestamped to `transaction.log`
 - **Cross-platform** — Linux and Windows console builds
 
----
 
 ## How to Build
 
@@ -36,7 +34,6 @@ sudo apt install mingw-w64
 cargo build --release --target x86_64-pc-windows-gnu
 ```
 
----
 
 ## How to Run
 
@@ -92,7 +89,6 @@ Run the binary. On first launch it auto-scans for your save folder. The menu is 
 6. **View disclaimer**
 7. **Exit**
 
----
 
 ## Where Files Live
 
@@ -119,7 +115,6 @@ Run the binary. On first launch it auto-scans for your save folder. The menu is 
 
 Backups are stored in `NotAlterra_Backups\` alongside the binary.
 
----
 
 ## config.ini
 
@@ -138,7 +133,6 @@ Delete `config.ini` to force a fresh scan on next launch.
 > Only the disclaimer flag and save-folder paths are stored — no backup
 > state or file metadata is persisted.
 
----
 
 ## Platform Support
 
@@ -147,7 +141,6 @@ Delete `config.ini` to force a fresh scan on next launch.
   tested on a Linux/Steam Deck install yet. The directory layout should be the
   same, but feedback and bug reports are appreciated.
 
----
 
 ## Safety
 
@@ -157,7 +150,6 @@ Delete `config.ini` to force a fresh scan on next launch.
 - Pre-restore snapshots created automatically
 - .ini delete requires a prior backup
 
----
 
 ## License
 
