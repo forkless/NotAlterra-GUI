@@ -55,8 +55,7 @@ fi
 echo ""
 echo "=== Done ==="
 
-# Sign and push the tag to trigger CI release
+# Remind user to sign and push to trigger CI release
 echo ""
-echo "--- Tag & Release ---"
-export GPG_TTY=$(tty 2>/dev/null || echo "")
-git tag -s "v${VERSION}" -m "v${VERSION}" && git push origin "v${VERSION}"
+echo "--- Next: sign & push for CI release ---"
+echo "  git commit --amend --no-edit --gpg-sign && git push -f origin master"
