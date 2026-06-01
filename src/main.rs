@@ -418,7 +418,10 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
     // Build multi-column display with slot grouping.
     // First entry in each slot gets a numbered label matching the savegame slot.
     let mut labelled: std::collections::HashSet<String> = std::collections::HashSet::new();
-    let items: Vec<String> = bak_summaries
+    let header = format!(" {:<8}  {:<16}  {:<14}  {:<8}  {:>6}  {}",
+        "Slot", "Description", "Game Type", "Playtime", "Size", "Date");
+    let mut items: Vec<String> = vec![header];
+    items.extend(bak_summaries
         .iter()
         .map(|s| {
             let num = slot_number(&s.slot);
@@ -443,7 +446,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 date,
             )
         })
-        .collect();
+        .collect::<Vec<String>>());
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
 
     // Filenames for the info bar, and descriptions
@@ -456,12 +459,12 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
         .map(|_| "Restore this backup to its canonical .sav file".to_string())
         .collect();
     let desc_refs: Vec<&str> = descs.iter().map(|s| s.as_str()).collect();
-    let mut state = ListState::default().with_selected(Some(0));
+    let mut state = ListState::default().with_selected(Some(1)); // skip header
 
     loop {
         let selected_info = state
             .selected()
-            .and_then(|i| filenames.get(i))
+            .and_then(|i| filenames.get(i.saturating_sub(1)))
             .map(|s| s.as_str());
 
         terminal.draw(|f| {
@@ -482,10 +485,12 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 }
                 KeyCode::Down => {
                     let i = state.selected().unwrap_or(0);
-                    state.select(Some((i + 1).min(bak_summaries.len().saturating_sub(1))));
+                    state.select(Some((i + 1).min(items.len().saturating_sub(1))));
                 }
                 KeyCode::Enter => {
-                    let idx = state.selected().unwrap_or(0);
+                    let sel = state.selected().unwrap_or(1);
+                    if sel == 0 { continue; } // header row
+                    let idx = sel.saturating_sub(1);
                     let chosen = &bak_summaries[idx];
                     let target = derive_target_sav(&chosen.filename);
                     let target_path = save_folder.join(&target);
@@ -901,7 +906,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
     files.sort_by_key(|e| e.file_name());
 
     let mut labelled = std::collections::HashSet::new();
-    let items: Vec<String> = files.iter().map(|e| {
+    let mut items: Vec<String> = files.iter().map(|e| {
         let name = e.file_name().to_string_lossy().to_string();
         let slot = crate::gvas::derive_slot_from_filename(&name).unwrap_or_else(|| "?".into());
         let num = slot_number(&slot);
@@ -910,23 +915,27 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
         let sz = e.metadata().map(|m| m.len()).unwrap_or(0);
         format!("  {:<8}  {:<30}  {:>7}", label, name, format_size(sz))
     }).collect();
+    let header = format!(" {:<8}  {:<30}  {:>7}", "Slot", "Filename", "Size");
+    items.insert(0, header);
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
     let filenames: Vec<String> = files.iter().map(|e| e.file_name().to_string_lossy().to_string()).collect();
     let descs = vec!["Press Enter to view full GVAS metadata"; files.len()];
     let desc_refs: Vec<&str> = descs.iter().map(|s| *s).collect();
-    let mut state = ListState::default().with_selected(Some(0));
+    let mut state = ListState::default().with_selected(Some(1)); // skip header
 
     loop {
-        let selected_info = state.selected().and_then(|i| filenames.get(i)).map(|s| s.as_str());
+        let selected_info = state.selected().and_then(|i| filenames.get(i.saturating_sub(1))).map(|s| s.as_str());
         terminal.draw(|f| {
             tui::draw_picker_with_info(f, &app.tui_state, &item_refs, &desc_refs, &mut state, selected_info);
         })?;
         if let Some(key) = poll_key(250)? {
         match key.code {
             KeyCode::Up => { let i = state.selected().unwrap_or(0); state.select(Some(i.saturating_sub(1))); }
-            KeyCode::Down => { let i = state.selected().unwrap_or(0); state.select(Some((i+1).min(files.len().saturating_sub(1)))); }
+            KeyCode::Down => { let i = state.selected().unwrap_or(0); state.select(Some((i+1).min(items.len().saturating_sub(1)))); }
             KeyCode::Enter => {
-                let idx = state.selected().unwrap_or(0);
+                let sel = state.selected().unwrap_or(1);
+                if sel == 0 { continue; }
+                let idx = sel.saturating_sub(1);
                 let path = files[idx].path();
                 match crate::gvas::extract_full_metadata(&path) {
                     Ok(meta) => {
