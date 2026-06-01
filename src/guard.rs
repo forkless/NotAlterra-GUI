@@ -13,6 +13,8 @@ use std::path::{Path, PathBuf};
 // ── process detection ──────────────────────────────────────────────────────
 
 /// Return `true` if Subnautica 2 appears to be running.
+/// Check if Subnautica 2 is currently running (Windows).
+/// Process detection is disabled — returns `false` to avoid AV false positives.
 #[cfg(target_os = "windows")]
 pub fn game_running() -> bool {
     // Process detection disabled — avoid AV false-positives.
@@ -30,6 +32,8 @@ fn _game_running_windows() -> bool {
     }
 }
 
+/// Check if Subnautica 2 is currently running (Linux).
+/// Process detection is disabled — always returns `false` to avoid AV false positives.
 #[cfg(not(target_os = "windows"))]
 pub fn game_running() -> bool {
     false

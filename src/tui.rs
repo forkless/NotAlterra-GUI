@@ -232,6 +232,8 @@ pub fn draw_confirm_popup(
     draw_whale_separator(f, bar, app);
 }
 
+/// Render a simple informational dialog with a message.
+/// Shows title, body text, and an OK button.
 pub fn draw_ok_dialog(f: &mut Frame, app: &AppState, title: &str, message: &str) {
     let content_w = message.lines().map(|l| l.len()).max().unwrap_or(20).max(title.len()) as u16 + 10;
     let popup_w = content_w.max(50).min(f.area().width.saturating_sub(4));
@@ -252,6 +254,7 @@ pub fn draw_ok_dialog(f: &mut Frame, app: &AppState, title: &str, message: &str)
     draw_whale_separator(f, bar, app);
 }
 
+/// Render a dialog with styled content lines.\n/// Supports inline formatting (colors, bold) via [`Line`].
 pub fn draw_ok_dialog_styled(f: &mut Frame, app: &AppState, title: &str, lines: &[Line]) {
     let content_w = lines.iter().map(|l| l.width() as u16).max().unwrap_or(20).max(title.len() as u16) + 10;
     let popup_w = content_w.max(50).min(f.area().width.saturating_sub(4));
