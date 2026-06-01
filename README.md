@@ -20,6 +20,7 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 - **Startup reminder** to close Subnautica 2 before use
 - **Transaction log** — all actions timestamped to `transaction.log`
 - **Cross-platform** — Linux and Windows console builds
+- [**Developer Documentation**](https://forkless.github.io/NotAlterra/notalterra/) — auto-generated from source
 
 
 ## How to Build
