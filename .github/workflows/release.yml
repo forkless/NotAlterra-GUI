@@ -17,6 +17,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check --workspace
       - run: cargo doc --no-deps --document-private-items --workspace
+      - name: Deploy docs to GitHub Pages
+        if: github.ref == 'refs/heads/master'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target/doc
+          force_orphan: true
 
   build:
     needs: check
