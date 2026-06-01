@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      hashes: ${{ steps.hash.outputs.hashes }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
@@ -38,6 +40,11 @@ jobs:
           tar -czf builds/notalterra-${GITHUB_REF_NAME}-linux-amd64.tar.gz notalterra
           cp target/x86_64-pc-windows-gnu/release/notalterra.exe NotAlterra.exe
           zip -q builds/notalterra-${GITHUB_REF_NAME}-windows-x64.zip NotAlterra.exe
+      - name: Generate hashes
+        id: hash
+        run: |
+          cd builds
+          echo "hashes=$(sha256sum * | base64 -w0)" >> "$GITHUB_OUTPUT"
       - name: Upload to release
         uses: softprops/action-gh-release@v2
         with:
@@ -47,18 +54,10 @@ jobs:
   provenance:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
     permissions:
-      contents: write
       id-token: write
+      contents: write
       actions: read
-    steps:
-      - uses: actions/checkout@v4
-      - name: Generate SLSA provenance
-        uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0
-        with:
-          provenance-name: notalterra.intoto.jsonl
-      - name: Upload provenance
-        uses: softprops/action-gh-release@v2
-        with:
-          files: notalterra.intoto.jsonl
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.hashes }}"
