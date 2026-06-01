@@ -90,14 +90,13 @@ pub fn discover_save_folders() -> Vec<DiscoveredFolder> {
     if let Some(home) = dirs::home_dir() {
         for (label, rel) in KNOWN_PATTERNS {
             let candidate = home.join(rel);
-            if candidate.exists() && candidate.is_dir() {
-                if has_save_files(&candidate) && seen.insert(candidate.clone()) {
+            if candidate.exists() && candidate.is_dir()
+                && has_save_files(&candidate) && seen.insert(candidate.clone()) {
                     found.push(DiscoveredFolder {
                         label: label.to_string(),
                         path: candidate,
                     });
                 }
-            }
         }
     }
 
@@ -309,14 +308,13 @@ fn walk_for_subnautica(
             let path = entry.path();
             let name = path.file_name().map(|n| n.to_string_lossy().to_lowercase()).unwrap_or_default();
 
-            if name.contains("subnautica") {
-                if has_save_files(&path) && seen.insert(path.clone()) {
+            if name.contains("subnautica")
+                && has_save_files(&path) && seen.insert(path.clone()) {
                     found.push(DiscoveredFolder {
                         label: label.to_string(),
                         path: path.clone(),
                     });
                 }
-            }
 
             if path.is_dir() {
                 queue.push_back(path);

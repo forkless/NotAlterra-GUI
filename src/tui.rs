@@ -3,6 +3,7 @@
 //! Design principles:
 //! - Dashboard layout: header bar, main panel, status line
 //! - Keyboard-first: arrow keys + Enter/Esc, no mouse dependency
+//!
 //! Terminal UI rendering for NotAlterra.
 //!
 //! Uses ratatui + crossterm to draw menu screens, picker lists, dialogs,

@@ -119,8 +119,6 @@ pub fn sanitize_path(p: &str) -> String {
 }
 
 /// Check whether a path looks like a network/UNC path (for warning purposes).
-
-/// Check whether a path looks like a network/UNC path (for warning purposes).
 pub fn is_network_path(p: &str) -> bool {
     p.starts_with("\\\\") || p.starts_with("//")
 }

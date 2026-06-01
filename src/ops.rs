@@ -245,8 +245,8 @@ pub fn delete_ini_files(config_path: &Path, backup_root: &Path) -> Result<usize>
                     let name = file_name.to_string_lossy();
                     name.starts_with("ini_backup_")
                         && e.path().is_dir()
-                        && std::fs::read_dir(e.path()).map_or(false, |mut d| {
-                            d.any(|f| f.ok().map_or(false, |f| {
+                        && std::fs::read_dir(e.path()).is_ok_and(|mut d| {
+                            d.any(|f| f.ok().is_some_and(|f| {
                                 f.file_name().to_string_lossy().ends_with(".ini")
                             }))
                         })
@@ -438,8 +438,8 @@ pub fn folder_stats(
                     let name = file_name.to_string_lossy();
                     name.starts_with("ini_backup_")
                         && e.path().is_dir()
-                        && std::fs::read_dir(e.path()).map_or(false, |mut d| {
-                            d.any(|f| f.ok().map_or(false, |f| {
+                        && std::fs::read_dir(e.path()).is_ok_and(|mut d| {
+                            d.any(|f| f.ok().is_some_and(|f| {
                                 f.file_name().to_string_lossy().ends_with(".ini")
                             }))
                         })
@@ -470,7 +470,7 @@ fn copy_save_files(
         }
         if meta.is_file() && name_str.starts_with("savegame_") {
             let dest_path = dest.join(&name);
-            fs::copy(&entry.path(), &dest_path)?;
+            fs::copy(entry.path(), &dest_path)?;
             *count += 1;
             *total_size += meta.len();
         }

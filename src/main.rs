@@ -85,8 +85,8 @@ impl App {
 
         let save_folder = config.save_path.as_deref().map(PathBuf::from);
 
-        let mut tui_state = tui::AppState::default();
-        tui_state.version = VERSION.to_string();
+        let mut tui_state = tui::AppState { version: VERSION.to_string(), ..Default::default() };
+
         tui_state.save_path = save_folder.as_ref().map(|p| p.display().to_string());
 
         // Refresh stats for the dashboard
@@ -231,9 +231,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
                         4 => action_inspect_saves(terminal, &mut app)?,
                         5 => run_ini_submenu(terminal, &mut app)?,
                         6 => {
-                            match run_disclaimer(terminal, &mut app)? {
-                                Some(false) => return Ok(()), // declined → exit
-                                _ => {} // accepted or cancelled → stay
+                            if let Some(false) = run_disclaimer(terminal, &mut app)? {
+                                return Ok(());
                             }
                         }
                         7 => return Ok(()), // Exit
@@ -300,9 +299,8 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
 /// Scan the local filesystem for Subnautica 2 save folders.
 ///
 /// Spawns a background thread for the scan and shows a live elapsed timer.
-/// Caches the first match as `save_path` in config.ini.
 // ── menu actions ───────────────────────────────────────────────────────────
-
+/// Caches the first match as `save_path` in config.ini.
 fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     // Run scan on a background thread so we can show a live elapsed timer.
     let (tx, rx) = std::sync::mpsc::channel();
@@ -879,8 +877,8 @@ fn ini_delete_action<B: Backend>(
             let name = file_name.to_string_lossy();
             name.starts_with("ini_backup_")
                 && e.path().is_dir()
-                && std::fs::read_dir(e.path()).map_or(false, |mut d| {
-                    d.any(|f| f.ok().map_or(false, |f| {
+                && std::fs::read_dir(e.path()).is_ok_and(|mut d| {
+                    d.any(|f| f.ok().is_some_and(|f| {
                         f.file_name().to_string_lossy().ends_with(".ini")
                     }))
                 })
@@ -943,7 +941,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
     let filenames: Vec<String> = files.iter().map(|e| e.file_name().to_string_lossy().to_string()).collect();
     let descs = vec!["Press Enter to view full GVAS metadata"; files.len()];
-    let desc_refs: Vec<&str> = descs.iter().map(|s| *s).collect();
+    let desc_refs: Vec<&str> = descs.to_vec();
     let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
 
     loop {
@@ -1118,7 +1116,7 @@ fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg
 /// Internal helper — see module-level documentation for context.
 fn has_existing_backup(app: &App) -> bool {
     let root = app.backup_root();
-    root.exists() && std::fs::read_dir(&root).map_or(false, |mut d| d.any(|e| e.map_or(false, |e| e.path().is_dir())))
+    root.exists() && std::fs::read_dir(&root).is_ok_and(|mut d| d.any(|e| e.is_ok_and(|e| e.path().is_dir())))
 }
 
 /// Internal helper — see module-level documentation for context.
@@ -1211,7 +1209,6 @@ fn wait_for_key<B: Backend>(terminal: &mut Terminal<B>, app: &App) -> Result<()>
     Ok(())
 }
 /// Create a rectangle anchored to the bottom of the parent area.
-
 fn centered_bottom(area: Rect) -> Rect {
     Rect {
         x: area.x,
