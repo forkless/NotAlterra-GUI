@@ -286,6 +286,11 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
     }
 }
 
+
+/// Scan the local filesystem for Subnautica 2 save folders.
+///
+/// Spawns a background thread for the scan and shows a live elapsed timer.
+/// Caches the first match as `save_path` in config.ini.
 // ── menu actions ───────────────────────────────────────────────────────────
 
 fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
@@ -387,6 +392,7 @@ fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) ->
     Ok(())
 }
 
+/// Recover a .sav from its .bak backup with a rollback safety net.
 fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let save_folder = ensure_save_folder(terminal, app)?;
 
@@ -588,6 +594,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
     Ok(())
 }
 
+/// Create a full backup of all savegame files into a timestamped folder.
 fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let save_folder = ensure_save_folder(terminal, app)?;
 
@@ -629,6 +636,7 @@ fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
     Ok(())
 }
 
+/// Restore a previously created full backup, overwriting the save folder.
 fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let save_folder = ensure_save_folder(terminal, app)?;
     let backup_root = app.backup_root();
@@ -890,6 +898,7 @@ fn ini_delete_action<B: Backend>(
 
 // ── inspect saves ──────────────────────────────────────────────────────────
 
+/// Inspect GVAS metadata for any .sav or .bak file from a file picker.
 fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let save_folder = ensure_save_folder(terminal, app)?;
     let mut files: Vec<_> = std::fs::read_dir(&save_folder)

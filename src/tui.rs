@@ -274,6 +274,7 @@ pub fn draw_ok_dialog_styled(f: &mut Frame, app: &AppState, title: &str, lines: 
     draw_whale_separator(f, bar, app);
 }
 
+/// Return a rectangle centered in `r` by the given width and height percentages.
 fn centered_rect_size(w: u16, h: u16, r: Rect) -> Rect {
     let popup = Layout::default().direction(Direction::Vertical)
         .constraints([Constraint::Length((r.height.saturating_sub(h))/2), Constraint::Length(h), Constraint::Length((r.height.saturating_sub(h))/2)])
@@ -643,6 +644,7 @@ fn truncate_path_tail(path: &str, max_width: usize) -> String {
 }
 
 /// Create a centered rectangle for modal overlays.
+/// Return a rectangle centered in `r` by the given width and height percentages.
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
     let popup_layout = Layout::default()
         .direction(Direction::Vertical)
