@@ -418,7 +418,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
     // Build multi-column display with slot grouping.
     // First entry in each slot gets a numbered label matching the savegame slot.
     let mut labelled: std::collections::HashSet<String> = std::collections::HashSet::new();
-    let header = format!(" {:<8}  {:<16}  {:<14}  {:<8}  {:>6}  {}",
+    let header = format!(" {:<8}  {:<16}  {:<14}  {:<6}  {:>6}  {}",
         "Slot", "Description", "Game Type", "Playtime", "Size", "Date");
     let mut items: Vec<String> = vec![header, String::new()];
     items.extend(bak_summaries
@@ -437,7 +437,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
             let save_type = if s.is_online { "Multiplayer" } else { "Single Player" };
             let playtime = format_playtime(s.playtime_seconds);
             format!(
-                " {:<8}  {:<16}  {:<14}  {:<8}  {:>6}  {}",
+                " {:<8}  {:<16}  {:<14}  {:<6}  {:>6}  {}",
                 label_col,
                 name_col,
                 save_type,
@@ -462,10 +462,9 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
     let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
 
     loop {
-        let selected_info = state
-            .selected()
-            .and_then(|i| filenames.get(i.saturating_sub(2)))
-            .map(|s| s.as_str());
+        let i = state.selected().unwrap_or(2).max(2);
+        state.select(Some(i));
+        let selected_info = filenames.get(i.saturating_sub(2)).map(|s| s.as_str());
 
         terminal.draw(|f| {
             tui::draw_picker_with_info(
@@ -913,9 +912,9 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
         let first = labelled.insert(slot.clone());
         let label = if first { format!("Slot {num}") } else { String::new() };
         let sz = e.metadata().map(|m| m.len()).unwrap_or(0);
-        format!("  {:<8}  {:<30}  {:>7}", label, name, format_size(sz))
+        format!("  {:<8}  {:<28}  {:>7}", label, name, format_size(sz))
     }).collect();
-    let header = format!("  {:<8}  {:<30}  {:>7}", "Slot", "Filename", "Size");
+    let header = format!("  {:<8}  {:<28}  {:>7}", "Slot", "Filename", "Size");
     items.insert(0, header);
     items.insert(1, String::new());
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
@@ -925,7 +924,9 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
     let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
 
     loop {
-        let selected_info = state.selected().and_then(|i| filenames.get(i.saturating_sub(2))).map(|s| s.as_str());
+        let i = state.selected().unwrap_or(2).max(2);
+        state.select(Some(i));
+        let selected_info = filenames.get(i.saturating_sub(2)).map(|s| s.as_str());
         terminal.draw(|f| {
             tui::draw_picker_with_info(f, &app.tui_state, &item_refs, &desc_refs, &mut state, selected_info);
         })?;
