@@ -19,8 +19,9 @@ jobs:
       - run: cargo test --workspace
       - run: cargo clippy --workspace -- -D warnings
       - run: |
-          cargo install cargo-audit
+          cargo install cargo-audit cargo-deny
           cargo audit
+          cargo deny check advisories bans
       - run: cargo doc --no-deps --document-private-items --workspace
       - name: Upload doc artifact
         if: github.ref == 'refs/heads/master'
