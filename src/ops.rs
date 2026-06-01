@@ -92,6 +92,11 @@ pub fn recover_bak_to_sav(
 // ── full backup ────────────────────────────────────────────────────────────
 
 /// Create a full backup of the save folder to `NotAlterra_Backups/notalterra_copy_<timestamp>`.
+/// Create a full backup of all `savegame_*` files.
+///
+/// Copies every `.sav` and `.bak` file from the save folder into a
+/// timestamped subdirectory under `backup_root/NotAlterra_Backups/`.
+/// Returns the number of files copied and the backup path.
 pub fn create_full_backup(
     save_folder: &Path,
     backup_root: &Path,

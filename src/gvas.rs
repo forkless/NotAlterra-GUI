@@ -293,6 +293,11 @@ pub fn extract_full_metadata(path: &Path) -> Result<FullMetadata> {
 
 /// Extracted metadata from a GVAS save file.
 #[derive(Debug, Clone, Default)]
+/// Extracted metadata from a Subnautica 2 GVAS save file.
+///
+/// Each field corresponds to a named UE5 property inside the save binary.
+/// Playtime is derived from the `PlaytimeData` structure when available,
+/// falling back to a byte-scan heuristic.
 pub struct SaveMetadata {
     /// Internal slot name, e.g. "savegame_0"
     pub slot_name: Option<String>,

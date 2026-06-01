@@ -33,6 +33,11 @@ const KNOWN_PATTERNS: &[(&str, &str)] = &[
 ///
 /// Returns a deduplicated, ranked list.  The first result is cached as
 /// `save_path` in config.ini so subsequent launches skip the scan.
+/// Auto-discover Subnautica 2 save folders across Steam, Xbox, Epic, and
+/// custom installs.  Checks both modern and legacy Steam paths.
+///
+/// Returns a deduplicated, ranked list.  The first result is cached as
+/// `save_path` in config.ini so subsequent launches skip the scan.
 pub fn discover_save_folders() -> Vec<DiscoveredFolder> {
     let mut found: Vec<DiscoveredFolder> = Vec::new();
     let mut seen: std::collections::HashSet<PathBuf> = std::collections::HashSet::new();

@@ -3,8 +3,11 @@
 //! Design principles:
 //! - Dashboard layout: header bar, main panel, status line
 //! - Keyboard-first: arrow keys + Enter/Esc, no mouse dependency
-//! - Semantic color: cyan=info, green=success, yellow=warning, red=error
-//! - Adapts to terminal size; minimum 60×15
+//! Terminal UI rendering for NotAlterra.
+//!
+//! Uses ratatui + crossterm to draw menu screens, picker lists, dialogs,
+//! metadata inspectors, and the animated whale separator.  All rendering
+//! is stateless — callers pass in an [`AppState`] snapshot.
 
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
