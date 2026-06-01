@@ -12,11 +12,8 @@ crossterm = "0.28"
 nom = "7"
 chrono = "0.4"
 dirs = "5"
-sysinfo = "0.33"
 regex = "1"
 anyhow = "1"
-log = "0.4"
-simplelog = "0.12"
 unicode-width = "0.2"
 
 [profile.release]
