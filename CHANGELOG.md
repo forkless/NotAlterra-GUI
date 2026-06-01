@@ -9,27 +9,20 @@ All notable changes to NotAlterra are documented in this file.
 ### Added
 - SECURITY.md with vulnerability disclosure policy
 - Release checklist in GOVERNANCE.md
-- Round-trip backup/restore and edge-case tests (31 total)
+- 32-test integration suite (guard, config, ops, gvas, ini backup/restore)
+- Fuzz target for GVAS parser
+- cargo clippy, cargo audit, and cargo-deny in CI
+- deny(unsafe_code) in library crate
 - Build script validates CHANGELOG has current version entry
 
 ### Changed
-- Testing score improved from C to A- (31 tests, CI-wired)
+- Zero compiler warnings
+- Example dump_samples compiles and runs
 
 ## [v0.2.3] — 2026-06-01
 
-### Added
-- 25-test integration suite (guard, config, ops, gvas)
-- Issue templates (bug report, feature request)
-- CONTRIBUTING.md with AI usage disclosure
-- GOVERNANCE.md with access recovery plan
-- Build script warns when CHANGELOG lacks current version
-
-### Security
-- Logged paths truncated at `Subnautica2/` — personal paths removed
-
-## [v0.2.2] — 2026-06-01
-
-### Changed
+- Zero compiler warnings (`deny(unsafe_code)`, `allow(dead_code)` where intentional)
+- Example `dump_samples` compiles and runs
 - 100% function doc coverage with automated check script
 - `last_path` → `save_path`, `last_scan` → `save_scan`, `config_path` → `ini_path`
 - Windows executable renamed to `NotAlterra.exe`
@@ -40,15 +33,8 @@ All notable changes to NotAlterra are documented in this file.
 
 ## [v0.2.0] — 2026-06-01
 
-### Added
-- GitHub Actions CI pipeline — builds, packages, and uploads on signed tag push
-- SLSA L3 provenance generation for build artifacts
-- Fully automated release pipeline — `./build.sh` handles build, package, sign, push, and CI release
-- Column headers in file pickers (Slot, Description, Game Type, Playtime, Size, Date)
-- Navigation prompt alongside item description line
-- Unsigned executable notice in README
-
-### Changed
+- Zero compiler warnings (`deny(unsafe_code)`, `allow(dead_code)` where intentional)
+- Example `dump_samples` compiles and runs
 - `last_path` → `save_path`, `last_scan` → `save_scan`, `config_path` → `ini_path`
 - Windows executable renamed to `NotAlterra.exe`
 - Removed unused dependencies (sysinfo, log, simplelog)
@@ -61,11 +47,8 @@ All notable changes to NotAlterra are documented in this file.
 
 ## [v0.1.3] — 2026-06-01
 
-### Added
-- Column headers in file pickers (Slot, Description, Game Type, Playtime, Size, Date)
-- Navigation prompt moved to same line as item description
-
-### Changed
+- Zero compiler warnings (`deny(unsafe_code)`, `allow(dead_code)` where intentional)
+- Example `dump_samples` compiles and runs
 - "Multiplayer" / "Single Player" used consistently throughout picker and inspector
 - Release archives moved to `builds/` directory
 - Playtime zero-padded to 2 digits (03h 05m)
@@ -77,13 +60,8 @@ All notable changes to NotAlterra are documented in this file.
 
 ## [v0.1.2] — 2026-06-01
 
-### Added
-- Playtime extraction from GVAS `ElapsedTimeDouble` property — displays as `Xh Ym`
-  in file picker and inspector
-- Filesystem checks for .ini delete guard — requires actual `.ini` files in backup
-- Non-blocking event poll across all screens
-
-### Changed
+- Zero compiler warnings (`deny(unsafe_code)`, `allow(dead_code)` where intentional)
+- Example `dump_samples` compiles and runs
 - Replaced process detection (`tasklist`/`pgrep`) with startup warning modal
   to avoid Windows Defender false-positive (Trojan:Win32/Wacatac.C!ml)
 - "Online" / "Local" renamed to "Multiplayer" / "Single Player" throughout
@@ -103,49 +81,14 @@ All notable changes to NotAlterra are documented in this file.
 ## [v0.1.1] — 2026-05-31
 
 ### Changed
+- Zero compiler warnings (`deny(unsafe_code)`, `allow(dead_code)` where intentional)
+- Example `dump_samples` compiles and runs
 - "Recover .sav file from .bak" renamed to "Recover save file" (less technical)
 - Dashboard stats now filter by `savegame_*` prefix, matching the file picker
 - Save/Backup labels pluralize based on count
 
-### Added
-- 🐋 animated leviathan patrols the status bar
-- Non-blocking event poll across all screens — animates everywhere
-- Whale rendered on popups, dialogs, and file pickers
-- "Back" option in .ini management submenu
-
-### Fixed
-- Game-running guard shows informative OK dialog instead of silent exit
-- OK dialog width padding prevents text clipping on long lines
-
-## [v0.1.0] — 2026-05-31
-
-### Added
-- Cross-platform terminal UI (ratatui + crossterm) with keyboard-driven menus, pickers, popups, and status bar
-- GVAS save-file binary parser: extracts SlotName, DisplayName, bIsMultiplayerSave, GameMode, LevelName, BuildNumber, and more
-- **Save-folder discovery** with Windows fast-path (`%LOCALAPPDATA%`) and Linux Proton/Steam Deck paths
-- **.bak to .sav recovery** with filename-derived slot grouping, `.sav.old` rollback, and size sanity checks
-- **Full backup / restore** (only `savegame_*` files) with pre-restore snapshots and verification
-- **UE5 Config (.ini) management** — backup, restore, and guarded delete
-- **Save inspector** with full GVAS metadata displayed in a color-coded popup
-- **Slot grouping** in the recovery picker — first entry per slot gets a numbered label, subsequent entries blank
-- **Online / Local detection** via `bIsMultiplayerSave` BoolProperty
-- **Mode-change warning** (Online ↔ Local) and **name-change warning** on recovery
-- **Game-running guard** — exits or warns if Subnautica 2 is active
-- **Transaction log** (`transaction.log`) with `MANUAL_BAK`, `AUTO_BAK`, `RESTORE`, `RECOVER`, `CONFIG_BAK`, `CONFIG_RESTORE`, `CONFIG_DEL`, and `LICENSE` actions
-- **Disclaimer popup** with Accept / Decline buttons — Esc returns to menu without revoking
-- **OK dialogs** for backup results, no-backup warnings, and ini action outcomes
-- **Confirmation popups** with `[ Yes ]` / `[ No ]` buttons and detailed metadata comparison
-- **No-backup guard** — warns if `NotAlterra_Backups` is empty before destructive actions
-- **Empty directory cleanup** — failed backup directories are removed
-- **Auto-size popups** — GVAS inspector and OK dialogs scale to fit content
-- **Terminal resize** — main loop and all sub-loops respond to terminal size changes
-- **Arrow-key debounce** — `KeyRelease` events are filtered; no double-stepping
-- **Elapsed timer** during save-folder scan with background threading
-- **Release build script** (`build.sh`) producing `notalterra-v{version}-linux-amd64.tar.gz` and `notalterra-v{version}-windows-amd64.zip`
-- `--version` / `-v` CLI flag
-- MIT License and README with build, usage, and unpack instructions
-
-### Changed
+- Zero compiler warnings (`deny(unsafe_code)`, `allow(dead_code)` where intentional)
+- Example `dump_samples` compiles and runs
 - Improved game-running exit message — explains why save files are at risk
 
 ### Fixed
