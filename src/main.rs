@@ -638,7 +638,7 @@ fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
         Err(e) => {
             app.set_spinner(false);
             let msg = format!("Backup failed: {e}");
-            guard::log_action("MANUAL_BAK", &save_folder.display().to_string(), &format!("FAILED: {e}"), &app.log_path)?;
+            guard::log_action("MANUAL_BAK", &guard::sanitize_path(&save_folder.display().to_string()), &format!("FAILED: {e}"), &app.log_path)?;
             ok_dialog(terminal, app, "Backup Failed", &msg)?;
         }
     }
@@ -693,11 +693,11 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
                     let accepted = confirm_modal(terminal, app, "Confirm Restore", &restore_details)?;
 
                     if accepted {
-                        guard::log_action("AUTO_BAK", &format!("pre-restore → {}", save_folder.display()), "OK", &app.log_path)?;
+                        guard::log_action("AUTO_BAK", &format!("pre-restore → {}", guard::sanitize_path(&save_folder.display().to_string())), "OK", &app.log_path)?;
                         match ops::restore_full_backup(chosen, &save_folder, &backup_root) {
                             Ok(n) => {
                                 app.set_status(&format!("{n} save files restored."), tui::StatusStyle::Success);
-                                guard::log_action("RESTORE", &format!("{} → {}", name, save_folder.display()), "OK", &app.log_path)?;
+                                guard::log_action("RESTORE", &format!("{} → {}", name, guard::sanitize_path(&save_folder.display().to_string())), "OK", &app.log_path)?;
                             }
                             Err(e) => {
                                 app.set_status(&format!("Restore failed: {e}"), tui::StatusStyle::Error);
@@ -786,7 +786,7 @@ fn ini_backup_action<B: Backend>(
                 &format!("Config backup created: {} files ({})", result.files_copied, verified),
                 tui::StatusStyle::Success,
             );
-            guard::log_action("CONFIG_BAK", &result.dest_dir.display().to_string(), "OK", &app.log_path)?;
+            guard::log_action("CONFIG_BAK", &guard::sanitize_path(&result.dest_dir.display().to_string()), "OK", &app.log_path)?;
             refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
             let verified = if result.verified { "verified" } else { "unverified" };
             let msg = format!("{} .ini file(s) backed up ({verified}).", result.files_copied);
@@ -842,10 +842,10 @@ fn ini_restore_action<B: Backend>(
                     let idx = state.selected().unwrap_or(0);
                     let chosen = &backups[idx];
 
-                    guard::log_action("AUTO_BAK", &format!("ini pre-restore → {}", ini_path.display()), "OK", &app.log_path)?;
+                    guard::log_action("AUTO_BAK", &format!("ini pre-restore → {}", guard::sanitize_path(&ini_path.display().to_string())), "OK", &app.log_path)?;
                     match ops::restore_ini_files(chosen, ini_path, backup_root) {
                         Ok(n) => {
-                            guard::log_action("CONFIG_RESTORE", &chosen.display().to_string(), "OK", &app.log_path)?;
+                            guard::log_action("CONFIG_RESTORE", &guard::sanitize_path(&chosen.display().to_string()), "OK", &app.log_path)?;
                             let msg = format!("{n} .ini file(s) restored.");
                             ok_dialog(terminal, app, ".ini Restore Complete", &msg)?;
                         }
@@ -899,7 +899,7 @@ fn ini_delete_action<B: Backend>(
     match ops::delete_ini_files(ini_path, backup_root) {
         Ok(n) => {
             let msg = format!("Deleted {n} .ini file(s).\nThe game will regenerate defaults on next launch.");
-            guard::log_action("CONFIG_DEL", &ini_path.display().to_string(), "OK", &app.log_path)?;
+            guard::log_action("CONFIG_DEL", &guard::sanitize_path(&ini_path.display().to_string()), "OK", &app.log_path)?;
             ok_dialog(terminal, app, ".ini Delete Complete", &msg)?;
         }
         Err(e) => {

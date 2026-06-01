@@ -105,6 +105,20 @@ pub fn log_action(
     f.write_all(line.as_bytes())?;
     Ok(())
 }
+/// Truncate a filesystem path to start at `Subnautica2/` or `Subnautica2\`
+/// for privacy-safe logging.  Returns the original path if no truncation
+/// is possible.
+pub fn sanitize_path(p: &str) -> String {
+    let needle = "Subnautica2";
+    let sep = if p.contains('\\') { "\\" } else { "/" };
+    if let Some(pos) = p.find(needle) {
+        format!("...{sep}{}", &p[pos..])
+    } else {
+        p.to_string()
+    }
+}
+
+/// Check whether a path looks like a network/UNC path (for warning purposes).
 
 /// Check whether a path looks like a network/UNC path (for warning purposes).
 pub fn is_network_path(p: &str) -> bool {
