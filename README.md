@@ -59,9 +59,9 @@ Expand-Archive notalterra-v0.1.3-windows-x64.zip -DestinationPath .
 .\NotAlterra.exe
 ```
 
-> You can also extract the `.zip` using Windows Explorer (right-click →
-> **Extract All**), then open **Command Prompt** or **PowerShell** in that
-> folder and run `.\NotAlterra.exe`.
+You can also extract the `.zip` using Windows Explorer (right-click →
+**Extract All**), then open **Command Prompt** or **PowerShell** in that
+folder and run `.\NotAlterra.exe`.
 
 > [!IMPORTANT]
 > **Running an unsigned executable on Windows** triggers a UAC "Unknown
