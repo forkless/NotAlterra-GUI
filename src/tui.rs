@@ -380,7 +380,7 @@ fn draw_header(f: &mut Frame, area: Rect, app: &AppState) {
         .split(inner(area, 1, 0));
 
     let title_line = Line::from(vec![
-        Span::styled("NOTALTERRA", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
+        Span::styled("NotAlterra", Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)),
         Span::raw(" "),
         Span::styled(app.version.clone(), Style::default().fg(Color::DarkGray)),
     ]);
