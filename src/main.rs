@@ -1163,6 +1163,7 @@ fn confirm_modal<B: Backend>(
     }
 }
 
+/// Create a rectangle centered in the parent area by percentage.
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
     let popup_layout = Layout::default()
         .direction(Direction::Vertical)
@@ -1204,6 +1205,7 @@ fn wait_for_key<B: Backend>(terminal: &mut Terminal<B>, app: &App) -> Result<()>
     }
     Ok(())
 }
+/// Create a rectangle anchored to the bottom of the parent area.
 
 fn centered_bottom(area: Rect) -> Rect {
     Rect {
