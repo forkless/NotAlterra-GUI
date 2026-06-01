@@ -582,7 +582,7 @@ fn draw_select_list_with_info(
             prompt_p,
             Rect {
                 x: area.x,
-                y: area.y + area.height.saturating_sub(1),
+                y: base_y,
                 width: area.width.saturating_sub(2),
                 height: 1,
             },
