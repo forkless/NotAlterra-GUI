@@ -1,4 +1,4 @@
-### v0.1.3
+### v0.2.0
 
 NotAlterra is an unofficial Subnautica 2 save-file manager.
 Cross-platform terminal application.  No admin, no network.
@@ -8,8 +8,11 @@ extract, and run.
 
 ### What's New:
 
-• Playtime extraction from save metadata (Xh Ym)
-• Multiplayer / Single Player labels throughout
-• Release archives moved to builds/ folder
+• Column headers in file pickers
+• Navigation prompt alongside item description
+• Config keys renamed (save_path, save_scan, ini_path)
+• Windows executable renamed to NotAlterra.exe
+• Playtime zero-padded to 2 digits
+• Removed unused dependencies — lighter compile
 
 _Builds:  Linux (amd64)  •  Windows x64_
