@@ -28,9 +28,8 @@ no data exfiltration surface.
 `check_game_not_running()` is never called from `main.rs`.
 
 The intent is to prevent accidental save corruption by warning the user
-if the game is running during backup or recovery operations.  This
-feature will be re-enabled once the project completes SignPath
-certification.
+if the game is running during backup or recovery operations.  
+This feature may be re-introduced in a future release provided it does not trigger false positives or interfere with normal system operation.
 
 ## File I/O
 
