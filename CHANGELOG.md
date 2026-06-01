@@ -7,6 +7,8 @@ All notable changes to NotAlterra are documented in this file.
 ## [v0.2.0] — 2026-06-01
 
 ### Added
+- GitHub Actions CI pipeline — builds, packages, and uploads on signed tag push
+- SLSA L3 provenance generation for build artifacts
 - Column headers in file pickers (Slot, Description, Game Type, Playtime, Size, Date)
 - Navigation prompt alongside item description line
 - Unsigned executable notice in README
