@@ -6,12 +6,19 @@ All notable changes to NotAlterra are documented in this file.
 
 ## [v0.1.3] — 2026-06-01
 
+### Added
+- Column headers in file pickers (Slot, Description, Game Type, Playtime, Size, Date)
+- Navigation prompt moved to same line as item description
+
 ### Changed
 - "Multiplayer" / "Single Player" used consistently throughout picker and inspector
 - Release archives moved to `builds/` directory
+- Playtime zero-padded to 2 digits (03h 05m)
+- Header and blank rows non-navigable in pickers
 
 ### Fixed
 - Playtime extraction on production saves (fallback byte-scan for DoubleProperty)
+- File picker column alignment and spacing tightened
 
 ## [v0.1.2] — 2026-06-01
 
