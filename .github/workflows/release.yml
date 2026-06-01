@@ -43,3 +43,22 @@ jobs:
         with:
           files: builds/*
           body_path: _release.md
+
+  provenance:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate SLSA provenance
+        uses: slsa-framework/slsa-github-generator/.github/workflows/builder_go_slsa3.yml@v2.0.0
+        with:
+          provenance-name: notalterra.intoto.jsonl
+      - name: Upload provenance
+        uses: softprops/action-gh-release@v2
+        with:
+          files: notalterra.intoto.jsonl
