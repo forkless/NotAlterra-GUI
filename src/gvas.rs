@@ -201,7 +201,7 @@ fn extract_bool_property(data: &[u8], prop_name: &str) -> Option<bool> {
 /// Scan for a double value near a marker byte sequence.
 fn scan_double_near(data: &[u8], marker: &[u8]) -> Option<f64> {
     let pos = data.windows(marker.len()).position(|w| w == marker)?;
-    let end = (pos + 60).min(data.len());
+    let _end = (pos + 60).min(data.len());
     for off in 8..50 {
         if pos + off + 8 > data.len() { break; }
         let val = f64::from_le_bytes(data[pos+off..pos+off+8].try_into().ok()?);
@@ -313,6 +313,26 @@ pub struct SaveMetadata {
 }
 
 /// Parse a `.sav` or `.bak` file and return its GVAS metadata.
+/// Parse GVAS metadata from an in-memory byte slice.  Useful for fuzzing.
+pub fn extract_metadata_from_bytes(data: &[u8]) -> Result<SaveMetadata> {
+    let mut errors = Vec::new();
+    let slot_name = match extract_str_property(data, "SlotName") {
+        Ok(v) => Some(v),
+        Err(e) => { errors.push(e); None }
+    };
+    let display_name = match extract_str_property(data, "DisplayName") {
+        Ok(v) => Some(v),
+        Err(e) => { errors.push(e); None }
+    };
+    Ok(SaveMetadata {
+        slot_name,
+        display_name,
+        is_online: extract_bool_property(data, "OnlineMode").unwrap_or(false),
+        playtime_seconds: extract_double_property(data, "PlayTime"),
+        errors,
+    })
+}
+
 pub fn extract_metadata(path: &Path) -> Result<SaveMetadata> {
     let data = fs::read(path)
         .with_context(|| format!("failed to read {}", path.display()))?;

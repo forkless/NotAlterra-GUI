@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 //! NotAlterra — Subnautica 2 save-file manager.
 //!
 //! Cross-platform terminal application.  Locates save folders, recovers

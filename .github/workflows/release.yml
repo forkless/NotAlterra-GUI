@@ -17,6 +17,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check --workspace
       - run: cargo test --workspace
+      - run: cargo clippy --workspace -- -D warnings
+      - run: |
+          cargo install cargo-audit
+          cargo audit
       - run: cargo doc --no-deps --document-private-items --workspace
       - name: Upload doc artifact
         if: github.ref == 'refs/heads/master'
