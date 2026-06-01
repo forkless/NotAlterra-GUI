@@ -30,6 +30,20 @@ repository's tag namespace.  Builds are triggered exclusively by signed
 Git tags, which can only be created by a human maintainer with access to
 the project's GPG key.
 
+## Privacy
+
+NotAlterra does not collect, transmit, or store any user data.  The
+application runs entirely offline:
+
+- No telemetry, no analytics, no crash reporters.
+- No network requests — the binary never opens a socket.
+- All configuration is stored locally in `config.ini` alongside the
+  executable.
+
+Because no data is collected, there is nothing to share, sell, or
+expose.  This section serves as a safe-harbor statement: NotAlterra is
+designed to respect user privacy by collecting nothing at all.
+
 ## Signing
 
 Only binaries produced by the official CI runner from the `master`
