@@ -6,6 +6,15 @@ set -euo pipefail
 # Usage: ./build.sh          — optimized release (LTO + strip)
 #        ./build.sh fast     — no LTO, faster compile
 
+# Derive version from latest git tag, fall back to Cargo.toml
+if command -v git &>/dev/null && git rev-parse --git-dir >/dev/null 2>&1; then
+    TAG_VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')
+fi
+CARGOTOML_VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+if [ -n "${TAG_VERSION:-}" ] && [ "$TAG_VERSION" != "$CARGOTOML_VERSION" ]; then
+    sed -i "s/^version = \".*\"/version = \"$TAG_VERSION\"/" Cargo.toml
+    echo "  Cargo.toml version updated to $TAG_VERSION"
+fi
 VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 echo "=== NotAlterra v${VERSION} ==="
 
@@ -58,4 +67,6 @@ echo "=== Done ==="
 # Remind user to sign and push to trigger CI release
 echo ""
 echo "--- Next: sign & push for CI release ---"
-echo "  git commit --amend --no-edit --gpg-sign && git push -f origin master"
+echo "  git add Cargo.toml && git commit --no-gpg-sign -m \"Bump to v${VERSION}\""
+echo "  git tag -s \"v${VERSION}\" -m \"v${VERSION}\""
+echo "  git push origin master && git push origin \"v${VERSION}\""
