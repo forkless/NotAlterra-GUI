@@ -9,6 +9,7 @@ All notable changes to NotAlterra are documented in this file.
 ### Added
 - GitHub Actions CI pipeline — builds, packages, and uploads on signed tag push
 - SLSA L3 provenance generation for build artifacts
+- Fully automated release pipeline — `./build.sh` handles build, package, sign, push, and CI release
 - Column headers in file pickers (Slot, Description, Game Type, Playtime, Size, Date)
 - Navigation prompt alongside item description line
 - Unsigned executable notice in README
