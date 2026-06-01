@@ -22,6 +22,7 @@ pub fn game_running() -> bool {
     false
 }
 #[allow(dead_code)]
+/// Check if Subnautica 2 is running via tasklist (Windows). Dormant.
 fn _game_running_windows() -> bool {
     let out = std::process::Command::new("tasklist")
         .args(["/FI", "IMAGENAME eq Subnautica2.exe", "/NH"])
@@ -39,6 +40,7 @@ pub fn game_running() -> bool {
     false
 }
 #[allow(dead_code)]
+/// Check if Subnautica 2 is running via pgrep (Linux). Dormant.
 fn _game_running_linux() -> bool {
     let patterns = &["Subnautica2", "Subnautica2-Win64-Shipping"];
     for pat in patterns {
