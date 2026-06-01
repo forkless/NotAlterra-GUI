@@ -51,6 +51,9 @@ NotAlterra is designed to respect user privacy by collecting nothing at
 all.
 
 ## Signing
+> **Status: pending certification.**  No binaries have been signed by
+> SignPath yet.  This policy exists for transparency and privacy
+> documentation while the project awaits acceptance.
 
 Only binaries produced by the official CI runner from the `master`
 branch will be submitted to SignPath for signing.  Manual or off-CI
