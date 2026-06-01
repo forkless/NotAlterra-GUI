@@ -19,6 +19,10 @@ fn main() {
     };
 
     if compiled() {
-        println!("cargo:rustc-link-arg={}", res_path);
+        // Only link the resource on Windows targets
+        let target = std::env::var("TARGET").unwrap_or_default();
+        if target.contains("windows") {
+            println!("cargo:rustc-link-arg={}", res_path);
+        }
     }
 }
