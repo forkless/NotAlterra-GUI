@@ -18,6 +18,13 @@ fi
 VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 echo "=== NotAlterra v${VERSION} ==="
 
+# Ensure changelog has current version header
+if grep -q "## \[v${VERSION}\]" CHANGELOG.md 2>/dev/null; then
+    echo "  CHANGELOG.md already has v${VERSION} entry"
+else
+    echo "  WARNING: CHANGELOG.md has no v${VERSION} entry — add one before releasing"
+fi
+
 # Ensure Windows target is installed
 if ! rustup target list --installed | grep -q x86_64-pc-windows-gnu; then
     echo "Installing Windows target..."

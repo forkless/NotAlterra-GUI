@@ -4,6 +4,29 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.2.3] — 2026-06-01
+
+### Added
+- 25-test integration suite (guard, config, ops, gvas)
+- Issue templates (bug report, feature request)
+- CONTRIBUTING.md with AI usage disclosure
+- GOVERNANCE.md with access recovery plan
+- Build script warns when CHANGELOG lacks current version
+
+### Security
+- Logged paths truncated at `Subnautica2/` — personal paths removed
+
+## [v0.2.2] — 2026-06-01
+
+### Changed
+- 100% function doc coverage with automated check script
+- `last_path` → `save_path`, `last_scan` → `save_scan`, `config_path` → `ini_path`
+- Windows executable renamed to `NotAlterra.exe`
+- Diligence skill added for verification
+
+### Security
+- Logged paths truncated at `Subnautica2/` — personal paths removed
+
 ## [v0.2.0] — 2026-06-01
 
 ### Added
