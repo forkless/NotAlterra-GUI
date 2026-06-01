@@ -8,7 +8,7 @@
 //! save_path = C:\Users\...\Subnautica2\Saved\SaveGames
 //! save_scan = 2026-05-26 19:45:22
 //! disclaimer_accepted = true
-//! config_path = C:\Users\...\Subnautica2\Saved\Config\Windows
+//! ini_path = C:\Users\...\Subnautica2\Saved\Config\Windows
 //! ```
 
 use anyhow::{Context, Result};
@@ -22,7 +22,7 @@ pub struct AppConfig {
     /// Last-known save folder (SaveGames)
     pub save_path: Option<String>,
     /// Last-known Config\Windows folder
-    pub config_path: Option<String>,
+    pub ini_path: Option<String>,
     /// Timestamp of last successful scan
     pub save_scan: Option<String>,
     /// Whether disclaimer was accepted
@@ -30,7 +30,7 @@ pub struct AppConfig {
 }
 
 /// Path to config.ini alongside the binary.
-pub fn config_path() -> PathBuf {
+pub fn ini_path() -> PathBuf {
     let exe_dir = std::env::current_exe()
         .ok()
         .and_then(|p| p.parent().map(Path::to_path_buf))
@@ -60,8 +60,8 @@ pub fn load_config(path: &Path) -> Result<AppConfig> {
 
         if let Some(val) = trimmed.strip_prefix("save_path").and_then(strip_eq) {
             cfg.save_path = Some(val.to_string());
-        } else if let Some(val) = trimmed.strip_prefix("config_path").and_then(strip_eq) {
-            cfg.config_path = Some(val.to_string());
+        } else if let Some(val) = trimmed.strip_prefix("ini_path").and_then(strip_eq) {
+            cfg.ini_path = Some(val.to_string());
         } else if let Some(val) = trimmed.strip_prefix("save_scan").and_then(strip_eq) {
             cfg.save_scan = Some(val.to_string());
         } else if let Some(val) = trimmed.strip_prefix("disclaimer_accepted").and_then(strip_eq) {
@@ -94,8 +94,8 @@ pub fn save_config(path: &Path, cfg: &AppConfig) -> Result<()> {
     if let Some(ref lp) = cfg.save_path {
         writeln!(f, "save_path = {lp}")?;
     }
-    if let Some(ref cp) = cfg.config_path {
-        writeln!(f, "config_path = {cp}")?;
+    if let Some(ref cp) = cfg.ini_path {
+        writeln!(f, "ini_path = {cp}")?;
     }
     if let Some(ref ls) = cfg.save_scan {
         writeln!(f, "save_scan = {ls}")?;
@@ -116,7 +116,7 @@ pub fn save_config(path: &Path, cfg: &AppConfig) -> Result<()> {
 
 /// Collect key/value pairs from the old config that this tool doesn't own.
 fn preserved_keys(path: &Path) -> Result<Vec<(String, String)>> {
-    let known = &["save_path", "config_path", "save_scan", "disclaimer_accepted"];
+    let known = &["save_path", "ini_path", "save_scan", "disclaimer_accepted"];
     let mut out = Vec::new();
 
     let f = fs::File::open(path)?;

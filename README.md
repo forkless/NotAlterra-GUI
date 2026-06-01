@@ -129,7 +129,7 @@ Created automatically next to the binary:
 save_path = C:\Users\...\Subnautica2\Saved\SaveGames
 save_scan = 2026-05-31 18:00:00
 disclaimer_accepted = true
-config_path = C:\Users\...\Subnautica2\Saved\Config\Windows
+ini_path = C:\Users\...\Subnautica2\Saved\Config\Windows
 ```
 
 Delete `config.ini` to force a fresh scan on next launch.

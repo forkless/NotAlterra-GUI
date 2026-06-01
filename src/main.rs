@@ -69,7 +69,7 @@ fn main() -> Result<()> {
 
 struct App {
     config: AppConfig,
-    config_path: PathBuf,
+    ini_path: PathBuf,
     log_path: PathBuf,
     save_folder: Option<PathBuf>,
     tui_state: tui::AppState,
@@ -77,8 +77,8 @@ struct App {
 
 impl App {
     fn new() -> Result<Self> {
-        let config_path = crate::config::config_path();
-        let config = crate::config::load_config(&config_path)?;
+        let ini_path = crate::config::ini_path();
+        let config = crate::config::load_config(&ini_path)?;
         let log_path = guard::log_path();
 
         let save_folder = config.save_path.as_deref().map(PathBuf::from);
@@ -92,7 +92,7 @@ impl App {
 
         Ok(Self {
             config,
-            config_path,
+            ini_path,
             log_path,
             save_folder,
             tui_state,
@@ -175,7 +175,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
             app.save_folder = Some(first.path.clone());
             app.config.save_path = Some(first.path.display().to_string());
             app.config.save_scan = Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
-            crate::config::save_config(&app.config_path, &app.config)?;
+            crate::config::save_config(&app.ini_path, &app.config)?;
             refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
             true
         } else {
@@ -260,13 +260,13 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
                 KeyCode::Char('y') | KeyCode::Char('Y') => {
                     guard::log_action("LICENSE", "accepted", "OK", &app.log_path)?;
                     app.config.disclaimer_accepted = true;
-                    crate::config::save_config(&app.config_path, &app.config)?;
+                    crate::config::save_config(&app.ini_path, &app.config)?;
                     return Ok(Some(true));
                 }
                 KeyCode::Char('n') | KeyCode::Char('N') => {
                     guard::log_action("LICENSE", "declined", "OK", &app.log_path)?;
                     app.config.disclaimer_accepted = false;
-                    crate::config::save_config(&app.config_path, &app.config)?;
+                    crate::config::save_config(&app.ini_path, &app.config)?;
                     return Ok(Some(false));
                 }
                 KeyCode::Esc => {
@@ -277,7 +277,7 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
                     let detail = if accepted { "accepted" } else { "declined" };
                     guard::log_action("LICENSE", detail, "OK", &app.log_path)?;
                     app.config.disclaimer_accepted = accepted;
-                    crate::config::save_config(&app.config_path, &app.config)?;
+                    crate::config::save_config(&app.ini_path, &app.config)?;
                     return Ok(Some(accepted));
                 }
                 _ => {}
@@ -355,7 +355,7 @@ fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) ->
         app.save_folder = Some(first.path.clone());
         app.config.save_path = Some(first.path.display().to_string());
         app.config.save_scan = Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
-        crate::config::save_config(&app.config_path, &app.config)?;
+        crate::config::save_config(&app.ini_path, &app.config)?;
     }
 
     refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
@@ -703,7 +703,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
 // ── .ini submenu ───────────────────────────────────────────────────────────
 
 fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
-    let config_path = get_config_path(terminal, app)?;
+    let ini_path = get_ini_path(terminal, app)?;
     let backup_root = app.backup_root();
 
     let items: Vec<&str> = vec![
@@ -737,9 +737,9 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
                 KeyCode::Enter => {
                     let idx = state.selected().unwrap_or(0);
                     match idx {
-                        0 => ini_backup_action(terminal, app, &config_path, &backup_root)?,
-                        1 => ini_restore_action(terminal, app, &config_path, &backup_root)?,
-                        2 => ini_delete_action(terminal, app, &config_path, &backup_root)?,
+                        0 => ini_backup_action(terminal, app, &ini_path, &backup_root)?,
+                        1 => ini_restore_action(terminal, app, &ini_path, &backup_root)?,
+                        2 => ini_delete_action(terminal, app, &ini_path, &backup_root)?,
                         3 => break,
                         _ => {}
                     }
@@ -757,10 +757,10 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
 fn ini_backup_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
-    config_path: &Path,
+    ini_path: &Path,
     backup_root: &Path,
 ) -> Result<()> {
-    match ops::backup_ini_files(config_path, backup_root) {
+    match ops::backup_ini_files(ini_path, backup_root) {
         Ok(result) => {
             let verified = if result.verified { "verified" } else { "unverified" };
             app.set_status(
@@ -784,7 +784,7 @@ fn ini_backup_action<B: Backend>(
 fn ini_restore_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
-    config_path: &Path,
+    ini_path: &Path,
     backup_root: &Path,
 ) -> Result<()> {
     let backups = ops::list_ini_backups(backup_root);
@@ -822,8 +822,8 @@ fn ini_restore_action<B: Backend>(
                     let idx = state.selected().unwrap_or(0);
                     let chosen = &backups[idx];
 
-                    guard::log_action("AUTO_BAK", &format!("ini pre-restore → {}", config_path.display()), "OK", &app.log_path)?;
-                    match ops::restore_ini_files(chosen, config_path, backup_root) {
+                    guard::log_action("AUTO_BAK", &format!("ini pre-restore → {}", ini_path.display()), "OK", &app.log_path)?;
+                    match ops::restore_ini_files(chosen, ini_path, backup_root) {
                         Ok(n) => {
                             guard::log_action("CONFIG_RESTORE", &chosen.display().to_string(), "OK", &app.log_path)?;
                             let msg = format!("{n} .ini file(s) restored.");
@@ -847,7 +847,7 @@ fn ini_restore_action<B: Backend>(
 fn ini_delete_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
-    config_path: &Path,
+    ini_path: &Path,
     backup_root: &Path,
 ) -> Result<()> {
     let has_backup = backup_root.exists()
@@ -875,10 +875,10 @@ fn ini_delete_action<B: Backend>(
         return Ok(());
     }
 
-    match ops::delete_ini_files(config_path, backup_root) {
+    match ops::delete_ini_files(ini_path, backup_root) {
         Ok(n) => {
             let msg = format!("Deleted {n} .ini file(s).\nThe game will regenerate defaults on next launch.");
-            guard::log_action("CONFIG_DEL", &config_path.display().to_string(), "OK", &app.log_path)?;
+            guard::log_action("CONFIG_DEL", &ini_path.display().to_string(), "OK", &app.log_path)?;
             ok_dialog(terminal, app, ".ini Delete Complete", &msg)?;
         }
         Err(e) => {
@@ -1012,7 +1012,7 @@ fn ensure_save_folder<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) ->
     if let Some(first) = folders.first() {
         app.save_folder = Some(first.path.clone());
         app.config.save_path = Some(first.path.display().to_string());
-        crate::config::save_config(&app.config_path, &app.config)?;
+        crate::config::save_config(&app.ini_path, &app.config)?;
         refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
         return Ok(first.path.clone());
     }
@@ -1021,9 +1021,9 @@ fn ensure_save_folder<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) ->
 }
 
 /// Get or discover the Config\Windows path.
-fn get_config_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Result<PathBuf> {
+fn get_ini_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Result<PathBuf> {
     // Try cached config path
-    if let Some(ref cp) = app.config.config_path {
+    if let Some(ref cp) = app.config.ini_path {
         let p = PathBuf::from(cp);
         if p.exists() {
             return Ok(p);
@@ -1032,7 +1032,7 @@ fn get_config_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Re
 
     // Derive from save folder
     if let Some(ref sf) = app.save_folder {
-        if let Some(cp) = discovery::derive_config_path(sf) {
+        if let Some(cp) = discovery::derive_ini_path(sf) {
             return Ok(cp);
         }
     }
@@ -1040,9 +1040,9 @@ fn get_config_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Re
     // Fall back to discovery
     let folders = discovery::discover_save_folders();
     for f in &folders {
-        if let Some(cp) = discovery::derive_config_path(&f.path) {
-            app.config.config_path = Some(cp.display().to_string());
-            crate::config::save_config(&app.config_path, &app.config)?;
+        if let Some(cp) = discovery::derive_ini_path(&f.path) {
+            app.config.ini_path = Some(cp.display().to_string());
+            crate::config::save_config(&app.ini_path, &app.config)?;
             return Ok(cp);
         }
     }

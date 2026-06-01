@@ -355,7 +355,7 @@ pub fn validate_custom_path(input: &str) -> Option<PathBuf> {
 /// Derive the Config\Windows path from a SaveGames path.
 ///
 /// Walks up to the `Saved` ancestor, then down to `Config/Windows`.
-pub fn derive_config_path(save_path: &Path) -> Option<PathBuf> {
+pub fn derive_ini_path(save_path: &Path) -> Option<PathBuf> {
     let mut current = save_path.to_path_buf();
 
     // Walk up looking for "Saved" component
@@ -376,11 +376,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_derive_config_path_sample() {
+    fn test_derive_ini_path_sample() {
         // Should resolve from a save path even if dirs don't exist locally
         let save = Path::new("C:/Users/test/AppData/Local/Subnautica2/Saved/SaveGames");
         // Since we can't test existence, at least verify the walk logic compiles
-        let result = derive_config_path(save);
+        let result = derive_ini_path(save);
         // On a test machine without the game, this returns None — which is fine
         let _ = result;
     }
