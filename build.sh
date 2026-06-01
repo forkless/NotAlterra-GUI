@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # NotAlterra build script
-# Produces: notalterra-linux, notalterra-windows.exe (in project root)
+# Produces: notalterra-linux, notalterra-windows.exe, and release archives
 
 VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 echo "=== NotAlterra v${VERSION} ==="
@@ -40,6 +40,22 @@ echo "  notalterra-linux ($(du -h notalterra-linux | cut -f1))"
 if [ "$WINDOWS_SKIP" -eq 0 ]; then
     cp target/x86_64-pc-windows-gnu/release/notalterra.exe notalterra-windows.exe
     echo "  notalterra-windows.exe ($(du -h notalterra-windows.exe | cut -f1))"
+fi
+
+echo ""
+echo "=== Packaging release archives ==="
+LINUX_ARCHIVE="notalterra-v${VERSION}-linux-amd64.tar.gz"
+cp target/release/notalterra notalterra
+tar -czf "$LINUX_ARCHIVE" notalterra
+rm -f notalterra
+echo "  $LINUX_ARCHIVE ($(du -h "$LINUX_ARCHIVE" | cut -f1))"
+
+if [ "$WINDOWS_SKIP" -eq 0 ]; then
+    WIN_ARCHIVE="notalterra-v${VERSION}-windows-x64.zip"
+    cp target/x86_64-pc-windows-gnu/release/notalterra.exe notalterra.exe
+    zip -q "$WIN_ARCHIVE" notalterra.exe
+    rm -f notalterra.exe
+    echo "  $WIN_ARCHIVE ($(du -h "$WIN_ARCHIVE" | cut -f1))"
 fi
 
 echo ""
