@@ -33,16 +33,6 @@ if [ "$WINDOWS_SKIP" -eq 0 ]; then
 fi
 
 echo ""
-echo "=== Copying binaries ==="
-cp target/release/notalterra notalterra-linux
-echo "  notalterra-linux ($(du -h notalterra-linux | cut -f1))"
-
-if [ "$WINDOWS_SKIP" -eq 0 ]; then
-    cp target/x86_64-pc-windows-gnu/release/notalterra.exe notalterra-windows.exe
-    echo "  notalterra-windows.exe ($(du -h notalterra-windows.exe | cut -f1))"
-fi
-
-echo ""
 echo "=== Packaging release archives ==="
 LINUX_ARCHIVE="notalterra-v${VERSION}-linux-amd64.tar.gz"
 cp target/release/notalterra notalterra
