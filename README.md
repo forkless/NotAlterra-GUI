@@ -110,8 +110,12 @@ Run the binary. On first launch it auto-scans for your save folder. The menu is 
     ...
 ```
 
-> For older Steam installs, replace `~/.steam` with
-> `~/.local/share/Steam` — NotAlterra checks both.
+NotAlterra checks both `~/.steam` and `~.local/share/Steam` — no manual
+path change needed for legacy or modern Steam installs.
+
+> [!IMPORTANT]
+> If the tool cannot locate your `SaveGames` folder, you can manually
+> override the path by editing the `last_path` field in `config.ini`.
 
 Backups are stored in `NotAlterra_Backups\` alongside the binary.
 
