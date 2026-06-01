@@ -198,6 +198,20 @@ fn extract_bool_property(data: &[u8], prop_name: &str) -> Option<bool> {
     None
 }
 
+/// Scan for a double value near a marker byte sequence.
+fn scan_double_near(data: &[u8], marker: &[u8]) -> Option<f64> {
+    let pos = data.windows(marker.len()).position(|w| w == marker)?;
+    let end = (pos + 60).min(data.len());
+    for off in 8..50 {
+        if pos + off + 8 > data.len() { break; }
+        let val = f64::from_le_bytes(data[pos+off..pos+off+8].try_into().ok()?);
+        if val > 60.0 && val < 10_000_000.0 {
+            return Some(val);
+        }
+    }
+    None
+}
+
 /// Find an IntProperty by name and return its u32 value.
 fn extract_double_property(data: &[u8], prop_name: &str) -> Option<f64> {
     let target = prop_name.as_bytes();
@@ -273,7 +287,8 @@ pub fn extract_full_metadata(path: &Path) -> Result<FullMetadata> {
         saves_count: extract_int_property(&data, "SavesCount"),
         latest_version: extract_int_property(&data, "LatestVersion"),
         data_version: extract_int_property(&data, "DataVersion"),
-        playtime_seconds: extract_double_property(&data, "ElapsedTimeDouble"),
+        playtime_seconds: extract_double_property(&data, "ElapsedTimeDouble")
+            .or_else(|| scan_double_near(&data, b"Elapsed")),
     })
 }
 
@@ -314,7 +329,8 @@ pub fn extract_metadata(path: &Path) -> Result<SaveMetadata> {
     };
     let is_online = extract_bool_property(&data, "bIsMultiplayerSave").unwrap_or(false);
 
-    let playtime_seconds = extract_double_property(&data, "ElapsedTimeDouble");
+    let playtime_seconds = extract_double_property(&data, "ElapsedTimeDouble")
+        .or_else(|| scan_double_near(&data, b"Elapsed"));
     Ok(SaveMetadata {
         slot_name,
         display_name,
