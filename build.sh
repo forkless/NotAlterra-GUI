@@ -2,7 +2,9 @@
 set -euo pipefail
 
 # NotAlterra build script
-# Produces: notalterra-linux, notalterra-windows.exe, and release archives
+# Produces: release archives in builds/
+# Usage: ./build.sh          — optimized release (LTO + strip)
+#        ./build.sh fast     — no LTO, faster compile
 
 VERSION=$(grep '^version' Cargo.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 echo "=== NotAlterra v${VERSION} ==="
