@@ -434,7 +434,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
             let save_type = if s.is_online { "Multi" } else { "Single" };
             let playtime = format_playtime(s.playtime_seconds);
             format!(
-                " {:<8}  {:<22}  {:<7}  {:<8}  {:>6}  {}",
+                " {:<8}  {:<16}  {:<6}  {:<8}  {:>6}  {}",
                 label_col,
                 name_col,
                 save_type,
