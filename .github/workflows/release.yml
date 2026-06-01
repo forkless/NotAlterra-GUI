@@ -17,13 +17,22 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo check --workspace
       - run: cargo doc --no-deps --document-private-items --workspace
-      - name: Deploy docs to GitHub Pages
+      - name: Upload doc artifact
         if: github.ref == 'refs/heads/master'
-        uses: peaceiris/actions-gh-pages@v4
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/doc
-          force_orphan: true
+          path: target/doc
+
+  pages:
+    needs: check
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/deploy-pages@v4
 
   build:
     needs: check
