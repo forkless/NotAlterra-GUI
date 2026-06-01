@@ -130,8 +130,8 @@ config_path = C:\Users\...\Subnautica2\Saved\Config\Windows
 
 Delete `config.ini` to force a fresh scan on next launch.
 
-> Only the disclaimer flag and save-folder paths are stored — no backup
-> state or file metadata is persisted.
+Only the disclaimer flag and save-folder paths are stored — no backup
+state or file metadata is persisted.
 
 
 ## Platform Support
