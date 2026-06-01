@@ -32,7 +32,7 @@ const KNOWN_PATTERNS: &[(&str, &str)] = &[
 /// Search all known locations for Subnautica 2 save folders.
 ///
 /// Returns a deduplicated, ranked list.  The first result is cached as
-/// `last_path` in config.ini so subsequent launches skip the scan.
+/// `save_path` in config.ini so subsequent launches skip the scan.
 pub fn discover_save_folders() -> Vec<DiscoveredFolder> {
     let mut found: Vec<DiscoveredFolder> = Vec::new();
     let mut seen: std::collections::HashSet<PathBuf> = std::collections::HashSet::new();

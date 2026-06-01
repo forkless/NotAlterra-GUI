@@ -81,7 +81,7 @@ impl App {
         let config = crate::config::load_config(&config_path)?;
         let log_path = guard::log_path();
 
-        let save_folder = config.last_path.as_deref().map(PathBuf::from);
+        let save_folder = config.save_path.as_deref().map(PathBuf::from);
 
         let mut tui_state = tui::AppState::default();
         tui_state.version = VERSION.to_string();
@@ -173,8 +173,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
         app.set_spinner(false);
         if let Some(first) = folders.first() {
             app.save_folder = Some(first.path.clone());
-            app.config.last_path = Some(first.path.display().to_string());
-            app.config.last_scan = Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
+            app.config.save_path = Some(first.path.display().to_string());
+            app.config.save_scan = Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
             crate::config::save_config(&app.config_path, &app.config)?;
             refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
             true
@@ -353,8 +353,8 @@ fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) ->
     // Cache the first result
     if let Some(first) = folders.first() {
         app.save_folder = Some(first.path.clone());
-        app.config.last_path = Some(first.path.display().to_string());
-        app.config.last_scan = Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
+        app.config.save_path = Some(first.path.display().to_string());
+        app.config.save_scan = Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
         crate::config::save_config(&app.config_path, &app.config)?;
     }
 
@@ -1011,7 +1011,7 @@ fn ensure_save_folder<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) ->
     let folders = discovery::discover_save_folders();
     if let Some(first) = folders.first() {
         app.save_folder = Some(first.path.clone());
-        app.config.last_path = Some(first.path.display().to_string());
+        app.config.save_path = Some(first.path.display().to_string());
         crate::config::save_config(&app.config_path, &app.config)?;
         refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
         return Ok(first.path.clone());

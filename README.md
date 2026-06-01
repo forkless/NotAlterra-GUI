@@ -115,7 +115,7 @@ path change needed for legacy or modern Steam installs.
 
 > [!IMPORTANT]
 > If the tool cannot locate your `SaveGames` folder, you can manually
-> override the path by editing the `last_path` field in `config.ini`.
+> override the path by editing the `save_path` field in `config.ini`.
 
 Backups are stored in `NotAlterra_Backups\` alongside the binary.
 
@@ -126,8 +126,8 @@ Created automatically next to the binary:
 
 ```ini
 [alterra]
-last_path = C:\Users\...\Subnautica2\Saved\SaveGames
-last_scan = 2026-05-31 18:00:00
+save_path = C:\Users\...\Subnautica2\Saved\SaveGames
+save_scan = 2026-05-31 18:00:00
 disclaimer_accepted = true
 config_path = C:\Users\...\Subnautica2\Saved\Config\Windows
 ```

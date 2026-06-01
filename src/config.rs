@@ -5,8 +5,8 @@
 //!
 //! ```ini
 //! [alterra]
-//! last_path = C:\Users\...\Subnautica2\Saved\SaveGames
-//! last_scan = 2026-05-26 19:45:22
+//! save_path = C:\Users\...\Subnautica2\Saved\SaveGames
+//! save_scan = 2026-05-26 19:45:22
 //! disclaimer_accepted = true
 //! config_path = C:\Users\...\Subnautica2\Saved\Config\Windows
 //! ```
@@ -20,11 +20,11 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Clone, Default)]
 pub struct AppConfig {
     /// Last-known save folder (SaveGames)
-    pub last_path: Option<String>,
+    pub save_path: Option<String>,
     /// Last-known Config\Windows folder
     pub config_path: Option<String>,
     /// Timestamp of last successful scan
-    pub last_scan: Option<String>,
+    pub save_scan: Option<String>,
     /// Whether disclaimer was accepted
     pub disclaimer_accepted: bool,
 }
@@ -58,12 +58,12 @@ pub fn load_config(path: &Path) -> Result<AppConfig> {
             continue;
         }
 
-        if let Some(val) = trimmed.strip_prefix("last_path").and_then(strip_eq) {
-            cfg.last_path = Some(val.to_string());
+        if let Some(val) = trimmed.strip_prefix("save_path").and_then(strip_eq) {
+            cfg.save_path = Some(val.to_string());
         } else if let Some(val) = trimmed.strip_prefix("config_path").and_then(strip_eq) {
             cfg.config_path = Some(val.to_string());
-        } else if let Some(val) = trimmed.strip_prefix("last_scan").and_then(strip_eq) {
-            cfg.last_scan = Some(val.to_string());
+        } else if let Some(val) = trimmed.strip_prefix("save_scan").and_then(strip_eq) {
+            cfg.save_scan = Some(val.to_string());
         } else if let Some(val) = trimmed.strip_prefix("disclaimer_accepted").and_then(strip_eq) {
             cfg.disclaimer_accepted = val.trim() == "true";
         }
@@ -91,14 +91,14 @@ pub fn save_config(path: &Path, cfg: &AppConfig) -> Result<()> {
 
     writeln!(f, "[alterra]")?;
 
-    if let Some(ref lp) = cfg.last_path {
-        writeln!(f, "last_path = {lp}")?;
+    if let Some(ref lp) = cfg.save_path {
+        writeln!(f, "save_path = {lp}")?;
     }
     if let Some(ref cp) = cfg.config_path {
         writeln!(f, "config_path = {cp}")?;
     }
-    if let Some(ref ls) = cfg.last_scan {
-        writeln!(f, "last_scan = {ls}")?;
+    if let Some(ref ls) = cfg.save_scan {
+        writeln!(f, "save_scan = {ls}")?;
     }
     writeln!(
         f,
@@ -116,7 +116,7 @@ pub fn save_config(path: &Path, cfg: &AppConfig) -> Result<()> {
 
 /// Collect key/value pairs from the old config that this tool doesn't own.
 fn preserved_keys(path: &Path) -> Result<Vec<(String, String)>> {
-    let known = &["last_path", "config_path", "last_scan", "disclaimer_accepted"];
+    let known = &["save_path", "config_path", "save_scan", "disclaimer_accepted"];
     let mut out = Vec::new();
 
     let f = fs::File::open(path)?;
