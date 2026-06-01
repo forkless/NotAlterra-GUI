@@ -58,4 +58,5 @@ echo "=== Done ==="
 # Sign and push the tag to trigger CI release
 echo ""
 echo "--- Tag & Release ---"
-echo "  git tag -s v${VERSION} -m 'v${VERSION}' && git push origin v${VERSION}"
+export GPG_TTY=$(tty 2>/dev/null || echo "")
+git tag -s "v${VERSION}" -m "v${VERSION}" && git push origin "v${VERSION}"
