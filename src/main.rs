@@ -36,6 +36,7 @@ use std::path::{Path, PathBuf};
 
 const VERSION: &str = concat!("v", env!("CARGO_PKG_VERSION"));
 
+/// Entry point — parses args, loads config, and starts the TUI loop.
 fn main() -> Result<()> {
     for arg in std::env::args().skip(1) {
         if arg == "--version" || arg == "-v" {
@@ -120,6 +121,7 @@ impl App {
     }
 }
 
+/// Internal helper — see module-level documentation for context.
 fn exe_dir() -> PathBuf {
     std::env::current_exe()
         .ok()
@@ -127,6 +129,7 @@ fn exe_dir() -> PathBuf {
         .unwrap_or_else(|| PathBuf::from("."))
 }
 
+/// Internal helper — see module-level documentation for context.
 fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
     tui_state.save_path = save_folder.map(|p| p.display().to_string());
     let backup_root = exe_dir().join("NotAlterra_Backups");
@@ -138,6 +141,7 @@ fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
 
 // ── main loop ──────────────────────────────────────────────────────────────
 
+/// Initialize the terminal and run the main menu loop.
 fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
     let mut app = App::new()?;
 
@@ -244,6 +248,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
 
 // ── disclaimer ─────────────────────────────────────────────────────────────
 
+/// Display the start-up disclaimer and prompt for acceptance.
 fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<Option<bool>> {
     let mut selected_yes = true;
     loop {
@@ -710,6 +715,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
 
 // ── .ini submenu ───────────────────────────────────────────────────────────
 
+/// Internal helper — see module-level documentation for context.
 fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let ini_path = get_ini_path(terminal, app)?;
     let backup_root = app.backup_root();
@@ -762,6 +768,7 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
     Ok(())
 }
 
+/// Internal helper — see module-level documentation for context.
 fn ini_backup_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
@@ -789,6 +796,7 @@ fn ini_backup_action<B: Backend>(
     Ok(())
 }
 
+/// Internal helper — see module-level documentation for context.
 fn ini_restore_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
@@ -852,6 +860,7 @@ fn ini_restore_action<B: Backend>(
     Ok(())
 }
 
+/// Internal helper — see module-level documentation for context.
 fn ini_delete_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
@@ -996,6 +1005,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
+/// Internal helper — see module-level documentation for context.
 fn poll_key(timeout_ms: u64) -> Result<Option<crossterm::event::KeyEvent>> {
     if event::poll(std::time::Duration::from_millis(timeout_ms))? {
         if let Event::Key(key) = event::read()? {
@@ -1072,6 +1082,10 @@ fn slot_number(slot: &str) -> String {
         .unwrap_or_else(|| slot.to_string())
 }
 
+/// Internal helper — see module-level documentation for context.
+/// Internal helper — see module-level documentation for context.
+/// Display an informational dialog with a single OK button.
+/// Display a dialog with styled content lines (colors, bold).
 fn ok_dialog_styled<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, lines: &[Line]) -> Result<()> {
     loop {
         terminal.draw(|f| tui::draw_ok_dialog_styled(f, &app.tui_state, title, lines))?;
@@ -1083,6 +1097,8 @@ fn ok_dialog_styled<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &s
     }
 }
 
+/// Internal helper — see module-level documentation for context.
+/// Display an informational dialog with a single OK button.
 fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg: &str) -> Result<()> {
     loop {
         terminal.draw(|f| tui::draw_ok_dialog(f, &app.tui_state, title, msg))?;
@@ -1094,11 +1110,13 @@ fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg
     }
 }
 
+/// Internal helper — see module-level documentation for context.
 fn has_existing_backup(app: &App) -> bool {
     let root = app.backup_root();
     root.exists() && std::fs::read_dir(&root).map_or(false, |mut d| d.any(|e| e.map_or(false, |e| e.path().is_dir())))
 }
 
+/// Internal helper — see module-level documentation for context.
 fn require_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<bool> {
     if has_existing_backup(app) {
         return Ok(true);
@@ -1108,6 +1126,7 @@ fn require_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
     Ok(false)
 }
 
+/// Internal helper — see module-level documentation for context.
 fn derive_target_sav(bak_name: &str) -> String {
     crate::gvas::derive_slot_from_filename(bak_name)
         .map(|s| format!("{s}.sav"))
@@ -1213,6 +1232,7 @@ fn fs_meta(path: &Path) -> Result<std::fs::Metadata, ()> {
     std::fs::metadata(path).map_err(|_| ())
 }
 
+/// Internal helper — see module-level documentation for context.
 fn format_playtime(seconds: Option<f64>) -> String {
     match seconds {
         Some(s) if s >= 3600.0 => {
