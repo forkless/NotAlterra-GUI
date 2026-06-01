@@ -59,6 +59,16 @@ Be respectful.  Be constructive.  Assume good intent.
 This project is maintained by someone learning as they go.  Questions are
 welcome.  Patience is appreciated.  Kindness is non-negotiable.
 
+## Release Checklist
+
+Before signing a release tag, the maintainer verifies:
+
+- [ ] `cargo test --workspace` — all tests pass
+- [ ] `python3 tests/_check.py` — 100% doc coverage
+- [ ] CHANGELOG.md has an entry for the new version
+- [ ] `git status` — no uncommitted changes
+- [ ] `_release.md` What's New section is updated
+
 ## Changes to This Document
 
 This document is versioned with the repository.  Proposed changes should be
