@@ -1209,11 +1209,11 @@ fn format_playtime(seconds: Option<f64>) -> String {
         Some(s) if s >= 3600.0 => {
             let h = (s / 3600.0) as u32;
             let m = ((s % 3600.0) / 60.0) as u32;
-            format!("{h}h {m}m")
+            format!("{h:02}h {m:02}m")
         }
         Some(s) if s >= 60.0 => {
             let m = (s / 60.0) as u32;
-            format!("{m}m")
+            format!("    {m:02}m")
         }
         Some(_) => String::from("—"),
         None => String::from("—"),
