@@ -34,14 +34,15 @@ fi
 
 echo ""
 echo "=== Packaging release archives ==="
-LINUX_ARCHIVE="notalterra-v${VERSION}-linux-amd64.tar.gz"
+mkdir -p builds
+LINUX_ARCHIVE="builds/notalterra-v${VERSION}-linux-amd64.tar.gz"
 cp target/release/notalterra notalterra
 tar -czf "$LINUX_ARCHIVE" notalterra
 rm -f notalterra
 echo "  $LINUX_ARCHIVE ($(du -h "$LINUX_ARCHIVE" | cut -f1))"
 
 if [ "$WINDOWS_SKIP" -eq 0 ]; then
-    WIN_ARCHIVE="notalterra-v${VERSION}-windows-x64.zip"
+    WIN_ARCHIVE="builds/notalterra-v${VERSION}-windows-x64.zip"
     cp target/x86_64-pc-windows-gnu/release/notalterra.exe notalterra.exe
     zip -q "$WIN_ARCHIVE" notalterra.exe
     rm -f notalterra.exe
