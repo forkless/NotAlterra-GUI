@@ -100,19 +100,23 @@ impl App {
         })
     }
 
+    /// Returns the backup root directory alongside the binary.
     fn backup_root(&self) -> PathBuf {
         exe_dir().join("NotAlterra_Backups")
     }
 
+    /// Set the status bar message with optional style.
     fn set_status(&mut self, msg: &str, style: tui::StatusStyle) {
         self.tui_state.status_message = Some(msg.to_string());
         self.tui_state.status_style = style;
     }
 
+    /// Reset the status bar to empty.
     fn clear_status(&mut self) {
         self.tui_state.status_message = None;
     }
 
+    /// Show or hide the spinner indicator on the status bar.
     fn set_spinner(&mut self, active: bool) {
         self.tui_state.spinner_active = active;
         if active {

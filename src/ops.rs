@@ -478,6 +478,7 @@ fn copy_save_files(
     Ok(())
 }
 
+/// Recursively copy a directory tree.
 fn copy_recursive(
     src: &Path,
     dest: &Path,
@@ -526,6 +527,7 @@ fn verify_backup(src: &Path, dest: &Path) -> bool {
     true
 }
 
+/// List subdirectories whose names begin with a given prefix.
 fn list_subdirs(root: &Path, prefix: &str) -> Vec<PathBuf> {
     if !root.exists() {
         return Vec::new();

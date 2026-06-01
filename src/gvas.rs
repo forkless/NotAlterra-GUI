@@ -233,6 +233,7 @@ fn extract_double_property(data: &[u8], prop_name: &str) -> Option<f64> {
     None
 }
 
+/// Extract an integer property value from a key-value text pair.
 fn extract_int_property(data: &[u8], prop_name: &str) -> Option<u32> {
     let target = prop_name.as_bytes();
     let mut offset = 0usize;
@@ -479,6 +480,7 @@ mod tests {
     }
 
     #[test]
+    /// Test helper — dump full GVAS metadata for a sample file.
     fn print_full_meta() {
         let p = Path::new("samples/savegame_1.sav");
         if !p.exists() { return; }

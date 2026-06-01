@@ -179,6 +179,7 @@ fn scan_other_users(
     }
 }
 
+/// Linux variant — same logic as the Windows version above.
 #[cfg(not(target_os = "windows"))]
 fn scan_other_users(
     found: &mut Vec<DiscoveredFolder>,
@@ -253,6 +254,7 @@ fn scan_common_install_dirs(
     }
 }
 
+/// Linux variant — same logic as the Windows version above.
 #[cfg(not(target_os = "windows"))]
 fn scan_common_install_dirs(
     found: &mut Vec<DiscoveredFolder>,

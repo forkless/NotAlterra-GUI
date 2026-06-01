@@ -64,6 +64,7 @@ pub fn log_path() -> PathBuf {
     exe_dir().join("transaction.log")
 }
 
+/// Return the directory containing the running executable.
 fn exe_dir() -> PathBuf {
     std::env::current_exe()
         .ok()

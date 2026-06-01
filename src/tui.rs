@@ -374,6 +374,7 @@ fn standard_layout(area: Rect, _menu_items: usize) -> Vec<Rect> {
         .split(area).to_vec()
 }
 
+/// Render the title bar with version information.
 fn draw_header(f: &mut Frame, area: Rect, app: &AppState) {
     let header_block = Block::default()
         .borders(Borders::BOTTOM)
@@ -411,6 +412,7 @@ fn draw_header(f: &mut Frame, area: Rect, app: &AppState) {
     f.render_widget(header_block, area);
 }
 
+/// Render the status dashboard beneath the header.
 fn draw_status_dashboard(f: &mut Frame, area: Rect, app: &AppState) {
     let live = Span::styled(
         format!(" Save{}: {} ", if app.live_save_count == 1 { "" } else { "s" }, if app.save_path.is_some() { app.live_save_count.to_string() } else { "—".into() }),
@@ -437,6 +439,8 @@ fn draw_status_dashboard(f: &mut Frame, area: Rect, app: &AppState) {
     f.render_widget(Paragraph::new(line), area);
 }
 
+/// Render a scrollable picker list with description and prompt.
+#[allow(unused)]
 fn draw_select_list(
     f: &mut Frame,
     area: Rect,
@@ -508,6 +512,7 @@ fn draw_select_list(
     }
 }
 
+/// Render a picker list with an extra selected-item info line.
 fn draw_select_list_with_info(
     f: &mut Frame,
     area: Rect,
@@ -599,6 +604,7 @@ fn draw_select_list_with_info(
     }
 }
 
+/// Render the status bar at the bottom of the screen.
 fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
     draw_whale_separator(f, area, app);
 }
