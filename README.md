@@ -141,6 +141,14 @@ Delete `config.ini` to force a fresh scan on next launch.
 
 ---
 
+> [!IMPORTANT]
+> **Running an unsigned executable on Windows** triggers a UAC "Unknown
+> Publisher" warning, forcing you to click "Run anyway" and bypass
+> Windows' safety net. This tool lacks a signature not because it's
+> unsafe, but because free services like SignPath Foundation require
+> proven community standing first — submitted as soon as the project
+> meets their basic acceptance criteria.
+
 ## Safety
 
 - Runs in your user context — no admin privileges required
