@@ -53,7 +53,7 @@ all.
 ## Signing
 > **Status: pending certification.**  No binaries have been signed by
 > SignPath yet.  This policy exists for transparency and privacy
-> documentation while the project awaits acceptance.
+> documentation while the project prepares for certification.
 
 Only binaries produced by the official CI runner from the `master`
 branch will be submitted to SignPath for signing.  Manual or off-CI
