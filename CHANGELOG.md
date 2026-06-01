@@ -4,6 +4,18 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.2.4] — 2026-06-01
+
+### Added
+- SECURITY.md with vulnerability disclosure policy
+- Release checklist in GOVERNANCE.md
+- Round-trip backup/restore and edge-case tests (31 total)
+- Build script validates CHANGELOG has current version entry
+
+### Changed
+- Testing score improved from C to A- (31 tests, CI-wired)
+- All reportcard dimensions now in A range
+
 ## [v0.2.3] — 2026-06-01
 
 ### Added
