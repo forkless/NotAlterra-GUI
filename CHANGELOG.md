@@ -14,7 +14,6 @@ All notable changes to NotAlterra are documented in this file.
 
 ### Changed
 - Testing score improved from C to A- (31 tests, CI-wired)
-- All reportcard dimensions now in A range
 
 ## [v0.2.3] — 2026-06-01
 
