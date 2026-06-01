@@ -4,6 +4,15 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.1.3] — 2026-06-01
+
+### Changed
+- "Multiplayer" / "Single Player" used consistently throughout picker and inspector
+- Release archives moved to `builds/` directory
+
+### Fixed
+- Playtime extraction on production saves (fallback byte-scan for DoubleProperty)
+
 ## [v0.1.2] — 2026-06-01
 
 ### Added
