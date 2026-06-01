@@ -1,5 +1,3 @@
-### v0.2.0
-
 NotAlterra is an unofficial Subnautica 2 save-file manager.
 Cross-platform terminal application.  No admin, no network.
 
