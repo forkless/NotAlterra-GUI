@@ -287,8 +287,7 @@ pub fn extract_full_metadata(path: &Path) -> Result<FullMetadata> {
         saves_count: extract_int_property(&data, "SavesCount"),
         latest_version: extract_int_property(&data, "LatestVersion"),
         data_version: extract_int_property(&data, "DataVersion"),
-        playtime_seconds: extract_double_property(&data, "ElapsedTimeDouble")
-            .or_else(|| scan_double_near(&data, b"Elapsed")),
+        playtime_seconds: scan_double_near(&data, b"Elapsed"),
     })
 }
 
@@ -329,8 +328,7 @@ pub fn extract_metadata(path: &Path) -> Result<SaveMetadata> {
     };
     let is_online = extract_bool_property(&data, "bIsMultiplayerSave").unwrap_or(false);
 
-    let playtime_seconds = extract_double_property(&data, "ElapsedTimeDouble")
-        .or_else(|| scan_double_near(&data, b"Elapsed"));
+    let playtime_seconds = scan_double_near(&data, b"Elapsed");
     Ok(SaveMetadata {
         slot_name,
         display_name,
