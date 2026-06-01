@@ -4,6 +4,24 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.2.0] — 2026-06-01
+
+### Added
+- Column headers in file pickers (Slot, Description, Game Type, Playtime, Size, Date)
+- Navigation prompt alongside item description line
+- Unsigned executable notice in README
+
+### Changed
+- `last_path` → `save_path`, `last_scan` → `save_scan`, `config_path` → `ini_path`
+- Windows executable renamed to `NotAlterra.exe`
+- Removed unused dependencies (sysinfo, log, simplelog)
+- Playtime zero-padded to 2 digits (`03h 05m`)
+- Header and blank rows non-navigable in pickers
+
+### Fixed
+- Playtime extraction on production saves (fallback byte-scan for DoubleProperty)
+- File picker column alignment and spacing tightened
+
 ## [v0.1.3] — 2026-06-01
 
 ### Added
