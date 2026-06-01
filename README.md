@@ -64,7 +64,10 @@ folder and run `.\NotAlterra.exe`.
 > **Running an unsigned executable on Windows** triggers a UAC "Unknown
 > Publisher" warning, forcing you to click "Run anyway" and bypass
 > Windows' safety net. This tool lacks a signature not because it's
-> CI/CD pipeline, audit trail, and provenance documentation meet SignPath's acceptance criteria.
+> unsafe, but because services like SignPath Foundation require a
+> well-established CI/CD pipeline, audit trail, provenance
+> documentation, and proven community standing to meet their acceptance
+> criteria.
 
 ## Usage
 
