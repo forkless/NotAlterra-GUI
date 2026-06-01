@@ -63,6 +63,14 @@ Expand-Archive notalterra-v0.1.3-windows-x64.zip -DestinationPath .
 > **Extract All**), then open **Command Prompt** or **PowerShell** in that
 > folder and run `.\NotAlterra.exe`.
 
+> [!IMPORTANT]
+> **Running an unsigned executable on Windows** triggers a UAC "Unknown
+> Publisher" warning, forcing you to click "Run anyway" and bypass
+> Windows' safety net. This tool lacks a signature not because it's
+> unsafe, but because free services like SignPath Foundation require
+> proven community standing first — submitted as soon as the project
+> meets their basic acceptance criteria.
+
 ## Usage
 
 Run the binary. On first launch it auto-scans for your save folder. The menu is keyboard-driven:
@@ -140,14 +148,6 @@ Delete `config.ini` to force a fresh scan on next launch.
   same, but feedback and bug reports are appreciated.
 
 ---
-
-> [!IMPORTANT]
-> **Running an unsigned executable on Windows** triggers a UAC "Unknown
-> Publisher" warning, forcing you to click "Run anyway" and bypass
-> Windows' safety net. This tool lacks a signature not because it's
-> unsafe, but because free services like SignPath Foundation require
-> proven community standing first — submitted as soon as the project
-> meets their basic acceptance criteria.
 
 ## Safety
 
