@@ -11,7 +11,8 @@ fn main() {
         .unwrap()
         .filter_map(|e| e.ok())
         .filter(|e| {
-            let s = e.file_name().to_string_lossy();
+            let fname = e.file_name();
+            let s = fname.to_string_lossy();
             s.ends_with(".sav") || s.ends_with(".bak")
         })
         .collect();
