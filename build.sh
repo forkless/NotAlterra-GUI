@@ -45,6 +45,7 @@ echo "  $LINUX_ARCHIVE ($(du -h "$LINUX_ARCHIVE" | cut -f1))"
 
 if [ "$WINDOWS_SKIP" -eq 0 ]; then
     WIN_ARCHIVE="builds/notalterra-v${VERSION}-windows-x64.zip"
+    rm -f "$WIN_ARCHIVE"
     cp target/x86_64-pc-windows-gnu/release/notalterra.exe NotAlterra.exe
     zip -q "$WIN_ARCHIVE" NotAlterra.exe
     rm -f NotAlterra.exe
