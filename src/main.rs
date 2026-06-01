@@ -431,10 +431,10 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 name.to_string()
             };
             let date = s.mtime.as_deref().unwrap_or("?");
-            let save_type = if s.is_online { "Multi" } else { "Single" };
+            let save_type = if s.is_online { "Multiplayer" } else { "Single Player" };
             let playtime = format_playtime(s.playtime_seconds);
             format!(
-                " {:<8}  {:<16}  {:<6}  {:<8}  {:>6}  {}",
+                " {:<8}  {:<16}  {:<14}  {:<8}  {:>6}  {}",
                 label_col,
                 name_col,
                 save_type,
@@ -940,7 +940,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
                         let fields: Vec<(&str, &str, String)> = vec![
                             ("SlotName", ":", meta.slot_name.as_deref().unwrap_or("?").into()),
                             ("DisplayName", ":", meta.display_name.as_deref().unwrap_or("(unnamed)").into()),
-                            ("Multiplayer", ":", (if meta.is_online { "yes" } else { "no" }).into()),
+                            ("Game Type", ":", (if meta.is_online { "Multiplayer" } else { "Single Player" }).into()),
                             ("Was Multi", ":", (if meta.was_multiplayer { "yes" } else { "no" }).into()),
                             ("GameMode", ":", meta.game_mode.as_deref().unwrap_or("?").into()),
                             ("Level", ":", meta.level_name.as_deref().unwrap_or("?").into()),
