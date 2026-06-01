@@ -15,9 +15,10 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 - **Create / restore** full backups (only `savegame_*` files)
 - **Manage** UE5 Config `.ini` files — backup, restore, delete
 - **Inspect** any `.sav` or `.bak` file — full GVAS metadata dump
-- **Slot grouping** with Online / Local detection
-- **Warns** on name changes and online↔local mode switches before recovery
-- **Game-running guard** — exits or warns if Subnautica 2 is active
+- **Slot grouping** with Multiplayer / Single Player detection
+- **Playtime extraction** — displays total playtime from save metadata
+- **Warns** on name changes and mode switches before recovery
+- **Startup reminder** to close Subnautica 2 before use
 - **Transaction log** — all actions timestamped to `transaction.log`
 - **Cross-platform** — Linux and Windows console builds
 
@@ -44,7 +45,7 @@ Download the pre-compiled executable for your platform from the [releases page](
 ### Linux
 
 ```bash
-tar -xzf notalterra-v0.1.1-linux-amd64.tar.gz
+tar -xzf notalterra-v0.1.2-linux-amd64.tar.gz
 chmod +x notalterra
 ./notalterra
 ```
@@ -54,7 +55,7 @@ chmod +x notalterra
 Extract the `.zip` archive and double-click `notalterra.exe`, or run from a terminal:
 
 ```powershell
-Expand-Archive notalterra-v0.1.1-windows-x64.zip -DestinationPath .
+Expand-Archive notalterra-v0.1.2-windows-x64.zip -DestinationPath .
 .\notalterra.exe
 ```
 
@@ -146,7 +147,7 @@ Delete `config.ini` to force a fresh scan on next launch.
 - No network connections
 - Read-only inspect mode won't touch files
 - Pre-restore snapshots created automatically
-- Guard against file corruption: refuses overwrite if Subnautica 2 is running
+- .ini delete requires a prior backup
 
 ---
 

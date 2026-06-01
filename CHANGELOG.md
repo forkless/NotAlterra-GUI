@@ -6,9 +6,28 @@ All notable changes to NotAlterra are documented in this file.
 
 ## [v0.1.2] — 2026-06-01
 
+### Added
+- Playtime extraction from GVAS `ElapsedTimeDouble` property — displays as `Xh Ym`
+  in file picker and inspector
+- Filesystem checks for .ini delete guard — requires actual `.ini` files in backup
+- Non-blocking event poll across all screens
+
 ### Changed
 - Replaced process detection (`tasklist`/`pgrep`) with startup warning modal
   to avoid Windows Defender false-positive (Trojan:Win32/Wacatac.C!ml)
+- "Online" / "Local" renamed to "Multiplayer" / "Single Player" throughout
+- Date format changed to `YYYY-Mon-DD HH:MM`
+- Status bar text removed — whale-only row
+- "Back" option added to .ini submenu
+- All save/ini operations now show file counts
+
+### Fixed
+- .ini backup now shows OK confirmation dialog
+- .ini restore returns file count
+- Fullbackup restore returns file count
+- Dashboard stats filter by `savegame_*` prefix
+- OK dialog width padding prevents text clipping
+- File picker column alignment tightened
 
 ## [v0.1.1] — 2026-05-31
 
