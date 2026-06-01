@@ -52,16 +52,16 @@ chmod +x notalterra
 
 ### Windows
 
-Extract the `.zip` archive and double-click `notalterra.exe`, or run from a terminal:
+Extract the `.zip` archive and double-click `NotAlterra.exe`, or run from a terminal:
 
 ```powershell
 Expand-Archive notalterra-v0.1.3-windows-x64.zip -DestinationPath .
-.\notalterra.exe
+.\NotAlterra.exe
 ```
 
 > You can also extract the `.zip` using Windows Explorer (right-click →
 > **Extract All**), then open **Command Prompt** or **PowerShell** in that
-> folder and run `.\notalterra.exe`.
+> folder and run `.\NotAlterra.exe`.
 
 ## Usage
 
