@@ -17,7 +17,7 @@ maintainer becomes unavailable.
 ## Maintainer
 
 - **GitHub**: [forkless](https://github.com/forkless)
-- **Contact**: forkless@proton.me
+- **Contact**: forkless@protonmail.com
 - **GPG key**: [314BB48A3C72D8EC2830B8BED2B0DF63E2CBEA16](https://github.com/forkless.gpg)
 
 ## Bus Factor

@@ -488,14 +488,14 @@ mod tests {
         let count = migrate_backups_from(old_root.clone()).unwrap();
         assert_eq!(count, 1);
 
-        // Find the migrated archive
+        // Find the migrated archive by matching the directory name
         let saves_dir = crate::config::backups_saves_dir();
         let archive: Option<PathBuf> = fs::read_dir(&saves_dir).unwrap()
             .flatten()
-            .filter(|e| e.file_name().to_string_lossy().contains("migrated_"))
+            .filter(|e| e.file_name().to_string_lossy().contains("migrated_notalterra_copy_2026-01-01"))
             .map(|e| e.path())
             .find(|_| true);
-        assert!(archive.is_some(), "migrated archive should exist");
+        assert!(archive.is_some(), "migrated archive should exist for 2026-01-01");
 
         // Extract to a temp dir and verify content
         let extract_dir = tmp.path().join("extracted");
