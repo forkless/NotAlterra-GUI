@@ -140,7 +140,7 @@ fn extract_str_property(data: &[u8], prop_name: &str) -> Result<String, String> 
             attempts += 1;
             continue;
         }
-        if data[found + target.len()] != 0 {
+        if found + target.len() >= data.len() || data[found + target.len()] != 0 {
             offset = found + 1;
             attempts += 1;
             continue;
@@ -187,7 +187,7 @@ fn extract_bool_property(data: &[u8], prop_name: &str) -> Option<bool> {
         if found < 4 { offset = found + 1; attempts += 1; continue; }
         let name_len_field = read_u32(data, found - 4);
         if name_len_field != Some(target.len() + 1) { offset = found + 1; attempts += 1; continue; }
-        if data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
+        if found + target.len() >= data.len() || data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
         let after_name = found + target.len() + 1;
         let (next_name, next_offset) = read_fname(data, after_name);
         if next_name.as_deref() != Some("BoolProperty") { offset = found + 1; attempts += 1; continue; }
@@ -223,7 +223,7 @@ fn extract_double_property(data: &[u8], prop_name: &str) -> Option<f64> {
         if found < 4 { offset = found + 1; attempts += 1; continue; }
         let expected: usize = target.len() + 1;
         if read_u32(data, found - 4) != Some(expected) { offset = found + 1; attempts += 1; continue; }
-        if data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
+        if found + target.len() >= data.len() || data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
         let (next_name, next_offset) = read_fname(data, found + target.len() + 1);
         if next_name.as_deref() != Some("DoubleProperty") { offset = found + 1; attempts += 1; continue; }
         let val_offset = next_offset + 9;
@@ -243,7 +243,7 @@ fn extract_int_property(data: &[u8], prop_name: &str) -> Option<u32> {
         let found = match found { Some(p) => offset + p, None => return None };
         if found < 4 { offset = found + 1; attempts += 1; continue; }
         if read_u32(data, found - 4) != Some(target.len() + 1) { offset = found + 1; attempts += 1; continue; }
-        if data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
+        if found + target.len() >= data.len() || data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
         let (next_name, next_offset) = read_fname(data, found + target.len() + 1);
         if next_name.as_deref() != Some("IntProperty") { offset = found + 1; attempts += 1; continue; }
         let val_offset = next_offset + 9;
