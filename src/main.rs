@@ -276,9 +276,6 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
 }
 
 
-/// Scan the local filesystem for Subnautica 2 save folders.
-///
-/// Spawns a background thread for the scan and shows a live elapsed timer.
 // ── menu actions ───────────────────────────────────────────────────────────
 
 /// Open the input dialog for the user to type a save-folder path.
@@ -330,30 +327,20 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
                             input_state.cancelled = true;
                             return Ok(());
                         }
-                        KeyCode::Char(c) => {
-                            if ok_selected {
-                                input_state.insert(c);
-                            }
+                        KeyCode::Char(c) if ok_selected => {
+                            input_state.insert(c);
                         }
-                        KeyCode::Backspace => {
-                            if ok_selected {
-                                input_state.backspace();
-                            }
+                        KeyCode::Backspace if ok_selected => {
+                            input_state.backspace();
                         }
-                        KeyCode::Delete => {
-                            if ok_selected {
-                                input_state.delete();
-                            }
+                        KeyCode::Delete if ok_selected => {
+                            input_state.delete();
                         }
-                        KeyCode::Left => {
-                            if ok_selected {
-                                input_state.cursor_left();
-                            }
+                        KeyCode::Left if ok_selected => {
+                            input_state.cursor_left();
                         }
-                        KeyCode::Right => {
-                            if ok_selected {
-                                input_state.cursor_right();
-                            }
+                        KeyCode::Right if ok_selected => {
+                            input_state.cursor_right();
                         }
                         KeyCode::Tab => {
                             ok_selected = !ok_selected;
@@ -365,10 +352,8 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
                         _ => {}
                     }
                 }
-                Event::Paste(s) => {
-                    if ok_selected {
-                        input_state.insert_str(&s);
-                    }
+                Event::Paste(s) if ok_selected => {
+                    input_state.insert_str(&s);
                 }
                 _ => {}
             }

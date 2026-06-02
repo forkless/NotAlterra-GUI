@@ -736,7 +736,7 @@ pub fn draw_input_dialog(
     );
 
     // Input line with cursor
-    let cursor_visible = (std::time::Instant::now().elapsed().as_millis() / 500) % 2 == 0;
+    let cursor_visible = (std::time::Instant::now().elapsed().as_millis() / 500).is_multiple_of(2);
     let mut input_spans = vec![
         Span::styled("  ", Style::default()),
     ];

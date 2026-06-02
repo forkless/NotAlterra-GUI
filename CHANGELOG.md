@@ -50,6 +50,11 @@ All notable changes to NotAlterra are documented in this file.
 - **`is_cloud_path()` removed** — was only used by the discovery-era cloud
   detection path.
 
+### Notes
+- Working copy diverged from remote after signing the previous commit
+  on a different clone. Resolved via `git reset --soft origin/master`
+  (no content lost, identical tree).
+
 ## [v0.2.3] — 2026-06-01
 
 - Zero compiler warnings (`deny(unsafe_code)`, `allow(dead_code)` where intentional)
