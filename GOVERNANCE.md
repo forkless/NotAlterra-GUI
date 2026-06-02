@@ -100,6 +100,7 @@ Planned changes for upcoming releases, ordered by priority.
 |--------|------|
 | v0.4.0 | ✅ All v0.4.0 items completed — released 2026-06-03 |
 | v0.5.0 | CLI flags: `--backup`, `--extract <archive>`, `--inspect <savefile>` (`.sav`/`.bak`), `--list` |
+| v0.5.0 | Add migration notification dialog on startup (user sees old backups converted, old files untouched) |
 | v0.5.0 | Move existing `transaction.log` into `logs/` directory on first launch |
 
 Items may shift between releases depending on feedback and urgency.
