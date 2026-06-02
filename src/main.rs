@@ -96,7 +96,7 @@ impl App {
     }
 
     /// Returns the backup root directory alongside the binary.
-    fn backup_root(&self) -> PathBuf {
+    fn _backup_root(&self) -> PathBuf {
         exe_dir().join("NotAlterra_Backups")
     }
 
@@ -135,8 +135,7 @@ fn exe_dir() -> PathBuf {
 /// any backup/restore operation.
 fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
     tui_state.save_path = save_folder.map(|p| p.display().to_string());
-    let backup_root = exe_dir().join("NotAlterra_Backups");
-    let (live, bak, ini) = ops::folder_stats(save_folder, &backup_root);
+    let (live, bak, ini) = ops::folder_stats(save_folder);
     tui_state.live_save_count = live;
     tui_state.backup_count = bak;
     tui_state.has_ini_backup = ini;
@@ -586,8 +585,7 @@ fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
         );
     })?;
 
-    let backup_root = app.backup_root();
-    match ops::create_full_backup(&save_folder, &backup_root) {
+    match ops::create_full_backup(&save_folder) {
         Ok(result) => {
             app.set_spinner(false);
             let verified = if result.verified { "verified" } else { "unverified" };
@@ -613,9 +611,7 @@ fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
 /// Restore a previously created full backup, overwriting the save folder.
 fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let save_folder = ensure_save_folder(terminal, app)?;
-    let backup_root = app.backup_root();
-
-    let backups = ops::list_full_backups(&backup_root);
+    let backups = ops::list_full_backups();
     if backups.is_empty() {
         ok_dialog(terminal, app, "No Backups", "No full backups found in NotAlterra_Backups.\nUse 'Create full backup' from the main menu first.")?;
         return Ok(());
@@ -659,7 +655,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
 
                     if accepted {
                         guard::log_action("AUTO_BAK", &format!("pre-restore → {}", guard::sanitize_path(&save_folder.display().to_string())), "OK", &app.log_path)?;
-                        match ops::restore_full_backup(chosen, &save_folder, &backup_root) {
+                        match ops::restore_full_backup(chosen, &save_folder) {
                             Ok(n) => {
                                 app.set_status(&format!("{n} save files restored."), tui::StatusStyle::Success);
                                 guard::log_action("RESTORE", &format!("{} → {}", name, guard::sanitize_path(&save_folder.display().to_string())), "OK", &app.log_path)?;
@@ -687,7 +683,6 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
 /// Display the .ini management submenu with Backup, Restore, and Delete options.
 fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let ini_path = get_ini_path(terminal, app)?;
-    let backup_root = app.backup_root();
 
     let items: Vec<&str> = vec![
         "Backup .ini files",
@@ -720,9 +715,9 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
                 KeyCode::Enter => {
                     let idx = state.selected().unwrap_or(0);
                     match idx {
-                        0 => ini_backup_action(terminal, app, &ini_path, &backup_root)?,
-                        1 => ini_restore_action(terminal, app, &ini_path, &backup_root)?,
-                        2 => ini_delete_action(terminal, app, &ini_path, &backup_root)?,
+                        0 => ini_backup_action(terminal, app, &ini_path)?,
+                        1 => ini_restore_action(terminal, app, &ini_path)?,
+                        2 => ini_delete_action(terminal, app, &ini_path)?,
                         3 => break,
                         _ => {}
                     }
@@ -742,16 +737,15 @@ fn ini_backup_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
     ini_path: &Path,
-    backup_root: &Path,
 ) -> Result<()> {
-    match ops::backup_ini_files(ini_path, backup_root) {
+    match ops::backup_ini_files(ini_path) {
         Ok(result) => {
             let verified = if result.verified { "verified" } else { "unverified" };
             app.set_status(
                 &format!("Config backup created: {} files ({})", result.files_copied, verified),
                 tui::StatusStyle::Success,
             );
-            guard::log_action("CONFIG_BAK", &guard::sanitize_path(&result.dest_dir.display().to_string()), "OK", &app.log_path)?;
+            guard::log_action("CONFIG_BAK", &guard::sanitize_path(&result.dest_path.display().to_string()), "OK", &app.log_path)?;
             refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
             let verified = if result.verified { "verified" } else { "unverified" };
             let msg = format!("{} .ini file(s) backed up ({verified}).", result.files_copied);
@@ -771,9 +765,8 @@ fn ini_restore_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
     ini_path: &Path,
-    backup_root: &Path,
 ) -> Result<()> {
-    let backups = ops::list_ini_backups(backup_root);
+    let backups = ops::list_ini_backups();
     if backups.is_empty() {
         ok_dialog(terminal, app, "No .ini Backups", "No .ini backups found.\nUse 'Backup .ini files' first.")?;
         return Ok(());
@@ -809,7 +802,7 @@ fn ini_restore_action<B: Backend>(
                     let chosen = &backups[idx];
 
                     guard::log_action("AUTO_BAK", &format!("ini pre-restore → {}", guard::sanitize_path(&ini_path.display().to_string())), "OK", &app.log_path)?;
-                    match ops::restore_ini_files(chosen, ini_path, backup_root) {
+                    match ops::restore_ini_files(chosen, ini_path) {
                         Ok(n) => {
                             guard::log_action("CONFIG_RESTORE", &guard::sanitize_path(&chosen.display().to_string()), "OK", &app.log_path)?;
                             let msg = format!("{n} .ini file(s) restored.");
@@ -836,10 +829,10 @@ fn ini_delete_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
     ini_path: &Path,
-    backup_root: &Path,
 ) -> Result<()> {
-    let has_backup = backup_root.exists()
-    && std::fs::read_dir(backup_root)
+    let config_dir = crate::config::backups_config_dir();
+    let has_backup = config_dir.exists()
+    && std::fs::read_dir(&config_dir)
         .map(|entries| entries.flatten().any(|e| {
             let file_name = e.file_name();
             let name = file_name.to_string_lossy();
@@ -863,7 +856,7 @@ fn ini_delete_action<B: Backend>(
         return Ok(());
     }
 
-    match ops::delete_ini_files(ini_path, backup_root) {
+    match ops::delete_ini_files(ini_path) {
         Ok(n) => {
             let msg = format!("Deleted {n} .ini file(s).\nThe game will regenerate defaults on next launch.");
             guard::log_action("CONFIG_DEL", &guard::sanitize_path(&ini_path.display().to_string()), "OK", &app.log_path)?;
@@ -1051,9 +1044,9 @@ fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg
 
 /// Check whether at least one backup directory exists in the backup root.
 /// Used to gate destructive operations behind a backup requirement.
-fn has_existing_backup(app: &App) -> bool {
-    let root = app.backup_root();
-    root.exists() && std::fs::read_dir(&root).is_ok_and(|mut d| d.any(|e| e.is_ok_and(|e| e.path().is_dir())))
+fn has_existing_backup(_app: &App) -> bool {
+    let root = crate::config::backups_saves_dir();
+    root.exists() && std::fs::read_dir(&root).is_ok_and(|mut d| d.any(|e| e.is_ok_and(|e| e.file_name().to_string_lossy().ends_with(".tar.gz"))))
 }
 
 /// Gate: warn the user if no full backup exists yet.  Returns `false` if

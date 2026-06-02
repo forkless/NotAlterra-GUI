@@ -66,10 +66,14 @@ fn _game_running_linux() -> bool {
 
 // ── transaction logging ────────────────────────────────────────────────────
 
-/// Path to `transaction.log` alongside the binary.  All timestamped actions
-/// are appended here for audit trail purposes.
+/// Path to `transaction.log` inside the `logs/` directory.  All timestamped
+/// actions are appended here for audit trail purposes.
 pub fn log_path() -> PathBuf {
-    exe_dir().join("transaction.log")
+    let p = exe_dir().join("logs").join("transaction.log");
+    if let Some(parent) = p.parent() {
+        std::fs::create_dir_all(parent).ok();
+    }
+    p
 }
 
 /// Return the directory containing the running executable.

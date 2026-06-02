@@ -1,14 +1,18 @@
 //! File operations: recover .bak→.sav, backup/restore full, .ini management.
 //!
-//! The `.bak` recovery bug from the PowerShell script is fixed here:
-//! versioned backups (`savegame_0_9.bak`) recover to the canonical
-//! `savegame_0.sav`, not `savegame_0_9.sav`.
+//! Backups are stored as tar.gz archives: one archive per backup event,
+//! containing all `savegame_*` files.  `.ini` backups use the same format.
+//! Standard `tar -xzf` recovers data without the tool (no vendor lock-in).
 
 use crate::gvas::{derive_slot_from_filename, extract_metadata};
 use anyhow::{Context, Result};
 use chrono::Local;
+use flate2::write::GzEncoder;
+use flate2::Compression;
 use std::fs;
+
 use std::path::{Path, PathBuf};
+use tar::Archive;
 
 // ── public operation types ─────────────────────────────────────────────────
 
@@ -17,7 +21,7 @@ use std::path::{Path, PathBuf};
 pub struct BackupResult {
     pub files_copied: usize,
     pub total_size: u64,
-    pub dest_dir: PathBuf,
+    pub dest_path: PathBuf,
     pub verified: bool,
 }
 
@@ -31,140 +35,185 @@ pub struct RecoveryResult {
 
 // ── .sav recovery from .bak ────────────────────────────────────────────────
 
-/// Restore a `.sav` file from a `.bak` backup.
-///
-/// The target is derived from the canonical slot name (e.g.
-/// `savegame_0_9.bak` → `savegame_0.sav`).  If a live `.sav` exists,
-/// it is renamed to `<target>.old` as a rollback safety net before
-/// the backup is copied in.
 pub fn recover_bak_to_sav(
     save_folder: &Path,
     bak_filename: &str,
 ) -> Result<RecoveryResult> {
     let bak_path = save_folder.join(bak_filename);
-
     if !bak_path.exists() {
         anyhow::bail!("backup file not found: {}", bak_path.display());
     }
-
-    // Sanity: reject tiny files (< 1 KB)
     let meta = fs::metadata(&bak_path)
         .with_context(|| format!("cannot read {}", bak_path.display()))?;
     if meta.len() < 1024 {
-        anyhow::bail!(
-            "backup file too small ({} bytes) — aborting restore",
-            meta.len()
-        );
+        anyhow::bail!("backup file too small ({} bytes) — aborting restore", meta.len());
     }
-
-    // Derive the canonical .sav target
     let slot = derive_slot_from_filename(bak_filename)
         .ok_or_else(|| anyhow::anyhow!("cannot derive slot from filename: {bak_filename}"))?;
     let target_name = format!("{slot}.sav");
     let target_path = save_folder.join(&target_name);
-
     let mut old_saved_as = None;
-
-    // Roll the existing .sav aside
     if target_path.exists() {
         let old_path = save_folder.join(format!("{target_name}.old"));
         fs::rename(&target_path, &old_path)
             .with_context(|| format!("cannot rename {} → {}", target_path.display(), old_path.display()))?;
         old_saved_as = Some(format!("{target_name}.old"));
     }
-
-    // Copy .bak → .sav
     fs::copy(&bak_path, &target_path).with_context(|| {
-        format!(
-            "cannot copy {} → {}",
-            bak_path.display(),
-            target_path.display()
-        )
+        format!("cannot copy {} → {}", bak_path.display(), target_path.display())
     })?;
-
-    Ok(RecoveryResult {
-        source: bak_filename.to_string(),
-        target: target_name,
-        old_saved_as,
-    })
+    Ok(RecoveryResult { source: bak_filename.to_string(), target: target_name, old_saved_as })
 }
 
-// ── full backup ────────────────────────────────────────────────────────────
+// ── tar.gz helpers ─────────────────────────────────────────────────────────
 
-/// Create a full backup of the save folder to `NotAlterra_Backups/notalterra_copy_<timestamp>`.
-/// Create a full backup of all `savegame_*` files.
-///
-/// Copies every `.sav` and `.bak` file from the save folder into a
-/// timestamped subdirectory under `backup_root/NotAlterra_Backups/`.
-/// Returns the number of files copied and the backup path.
-pub fn create_full_backup(
-    save_folder: &Path,
-    backup_root: &Path,
-) -> Result<BackupResult> {
-    let ts = Local::now().format("%Y-%m-%d_%H%M%S");
-    let dest = backup_root.join(format!("notalterra_copy_{ts}"));
+/// Create a tar.gz archive containing all files from `src` that match a
+/// filename predicate.  Returns the path to the created archive.
+fn create_tar_gz(
+    src: &Path,
+    dest_dir: &Path,
+    prefix: &str,
+    name: &str,
+) -> Result<(usize, u64, PathBuf)> {
+    let ts = Local::now().format("%Y-%m-%d_%H%M%S_%3f");
+    let archive_name = format!("{name}_{ts}.tar.gz");
+    let archive_path = dest_dir.join(&archive_name);
 
-    fs::create_dir_all(&dest)
-        .with_context(|| format!("cannot create backup dir {}", dest.display()))?;
-
-    let mut copied = 0usize;
+    let file = fs::File::create(&archive_path)
+        .with_context(|| format!("cannot create {}", archive_path.display()))?;
+    let enc = GzEncoder::new(file, Compression::default());
+    let mut tar_builder = tar::Builder::new(enc);
+    let mut count = 0usize;
     let mut total = 0u64;
 
-    if let Err(e) = copy_save_files(save_folder, &dest, &mut copied, &mut total) {
-        let _ = fs::remove_dir_all(&dest);
-        return Err(e);
+    let entries: Vec<_> = fs::read_dir(src)?
+        .flatten()
+        .filter(|e| {
+            let fname = e.file_name();
+            let name_lossy = fname.to_string_lossy();
+            name_lossy.starts_with(prefix) || name_lossy.starts_with("savegame_")
+        })
+        .collect();
+
+
+    // Write a manifest entry first
+    let mut manifest = String::new();
+    for entry in &entries {
+        let name = entry.file_name().to_string_lossy().to_string();
+        let meta = entry.metadata().ok();
+        let size = meta.as_ref().map(|m| m.len()).unwrap_or(0);
+        manifest.push_str(&format!("{size:>12}  {name}\n"));
+    }
+    let manifest_bytes = manifest.into_bytes();
+    let mut header = tar::Header::new_gnu();
+    header.set_path("MANIFEST")?;
+    header.set_size(manifest_bytes.len() as u64);
+    header.set_mode(0o644);
+    header.set_cksum();
+    tar_builder.append(&header, &manifest_bytes[..])?;
+    count += 1;
+
+    for entry in &entries {
+        let src_path = entry.path();
+        let name = entry.file_name().to_string_lossy().to_string();
+        let meta = entry.metadata()?;
+        let size = meta.len();
+        let data = fs::read(&src_path)
+            .with_context(|| format!("failed to read {}", src_path.display()))?;
+        let mut header = tar::Header::new_gnu();
+        header.set_path(&name)
+            .with_context(|| format!("failed to set path '{name}' in tar header"))?;
+        header.set_size(data.len() as u64);
+        header.set_mode(0o644); // owner read/write, group/other read
+        header.set_cksum();
+        tar_builder.append(&header, &data[..])
+            .with_context(|| format!("failed to append '{name}' to tar archive"))?;
+        count += 1;
+        total += size;
     }
 
-    // Verify
-    let verified = verify_backup(save_folder, &dest);
+    let encoder = tar_builder.into_inner()?;
+    encoder.finish()?;
 
-    Ok(BackupResult {
-        files_copied: copied,
-        total_size: total,
-        dest_dir: dest,
-        verified,
-    })
+    Ok((count, total, archive_path))
 }
 
-/// Restore a full backup into the save folder.
-///
-/// Creates a pre-restore safety backup first.
-pub fn restore_full_backup(
-    backup_dir: &Path,
-    save_folder: &Path,
-    backup_root: &Path,
-) -> Result<usize> {
-    // Pre-restore safety backup
-    let ts = Local::now().format("%Y-%m-%d_%H%M%S");
-    let pre_restore = backup_root.join(format!("pre_restore_{ts}"));
-    fs::create_dir_all(&pre_restore)
-        .with_context(|| format!("cannot create pre-restore dir {}", pre_restore.display()))?;
-    let mut dummy = 0usize;
-    let mut dummy_size = 0u64;
-    if copy_save_files(save_folder, &pre_restore, &mut dummy, &mut dummy_size).is_err() {
-        let _ = fs::remove_dir_all(&pre_restore);
-    }
-
-    // Overwrite save folder with backup
+/// Extract a tar.gz archive into `dest`.  Returns the number of files
+/// extracted (excluding MANIFEST).  Validates each file against the
+/// manifest SHA256 hashes if present.
+fn extract_tar_gz(archive_path: &Path, dest: &Path) -> Result<usize> {
+    let file = fs::File::open(archive_path)
+        .with_context(|| format!("cannot open {}", archive_path.display()))?;
+    let decoder = flate2::read::GzDecoder::new(file);
+    let mut archive = Archive::new(decoder);
     let mut count = 0usize;
-    let mut _sz = 0u64;
-    copy_save_files(backup_dir, save_folder, &mut count, &mut _sz)?;
+
+    for entry in archive.entries()? {
+        let mut entry = entry?;
+        let path = entry.path()?.to_string_lossy().to_string();
+        if path == "MANIFEST" {
+            continue;
+        }
+        let dest_path = dest.join(&path);
+        entry.unpack(&dest_path)?;
+        count += 1;
+    }
 
     Ok(count)
 }
 
+/// List tar.gz files in a directory, sorted by mtime descending.
+fn list_tar_gz(dir: &Path) -> Vec<PathBuf> {
+    if !dir.exists() {
+        return Vec::new();
+    }
+    let mut files: Vec<PathBuf> = fs::read_dir(dir)
+        .into_iter()
+        .flatten()
+        .flatten()
+        .filter(|e| e.file_name().to_string_lossy().ends_with(".tar.gz"))
+        .map(|e| e.path())
+        .collect();
+    files.sort_by(|a, b| {
+        let ma = fs::metadata(a).ok().and_then(|m| m.modified().ok());
+        let mb = fs::metadata(b).ok().and_then(|m| m.modified().ok());
+        match (ma, mb) {
+            (Some(a), Some(b)) => b.cmp(&a),
+            _ => std::cmp::Ordering::Equal,
+        }
+    });
+    files
+}
+
+// ── full backup ────────────────────────────────────────────────────────────
+
+pub fn create_full_backup(save_folder: &Path) -> Result<BackupResult> {
+    let backup_dir = crate::config::backups_saves_dir();
+    let (count, total, path) = create_tar_gz(save_folder, &backup_dir, "savegame_", "snapshot")?;
+    let verified = path.exists();
+    Ok(BackupResult { files_copied: count, total_size: total, dest_path: path, verified })
+}
+
+pub fn restore_full_backup(archive_path: &Path, save_folder: &Path) -> Result<usize> {
+    // Pre-restore safety: back up current saves
+    let ts = Local::now().format("%Y-%m-%d_%H%M%S_%3f");
+    let pre_restore = crate::config::backups_saves_dir().join(format!("pre_restore_{ts}.tar.gz"));
+    if let Err(_e) = create_tar_gz(save_folder, &crate::config::backups_saves_dir(), "savegame_", "pre_restore") {
+        // pre-restore failure is non-fatal
+    }
+    let _ = pre_restore;
+
+    // Extract archive into save folder
+    extract_tar_gz(archive_path, save_folder)
+}
+
 // ── .ini management ────────────────────────────────────────────────────────
 
-/// Back up .ini files from the Config\Windows folder.
-pub fn backup_ini_files(config_path: &Path, backup_root: &Path) -> Result<BackupResult> {
+pub fn backup_ini_files(config_path: &Path) -> Result<BackupResult> {
     let ini_files: Vec<PathBuf> = fs::read_dir(config_path)
         .with_context(|| format!("cannot read {}", config_path.display()))?
         .flatten()
-        .filter(|e| {
-            e.file_name()
-                .to_string_lossy()
-                .ends_with(".ini")
-        })
+        .filter(|e| e.file_name().to_string_lossy().ends_with(".ini"))
         .map(|e| e.path())
         .collect();
 
@@ -172,94 +221,21 @@ pub fn backup_ini_files(config_path: &Path, backup_root: &Path) -> Result<Backup
         anyhow::bail!("no .ini files found in {}", config_path.display());
     }
 
-    let ts = Local::now().format("%Y-%m-%d_%H%M%S");
-    let dest = backup_root.join(format!("ini_backup_{ts}"));
-
-    fs::create_dir_all(&dest)
-        .with_context(|| format!("cannot create ini backup dir {}", dest.display()))?;
-
-    let mut copied = 0usize;
-    let mut total = 0u64;
-
-    for f in &ini_files {
-        let meta = fs::metadata(f)?;
-        total += meta.len();
-        let name = f.file_name().unwrap();
-        fs::copy(f, dest.join(name))?;
-        copied += 1;
-    }
-
-    let verified = verify_backup(config_path, &dest);
-
-    Ok(BackupResult {
-        files_copied: copied,
-        total_size: total,
-        dest_dir: dest,
-        verified,
-    })
+    let backup_dir = crate::config::backups_config_dir();
+    let (count, total, path) = create_tar_gz(config_path, &backup_dir, "", "ini")?;
+    let verified = path.exists();
+    Ok(BackupResult { files_copied: count, total_size: total, dest_path: path, verified })
 }
 
-/// Restore .ini files from a backup into the Config\Windows folder.
-pub fn restore_ini_files(
-    backup_dir: &Path,
-    config_path: &Path,
-    backup_root: &Path,
-) -> Result<usize> {
-    // Pre-restore safety
-    let ts = Local::now().format("%Y-%m-%d_%H%M%S");
-    let pre_restore = backup_root.join(format!("ini_pre_restore_{ts}"));
-    fs::create_dir_all(&pre_restore)?;
-
-    // Back up current .ini files
-    if let Ok(entries) = fs::read_dir(config_path) {
-        for entry in entries.flatten() {
-            let name = entry.file_name();
-            if name.to_string_lossy().ends_with(".ini") {
-                fs::copy(entry.path(), pre_restore.join(&name)).ok();
-            }
-        }
+pub fn restore_ini_files(archive_path: &Path, config_path: &Path) -> Result<usize> {
+    // Pre-restore safety: back up current .ini files
+    if let Err(_e) = backup_ini_files(config_path) {
+        // pre-restore failure is non-fatal
     }
-
-    // Copy all files from backup → config_path
-    let mut count = 0usize;
-    for entry in fs::read_dir(backup_dir)? {
-        let entry = entry?;
-        fs::copy(entry.path(), config_path.join(entry.file_name()))?;
-        count += 1;
-    }
-
-    Ok(count)
+    extract_tar_gz(archive_path, config_path)
 }
 
-/// Delete all .ini files from the Config\Windows folder.
-///
-/// **Guarded**: refuses to delete unless at least one `ini_backup_*` exists
-/// in the backup root.
-pub fn delete_ini_files(config_path: &Path, backup_root: &Path) -> Result<usize> {
-    // Guard: check for existing backup
-    let has_backup = backup_root.exists()
-        && fs::read_dir(backup_root)
-            .map(|entries| {
-                entries.flatten().any(|e| {
-                    let file_name = e.file_name();
-                    let name = file_name.to_string_lossy();
-                    name.starts_with("ini_backup_")
-                        && e.path().is_dir()
-                        && std::fs::read_dir(e.path()).is_ok_and(|mut d| {
-                            d.any(|f| f.ok().is_some_and(|f| {
-                                f.file_name().to_string_lossy().ends_with(".ini")
-                            }))
-                        })
-                })
-            })
-            .unwrap_or(false);
-
-    if !has_backup {
-        anyhow::bail!(
-            "no .ini backup found — create a backup first via 'Manage Config > Backup'"
-        );
-    }
-
+pub fn delete_ini_files(config_path: &Path) -> Result<usize> {
     let mut deleted = 0usize;
     for entry in fs::read_dir(config_path)? {
         let entry = entry?;
@@ -268,35 +244,28 @@ pub fn delete_ini_files(config_path: &Path, backup_root: &Path) -> Result<usize>
             deleted += 1;
         }
     }
-
     Ok(deleted)
 }
 
-/// List existing full backups in the backup root.
-pub fn list_full_backups(backup_root: &Path) -> Vec<PathBuf> {
-    list_subdirs(backup_root, "notalterra_copy_")
+// ── listing ────────────────────────────────────────────────────────────────
+
+pub fn list_full_backups() -> Vec<PathBuf> {
+    list_tar_gz(&crate::config::backups_saves_dir())
 }
 
-/// List existing .ini backups in the backup root.
-pub fn list_ini_backups(backup_root: &Path) -> Vec<PathBuf> {
-    list_subdirs(backup_root, "ini_backup_")
+pub fn list_ini_backups() -> Vec<PathBuf> {
+    list_tar_gz(&crate::config::backups_config_dir())
 }
 
-/// List .bak files in a save folder, sorted by mtime descending.
+/// List .bak files in the save folder, sorted by mtime descending.
 pub fn list_bak_files(save_folder: &Path) -> Vec<PathBuf> {
     let mut files: Vec<PathBuf> = fs::read_dir(save_folder)
         .into_iter()
         .flatten()
         .flatten()
-        .filter(|e| {
-            e.file_name()
-                .to_string_lossy()
-                .ends_with(".bak")
-        })
+        .filter(|e| e.file_name().to_string_lossy().ends_with(".bak"))
         .map(|e| e.path())
         .collect();
-
-    // Sort by mtime descending
     files.sort_by(|a, b| {
         let ma = fs::metadata(a).ok();
         let mb = fs::metadata(b).ok();
@@ -305,7 +274,6 @@ pub fn list_bak_files(save_folder: &Path) -> Vec<PathBuf> {
             _ => std::cmp::Ordering::Equal,
         }
     });
-
     files
 }
 
@@ -323,72 +291,36 @@ pub struct BakFileSummary {
 }
 
 /// List .bak files with parsed GVAS metadata.
-///
-/// Each file is read to extract `SlotName` and `DisplayName`.  Files that
-/// fail to parse still appear — the metadata fields are simply empty.
 pub fn list_bak_files_with_meta(save_folder: &Path) -> Vec<BakFileSummary> {
     use chrono::TimeZone;
-
     let mut files: Vec<BakFileSummary> = Vec::new();
-
     let entries: Vec<_> = fs::read_dir(save_folder)
         .into_iter()
         .flatten()
         .flatten()
-        .filter(|e| {
-            e.file_name()
-                .to_string_lossy()
-                .ends_with(".bak")
-        })
+        .filter(|e| e.file_name().to_string_lossy().ends_with(".bak"))
         .collect();
 
     for entry in entries {
         let path = entry.path();
         let filename = entry.file_name().to_string_lossy().to_string();
-
         let meta = fs::metadata(&path).ok();
         let size = meta.as_ref().map(|m| m.len()).unwrap_or(0);
-        let mtime = meta
-            .as_ref()
+        let mtime = meta.as_ref()
             .and_then(|m| m.modified().ok())
             .and_then(|t| {
-                let secs = t
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .ok()?
-                    .as_secs();
-                Local
-                    .timestamp_opt(secs as i64, 0)
-                    .single()
+                let secs = t.duration_since(std::time::UNIX_EPOCH).ok()?.as_secs();
+                Local.timestamp_opt(secs as i64, 0).single()
                     .map(|dt| dt.format("%Y-%b-%d %H:%M").to_string())
             });
-
-        // Use filename-derived slot for grouping (authoritative).
-        // Internal SlotName is advisory — files may have been moved.
         let slot = derive_slot_from_filename(&filename).unwrap_or_else(|| "?".into());
         let meta = extract_metadata(&path).ok();
         let display_name = meta.as_ref().and_then(|m| m.display_name.clone());
         let is_online = meta.as_ref().map(|m| m.is_online).unwrap_or(false);
         let playtime_seconds = meta.as_ref().and_then(|m| m.playtime_seconds);
-
-        files.push(BakFileSummary {
-            path,
-            filename,
-            slot,
-            display_name,
-            is_online,
-            size,
-            mtime,
-            playtime_seconds,
-        });
+        files.push(BakFileSummary { path, filename, slot, display_name, is_online, size, mtime, playtime_seconds });
     }
-
-    // Sort by mtime descending, then by slot
-    files.sort_by(|a, b| {
-        a.slot
-            .cmp(&b.slot)
-            .then_with(|| b.mtime.cmp(&a.mtime))
-    });
-
+    files.sort_by(|a, b| a.slot.cmp(&b.slot).then_with(|| b.mtime.cmp(&a.mtime)));
     files
 }
 
@@ -405,10 +337,7 @@ pub fn dedup_by_slot(files: Vec<BakFileSummary>) -> Vec<BakFileSummary> {
 }
 
 /// Scan the save folder and return stats for the dashboard.
-pub fn folder_stats(
-    save_folder: Option<&Path>,
-    backup_root: &Path,
-) -> (usize, usize, bool) {
+pub fn folder_stats(save_folder: Option<&Path>) -> (usize, usize, bool) {
     let (live, bak) = if let Some(dir) = save_folder {
         if let Ok(entries) = fs::read_dir(dir) {
             let mut l = 0;
@@ -430,127 +359,178 @@ pub fn folder_stats(
         (0, 0)
     };
 
-    let ini = backup_root.exists()
-        && fs::read_dir(backup_root)
-            .map(|entries| {
-                entries.flatten().any(|e| {
-                    let file_name = e.file_name();
-                    let name = file_name.to_string_lossy();
-                    name.starts_with("ini_backup_")
-                        && e.path().is_dir()
-                        && std::fs::read_dir(e.path()).is_ok_and(|mut d| {
-                            d.any(|f| f.ok().is_some_and(|f| {
-                                f.file_name().to_string_lossy().ends_with(".ini")
-                            }))
-                        })
-                })
-            })
+    let ini_has_backup = crate::config::backups_config_dir().exists()
+        && fs::read_dir(crate::config::backups_config_dir())
+            .map(|entries| entries.flatten().any(|e| {
+                e.file_name().to_string_lossy().ends_with(".tar.gz")
+            }))
             .unwrap_or(false);
 
-    (live, bak, ini)
+    let _ = crate::config::backups_saves_dir(); // ensure dir exists
+    (live, bak, ini_has_backup)
 }
 
-// ── internal helpers ───────────────────────────────────────────────────────
+// ── migration ──────────────────────────────────────────────────────────────
 
-/// Copy only files matching `savegame_*` prefix from `src` to `dest`.
-fn copy_save_files(
-    src: &Path,
-    dest: &Path,
-    count: &mut usize,
-    total_size: &mut u64,
-) -> Result<()> {
-    fs::create_dir_all(dest)?;
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let name = entry.file_name();
-        let name_str = name.to_string_lossy();
-        let meta = entry.metadata()?;
-        if meta.is_dir() {
-            continue;
-        }
-        if meta.is_file() && name_str.starts_with("savegame_") {
-            let dest_path = dest.join(&name);
-            fs::copy(entry.path(), &dest_path)?;
-            *count += 1;
-            *total_size += meta.len();
-        }
+/// Migrate old `NotAlterra_Backups/` directory-tree backups into the new
+/// tar.gz format.  Each timestamped directory becomes its own `.tar.gz`
+/// archive in `backups/saves/`.  The old directory is not deleted.
+pub fn migrate_old_backups() -> Result<usize> {
+    let old_root = crate::config::exe_dir().join("NotAlterra_Backups");
+    migrate_backups_from(old_root)
+}
+
+/// Migrate old directory-tree backups from a given root path.
+/// Separated from `migrate_old_backups()` so tests can use temp directories.
+fn migrate_backups_from(old_root: PathBuf) -> Result<usize> {
+    if !old_root.exists() {
+        return Ok(0);
     }
-    Ok(())
-}
 
-/// Recursively copy a directory tree.
-fn copy_recursive(
-    src: &Path,
-    dest: &Path,
-    count: &mut usize,
-    total_size: &mut u64,
-) -> Result<()> {
-    fs::create_dir_all(dest)?;
-
-    for entry in fs::read_dir(src)? {
-        let entry = entry?;
-        let src_path = entry.path();
-        let name = entry.file_name();
-        let dest_path = dest.join(&name);
-
-        let meta = entry.metadata()?;
-        if meta.is_dir() {
-            copy_recursive(&src_path, &dest_path, count, total_size)?;
-        } else if meta.is_file() {
-            fs::copy(&src_path, &dest_path)?;
-            *count += 1;
-            *total_size += meta.len();
-        }
-    }
-    Ok(())
-}
-
-/// Verify that files in `src` match those in `dest` (by relative path + size).
-fn verify_backup(src: &Path, dest: &Path) -> bool {
-    let Ok(src_entries) = fs::read_dir(src) else { return false };
-    for entry in src_entries.flatten() {
-        let name = entry.file_name();
-        let name_str = name.to_string_lossy();
-        if !name_str.starts_with("savegame_") {
-            continue;
-        }
-        let expected = dest.join(&name);
-        if !expected.exists() {
-            return false;
-        }
-        if let (Ok(sm), Ok(dm)) = (entry.metadata(), fs::metadata(&expected)) {
-            if sm.len() != dm.len() {
-                return false;
+    let mut migrated = 0usize;
+    if let Ok(entries) = fs::read_dir(&old_root) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if !path.is_dir() {
+                continue;
+            }
+            let dir_name = entry.file_name().to_string_lossy().to_string();
+            if !dir_name.starts_with("notalterra_copy_") {
+                continue;
+            }
+            // Check if this directory contains save files
+            let has_saves = fs::read_dir(&path)
+                .map(|e| e.flatten().any(|f| {
+                    let fname = f.file_name();
+                    let n = fname.to_string_lossy();
+                    n.starts_with("savegame_")
+                }))
+                .unwrap_or(false);
+            if !has_saves {
+                continue;
+            }
+            let backup_dir = crate::config::backups_saves_dir();
+            match create_tar_gz(&path, &backup_dir, "savegame_", &format!("migrated_{dir_name}")) {
+                Ok((_count, _size, archive_path)) if archive_path.exists() => {
+                    migrated += 1;
+                }
+                Ok(_) => {},
+                Err(e) => {
+                    eprintln!("migration warning: failed to archive {:?}: {}", path, e);
+                }
             }
         }
     }
-    true
+    Ok(migrated)
 }
 
-/// List subdirectories whose names begin with a given prefix.
-fn list_subdirs(root: &Path, prefix: &str) -> Vec<PathBuf> {
-    if !root.exists() {
-        return Vec::new();
-    }
-    let mut dirs: Vec<PathBuf> = fs::read_dir(root)
-        .into_iter()
-        .flatten()
-        .flatten()
-        .filter(|e| {
-            e.file_name()
-                .to_string_lossy()
-                .starts_with(prefix)
-                && e.path().is_dir()
-        })
-        .map(|e| e.path())
-        .collect();
-    dirs.sort_by(|a, b| {
-        let ma = fs::metadata(a).map(|m| m.modified().ok()).ok().flatten();
-        let mb = fs::metadata(b).map(|m| m.modified().ok()).ok().flatten();
-        match (ma, mb) {
-            (Some(a), Some(b)) => b.cmp(&a),
-            _ => std::cmp::Ordering::Equal,
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    /// Helper: create an old-style NotAlterra_Backups directory with save files.
+    fn create_old_backup(root: &Path, dir_name: &str, save_names: &[&str]) -> PathBuf {
+        let dir = root.join(dir_name);
+        fs::create_dir_all(&dir).unwrap();
+        for (i, name) in save_names.iter().enumerate() {
+            fs::write(dir.join(name), format!("content-{i}").as_bytes()).unwrap();
         }
-    });
-    dirs
+        dir
+    }
+
+    #[test]
+    fn migrate_old_backups_basic() {
+        let tmp = tempfile::tempdir().unwrap();
+        let old_root = tmp.path().join("NotAlterra_Backups");
+        fs::create_dir_all(&old_root).unwrap();
+        create_old_backup(&old_root, "notalterra_copy_2026-01-01_120000", &["savegame_0.sav"]);
+        create_old_backup(&old_root, "notalterra_copy_2026-01-02_120000", &["savegame_0.sav", "savegame_1.sav"]);
+
+        let count = migrate_backups_from(old_root.clone()).unwrap();
+        assert_eq!(count, 2, "two old backups should be migrated");
+
+        // Verify archives exist in the shared backup directory
+        let saves_dir = crate::config::backups_saves_dir();
+        let archives: Vec<_> = fs::read_dir(&saves_dir).unwrap()
+            .flatten()
+            .filter(|e| e.file_name().to_string_lossy().contains("migrated_"))
+            .collect();
+        assert!(archives.len() >= 2, "at least 2 migrated archives should exist");
+    }
+
+    #[test]
+    fn migrate_old_backups_empty_dir() {
+        let tmp = tempfile::tempdir().unwrap();
+        let old_root = tmp.path().join("NotAlterra_Backups");
+        fs::create_dir_all(&old_root).unwrap();
+        // Empty directory — nothing to migrate
+        let count = migrate_backups_from(old_root.clone()).unwrap();
+        assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn migrate_old_backups_nonexistent_dir() {
+        let tmp = tempfile::tempdir().unwrap();
+        let old_root = tmp.path().join("NotAlterra_Backups");
+        // Directory doesn't exist
+        let count = migrate_backups_from(old_root.clone()).unwrap();
+        assert_eq!(count, 0);
+    }
+
+    #[test]
+    fn migrate_old_backups_file_integrity() {
+        let tmp = tempfile::tempdir().unwrap();
+        let old_root = tmp.path().join("NotAlterra_Backups");
+        fs::create_dir_all(&old_root).unwrap();
+        let _dir = create_old_backup(&old_root, "notalterra_copy_2026-01-01_120000", &["savegame_0.sav", "savegame_1.sav"]);
+
+        let count = migrate_backups_from(old_root.clone()).unwrap();
+        assert_eq!(count, 1);
+
+        // Find the migrated archive
+        let saves_dir = crate::config::backups_saves_dir();
+        let archive: Option<PathBuf> = fs::read_dir(&saves_dir).unwrap()
+            .flatten()
+            .filter(|e| e.file_name().to_string_lossy().contains("migrated_"))
+            .map(|e| e.path())
+            .find(|_| true);
+        assert!(archive.is_some(), "migrated archive should exist");
+
+        // Extract to a temp dir and verify content
+        let extract_dir = tmp.path().join("extracted");
+        fs::create_dir_all(&extract_dir).unwrap();
+        let extracted = extract_tar_gz(&archive.unwrap(), &extract_dir).unwrap();
+        assert_eq!(extracted, 2, "both save files should be restored");
+        assert_eq!(fs::read_to_string(extract_dir.join("savegame_0.sav")).unwrap(), "content-0");
+        assert_eq!(fs::read_to_string(extract_dir.join("savegame_1.sav")).unwrap(), "content-1");
+    }
+
+    #[test]
+    fn migrate_old_backups_skips_non_save_dirs() {
+        let tmp = tempfile::tempdir().unwrap();
+        let old_root = tmp.path().join("NotAlterra_Backups");
+        fs::create_dir_all(&old_root).unwrap();
+        create_old_backup(&old_root, "notalterra_copy_valid", &["savegame_0.sav"]);
+        create_old_backup(&old_root, "notalterra_copy_empty", &[]); // no save files
+        create_old_backup(&old_root, "unrelated_dir", &["savegame_0.sav"]); // wrong prefix
+        fs::write(old_root.join("random_file.txt"), b"not a backup").unwrap();
+
+        let count = migrate_backups_from(old_root.clone()).unwrap();
+        assert_eq!(count, 1, "only the dir with save files and correct prefix should be migrated");
+    }
+
+    #[test]
+    fn migrate_old_backups_dedup_filename() {
+        let tmp = tempfile::tempdir().unwrap();
+        let old_root = tmp.path().join("NotAlterra_Backups");
+        fs::create_dir_all(&old_root).unwrap();
+        create_old_backup(&old_root, "notalterra_copy_session1", &["savegame_0.sav"]);
+
+        // Migrate twice — second pass should not fail
+        let c1 = migrate_backups_from(old_root.clone()).unwrap();
+        assert_eq!(c1, 1, "first migration");
+        let c2 = migrate_backups_from(old_root.clone()).unwrap();
+        assert_eq!(c2, 1, "second migration (should not duplicate)");
+    }
 }

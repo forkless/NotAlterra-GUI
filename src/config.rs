@@ -39,6 +39,22 @@ pub fn cleanup_stale_config() -> bool {
     }
 }
 
+/// Path to the `backups/saves/` directory (tar.gz archives).
+/// Auto-creates the directory on first call.
+pub fn backups_saves_dir() -> PathBuf {
+    let p = exe_dir().join("backups").join("saves");
+    std::fs::create_dir_all(&p).ok();
+    p
+}
+
+/// Path to the `backups/config/` directory (.ini tar.gz archives).
+/// Auto-creates the directory on first call.
+pub fn backups_config_dir() -> PathBuf {
+    let p = exe_dir().join("backups").join("config");
+    std::fs::create_dir_all(&p).ok();
+    p
+}
+
 /// Return the directory containing the running executable.
 pub fn exe_dir() -> PathBuf {
     std::env::current_exe()
