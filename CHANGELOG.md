@@ -36,6 +36,9 @@ All notable changes to NotAlterra are documented in this file.
   current user's default save locations (`%LOCALAPPDATA%` on Windows,
   Proton + XDG data on Linux). No scanning of other profiles or system
   drives. If nothing is found, use **Set save folder** as before.
+- **Migration notification** — old backups in `NotAlterra_Backups/` are
+  migrated silently on first launch with a log entry. The user is informed
+  their original data remains untouched.
 
 ### Removed
 - **`config.ini` eliminated entirely** — no save path, disclaimer flag, or
