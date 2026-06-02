@@ -25,6 +25,19 @@ maintainer becomes unavailable.
 NotAlterra has a bus factor of one — only the maintainer holds the GPG key
 and push access to the repository.
 
+### Proposed Mitigation
+
+An emergency signing key stored on a USB stick in a sealed envelope, held
+by a non-technical trusted person. The envelope also contains the passphrase.
+The key is independent from the maintainer's daily key and revocable if
+compromised.
+
+The envelope is to be opened only if the maintainer is unreachable for 90+
+consecutive days with no public activity. A technical contact would be
+designated to sign releases using the emergency key.
+
+*This mitigation is not yet in place — documented here as intent.*
+
 ### Access Recovery Plan
 
 If the maintainer becomes unavailable for an extended period (unreachable
