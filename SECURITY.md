@@ -4,7 +4,7 @@
 
 If you discover a security issue in NotAlterra, please report it privately:
 
-- **Email**: forkless@proton.me
+- **Email**: forkless@protonmail.com
 - **GPG**: [314BB48A3C72D8EC2830B8BED2B0DF63E2CBEA16](https://github.com/forkless.gpg)
 
 Do not open a public issue.
