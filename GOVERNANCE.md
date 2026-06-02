@@ -69,9 +69,22 @@ Before signing a release tag, the maintainer verifies:
 - [ ] `git status` — no uncommitted changes
 - [ ] `_release.md` What's New section is updated
 
+## Roadmap
+
+Planned changes for upcoming releases, ordered by priority.
+
+| Target | Item |
+|--------|------|
+| v0.4.0 | Remove `discovery.rs` entirely |
+| v0.4.0 | Replace `disclaimer_accepted` with 0-byte sentinel file |
+| v0.4.0 | Drop `save_scan` from `config.ini` |
+| v0.4.0 | Remove `config.ini` entirely — re-request path each session |
+
+Items may shift between releases depending on feedback and urgency.
+
 ## Changes to This Document
 
 This document is versioned with the repository.  Proposed changes should be
 filed as pull requests.  The maintainer has final approval.
 
-Last updated: 2026-06-01.
+Last updated: 2026-06-02.
