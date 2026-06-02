@@ -23,6 +23,22 @@ pub fn accept_disclaimer() -> std::io::Result<()> {
     Ok(())
 }
 
+/// Path to the stale `config.ini` from v0.3.0 and earlier.
+pub fn stale_config_path() -> PathBuf {
+    exe_dir().join("config.ini")
+}
+
+/// Remove the stale `config.ini` if it exists.  Returns `true` if removed.
+pub fn cleanup_stale_config() -> bool {
+    let path = stale_config_path();
+    if path.exists() {
+        std::fs::remove_file(&path).ok();
+        true
+    } else {
+        false
+    }
+}
+
 /// Return the directory containing the running executable.
 pub fn exe_dir() -> PathBuf {
     std::env::current_exe()

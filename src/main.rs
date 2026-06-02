@@ -39,6 +39,15 @@ const VERSION: &str = concat!("v", env!("CARGO_PKG_VERSION"));
 /// Entry point — parses args, loads config, and starts the TUI loop.
 fn main() -> Result<()> {
     for arg in std::env::args().skip(1) {
+        if arg == "--help" || arg == "-h" {
+            println!("notalterra {}", VERSION);
+            println!("Subnautica 2 save-file manager — cross-platform terminal application.");
+            println!();
+            println!("Usage:  notalterra [--version | --help]");
+            println!();
+            println!("Run with no arguments to start the interactive terminal UI.");
+            return Ok(());
+        }
         if arg == "--version" || arg == "-v" {
             println!("notalterra {}", VERSION);
             return Ok(());
@@ -147,6 +156,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
          Backing up or restoring saves with the game running can\n\
          result in incomplete, corrupt, or overwritten save files.",
     )?;
+
+    // Clean up stale config.ini from v0.3.0 and earlier
+    if crate::config::cleanup_stale_config() {
+        guard::log_action("MIGRATE", "old config.ini removed", "SAFE", &app.log_path)?;
+    }
 
     // Quick check of common save locations (current user only, no profile scans)
     if app.save_folder.is_none() {
