@@ -55,6 +55,11 @@ pub fn backups_config_dir() -> PathBuf {
     p
 }
 
+/// Ensure a directory exists, creating all parents as needed.
+pub fn ensure_dir(path: PathBuf) {
+    let _ = std::fs::create_dir_all(&path);
+}
+
 /// Return the directory containing the running executable.
 pub fn exe_dir() -> PathBuf {
     std::env::current_exe()

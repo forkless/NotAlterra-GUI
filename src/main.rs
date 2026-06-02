@@ -156,6 +156,10 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
          result in incomplete, corrupt, or overwritten save files.",
     )?;
 
+    // Scaffold backup directory structure
+    crate::config::ensure_dir(crate::config::backups_saves_dir());
+    crate::config::ensure_dir(crate::config::backups_config_dir());
+
     // Migrate old transaction.log into logs/ directory
     if guard::migrate_old_log() {
         guard::log_action("MIGRATE", "old transaction.log moved to logs/", "OK", &app.log_path)?;
