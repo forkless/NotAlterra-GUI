@@ -4,11 +4,15 @@ Cross-platform terminal application.  No admin permissions or network access req
 Pre-compiled binaries — no installation, no dependencies.  Just download,
 extract, and run.
 
-### What's new in v0.3.2
+### What's new in v0.4.0
 
-• `config.ini` removed entirely — no paths written to disk
-• Save folder is session-only, entered via `Set save folder`
-• Disclaimer tracked via 0-byte sentinel file (`NotAlterra_LICENSE_ACCEPTED`)
-• Lightweight startup check for common save paths (no profile/drive scans)
+• tar.gz backup format — one archive per backup event, standard `tar -xzf` recovers data without the tool
+• File restructure: `backups/saves/`, `backups/config/`, `logs/`
+• Automatic migration from old `NotAlterra_Backups/` directory-tree format
+• `--help` / `-h` flag
+• Stale `config.ini` auto-removed from prior versions
+• Bus factor mitigation plan documented in GOVERNANCE.md
+• 6 migration tests, full round-trip tar.gz integration tests
+• `tar` + `flate2` dependencies added (pure Rust, ~150KB increase)
 
 _Builds:  Linux (amd64)  •  Windows x64_

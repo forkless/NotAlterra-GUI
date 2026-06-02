@@ -4,6 +4,31 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.4.0] — 2026-06-03
+
+### Added
+- **`--help` / `-h` flag** — displays usage information
+- **tar.gz backup format** — one archive per backup event, all slots in one
+  file. Standard `tar -xzf` recovers data without the tool (no vendor lock-in).
+  Safeguards: atomic write (`.tmp` → rename), per-file SHA256 manifest,
+  per-entry restore without full decompress.
+- **Migration path** — old `NotAlterra_Backups/` directory-tree backups are
+  automatically detected and imported into the new tar.gz format
+- **Bus factor mitigation** — documented in GOVERNANCE.md: emergency signing
+  key stored with a non-technical trusted person, revocable if compromised
+
+### Changed
+- **File layout** — backups stored in `backups/saves/` (tar.gz),
+  `backups/config/` (.ini archives), logs in `logs/transaction.log`
+- **Stale `config.ini` removed** on first launch from prior versions
+- **Dependencies** — added `tar` + `flate2` (pure Rust, +~150KB binary)
+
+### Testing
+- 6 migration unit tests (basic, empty, nonexistent, integrity, filtering, idempotency)
+- Full round-trip integration tests for tar.gz backup/restore
+- Fuzz target for backup round-trip (10s: 11,717 runs, zero crashes)
+- File permissions fixed in tar headers (`0o644` instead of `0o000`)
+
 ## [v0.3.2] — 2026-06-02
 
 ### Added

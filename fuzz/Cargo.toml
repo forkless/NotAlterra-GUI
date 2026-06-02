@@ -26,3 +26,10 @@ path = "fuzz_targets/full_metadata.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "backup_roundtrip"
+path = "fuzz_targets/backup_roundtrip.rs"
+test = false
+doc = false
+bench = false
