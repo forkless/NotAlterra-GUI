@@ -66,7 +66,8 @@ not published. The maintainer tests the draft binaries before publishing.
 
 Before signing a release tag, the maintainer verifies:
 
-- [ ] `cargo test --workspace` — all tests pass
+- [ ] Impact analysis completed — all call sites for new/changed functions identified and updated
+- [ ] `cargo test --workspace` — all tests pass (including new integration tests for features shipped in this release)
 - [ ] `python3 tests/_check.py` — 100% doc coverage
 - [ ] CHANGELOG.md has an entry for the new version
 - [ ] `git status` — no uncommitted changes
@@ -84,7 +85,14 @@ Planned changes for upcoming releases, ordered by priority.
 
 | Target | Item |
 |--------|------|
-| v0.4.0 | TBD — see GitHub issues for planned features |
+| v0.4.0 | Auto-remove stale `config.ini` from prior versions on first launch |
+| v0.4.0 | Add `--help` flag |
+| v0.4.0 | Restructure file layout: `backups/saves/` (tar.gz), `backups/config/` (.ini), `logs/transaction.log` |
+| v0.4.0 | tar.gz backup format — one archive per backup event (all slots, not per-slot), pure Rust; standard `tar -xzf` recovers data without the tool (no vendor lock-in); safeguards: atomic write (`.tmp` → rename), integrity check after creation, per-entry restore without full decompress, per-file SHA256 manifest verified on restore |
+| v0.4.0 | Migration path: detect and import old `NotAlterra_Backups/` directory-tree backups into new format |
+| v0.4.0 | Add `backups/`, `logs/`, `NotAlterra_LICENSE_ACCEPTED` to `.gitignore` |
+| v0.4.0 | Fuzz target for backup round-trip (create diverse save sets → archive → restore → verify integrity) |
+| v0.4.0 | Unit + integration tests for every new feature (backup round-trip, migration, --help, config cleanup) |
 
 Items may shift between releases depending on feedback and urgency.
 

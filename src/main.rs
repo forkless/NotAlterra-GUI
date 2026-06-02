@@ -111,7 +111,9 @@ impl App {
     }
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Return the directory containing the running executable.  Used to locate
+/// the sentinel file, backups directory, and `transaction.log` alongside
+/// the binary.
 fn exe_dir() -> PathBuf {
     std::env::current_exe()
         .ok()
@@ -119,7 +121,9 @@ fn exe_dir() -> PathBuf {
         .unwrap_or_else(|| PathBuf::from("."))
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Refresh the dashboard counters (live saves, backups, ini backup status)
+/// shown in the header bar.  Called after changing the save folder or after
+/// any backup/restore operation.
 fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
     tui_state.save_path = save_folder.map(|p| p.display().to_string());
     let backup_root = exe_dir().join("NotAlterra_Backups");
@@ -666,7 +670,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
 
 // ── .ini submenu ───────────────────────────────────────────────────────────
 
-/// Internal helper — see module-level documentation for context.
+/// Display the .ini management submenu with Backup, Restore, and Delete options.
 fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let ini_path = get_ini_path(terminal, app)?;
     let backup_root = app.backup_root();
@@ -719,7 +723,7 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
     Ok(())
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Back up all `.ini` files from the Config\Windows folder into a timestamped archive.
 fn ini_backup_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
@@ -747,7 +751,8 @@ fn ini_backup_action<B: Backend>(
     Ok(())
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Restore `.ini` files from a selected backup into the Config\Windows folder.
+/// Creates a pre-restore safety copy of the current `.ini` files first.
 fn ini_restore_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
@@ -811,7 +816,8 @@ fn ini_restore_action<B: Backend>(
     Ok(())
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Delete all `.ini` files from the Config\Windows folder.
+/// Refuses to proceed unless at least one `.ini` backup exists in the backup root.
 fn ini_delete_action<B: Backend>(
     terminal: &mut Terminal<B>,
     app: &mut App,
@@ -956,7 +962,9 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
-/// Internal helper — see module-level documentation for context.
+/// Poll for a single key event with a timeout in milliseconds.
+/// Returns `None` if no key is pressed within the timeout.  Filters out
+/// `KeyEventKind::Release` events to avoid double-firing on held keys.
 fn poll_key(timeout_ms: u64) -> Result<Option<crossterm::event::KeyEvent>> {
     if event::poll(std::time::Duration::from_millis(timeout_ms))? {
         if let Event::Key(key) = event::read()? {
@@ -999,10 +1007,9 @@ fn slot_number(slot: &str) -> String {
         .unwrap_or_else(|| slot.to_string())
 }
 
-/// Internal helper — see module-level documentation for context.
-/// Internal helper — see module-level documentation for context.
-/// Display an informational dialog with a single OK button.
-/// Display a dialog with styled content lines (colors, bold).
+/// Display a dialog with styled content lines (colors, bold).  Accepts
+/// `Line` slices — use for metadata displays, help text, or any content
+/// that needs inline formatting.  Press Enter or Space to dismiss.
 fn ok_dialog_styled<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, lines: &[Line]) -> Result<()> {
     loop {
         terminal.draw(|f| tui::draw_ok_dialog_styled(f, &app.tui_state, title, lines))?;
@@ -1014,8 +1021,9 @@ fn ok_dialog_styled<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &s
     }
 }
 
-/// Internal helper — see module-level documentation for context.
-/// Display an informational dialog with a single OK button.
+/// Display a plain-text informational dialog with a single OK button.
+/// `msg` supports newlines for multi-line messages.  Press Enter or
+/// Space to dismiss.  For styled content, use `ok_dialog_styled`.
 fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg: &str) -> Result<()> {
     loop {
         terminal.draw(|f| tui::draw_ok_dialog(f, &app.tui_state, title, msg))?;
@@ -1027,13 +1035,15 @@ fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg
     }
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Check whether at least one backup directory exists in the backup root.
+/// Used to gate destructive operations behind a backup requirement.
 fn has_existing_backup(app: &App) -> bool {
     let root = app.backup_root();
     root.exists() && std::fs::read_dir(&root).is_ok_and(|mut d| d.any(|e| e.is_ok_and(|e| e.path().is_dir())))
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Gate: warn the user if no full backup exists yet.  Returns `false` if
+/// no backup is found (caller should abort the destructive operation).
 fn require_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<bool> {
     if has_existing_backup(app) {
         return Ok(true);
@@ -1043,7 +1053,9 @@ fn require_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
     Ok(false)
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Derive the canonical `.sav` target filename from a `.bak` filename.
+/// E.g. `savegame_0_9.bak` → `savegame_0.sav`.  Falls back to replacing
+/// `.bak` with `.sav` if the slot pattern is not recognized.
 fn derive_target_sav(bak_name: &str) -> String {
     crate::gvas::derive_slot_from_filename(bak_name)
         .map(|s| format!("{s}.sav"))
@@ -1150,7 +1162,9 @@ fn fs_meta(path: &Path) -> Result<std::fs::Metadata, ()> {
     std::fs::metadata(path).map_err(|_| ())
 }
 
-/// Internal helper — see module-level documentation for context.
+/// Format a playtime value in seconds to a human-readable string
+/// (`HHh MMm` or `MMm`, zero-padded to 2 digits).  Returns `—` for
+/// `None` or sub-minute values.
 fn format_playtime(seconds: Option<f64>) -> String {
     match seconds {
         Some(s) if s >= 3600.0 => {

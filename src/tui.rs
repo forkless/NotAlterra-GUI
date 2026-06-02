@@ -209,8 +209,9 @@ pub fn draw_confirm_popup(
     draw_whale_separator(f, bar, app);
 }
 
-/// Render a simple informational dialog with a message.
-/// Shows title, body text, and an OK button.
+/// Render an informational dialog with a plain-text message and OK button.
+/// Auto-sizes to fit content.  Title is displayed in cyan, message in gray,
+/// whale separator at the bottom.  Press Enter or Space to dismiss.
 pub fn draw_ok_dialog(f: &mut Frame, app: &AppState, title: &str, message: &str) {
     let content_w = message.lines().map(|l| l.len()).max().unwrap_or(20).max(title.len()) as u16 + 10;
     let popup_w = content_w.max(50).min(f.area().width.saturating_sub(4));
@@ -231,7 +232,9 @@ pub fn draw_ok_dialog(f: &mut Frame, app: &AppState, title: &str, message: &str)
     draw_whale_separator(f, bar, app);
 }
 
-/// Render a dialog with styled content lines.\n/// Supports inline formatting (colors, bold) via [`Line`].
+/// Render a dialog with styled content lines.  Supports inline formatting
+/// (colors, bold) via [`Line`] slices.  Use for metadata displays, help
+/// text, or any content that needs per-span styling.
 pub fn draw_ok_dialog_styled(f: &mut Frame, app: &AppState, title: &str, lines: &[Line]) {
     let content_w = lines.iter().map(|l| l.width() as u16).max().unwrap_or(20).max(title.len() as u16) + 10;
     let popup_w = content_w.max(50).min(f.area().width.saturating_sub(4));
@@ -288,7 +291,9 @@ pub fn draw_sub_menu(
     draw_status_bar(f, chunks[3], app);
 }
 
-/// Draw a simple text screen with a "press any key" prompt.
+/// Draw a full-screen text display with a "press any key" prompt at the
+/// bottom.  Used for status messages during long operations (scanning,
+/// backing up) and for displaying scan results.
 pub fn draw_text_screen(
     f: &mut Frame,
     app: &AppState,
@@ -586,8 +591,10 @@ fn draw_status_bar(f: &mut Frame, area: Rect, app: &AppState) {
     draw_whale_separator(f, area, app);
 }
 
-/// Separator line with a whale patrolling right-to-left.
-/// Disappears for ~10 s after reaching the left edge.
+/// Draw the bottom status bar with an animated whale patrolling right-to-left.
+/// The whale moves one position every 180ms.  After reaching the left edge,
+/// it disappears for ~5.4s (30 cooldown ticks) before reappearing on the
+/// right.  Two variants alternate every 400ms.
 pub fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
     if area.width < 4 { return; }
     let elapsed = app.whale_start.elapsed().as_millis() as u64;
@@ -801,8 +808,13 @@ pub fn draw_input_dialog(
     draw_whale_separator(f, bar, _app);
 }
 
-/// Truncate a path to show the tail (most specific directories).
-/// e.g. `C:\Users\...\Subnautica2\Saved\SaveGames` → `…\Subnautica2\Saved\SaveGames`
+/// Truncate a filesystem path to show only the most specific directories.
+/// Walks forward to the first path separator after the truncation point to
+/// avoid splitting mid-component.
+///
+/// Examples:
+/// - `C:\Users\user\AppData\...\SaveGames` → `…\AppData\...\SaveGames`
+/// - A short path that fits `max_width` is returned unchanged.
 fn truncate_path_tail(path: &str, max_width: usize) -> String {
     if path.len() <= max_width {
         return path.to_string();

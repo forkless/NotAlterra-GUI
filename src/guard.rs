@@ -13,8 +13,11 @@ use std::path::{Path, PathBuf};
 // ── process detection ──────────────────────────────────────────────────────
 
 /// Return `true` if Subnautica 2 appears to be running.
-/// Check if Subnautica 2 is currently running (Windows).
-/// Process detection is disabled — returns `false` to avoid AV false positives.
+///
+/// Always returns `false` — process detection (`tasklist` / `pgrep`) is
+/// intentionally disabled to avoid Windows Defender false positives
+/// (Trojan:Win32/Wacatac.C!ml).  Users are reminded to close the game
+/// manually before using the tool.
 #[cfg(target_os = "windows")]
 pub fn game_running() -> bool {
     // Process detection disabled — avoid AV false-positives.
@@ -34,7 +37,9 @@ fn _game_running_windows() -> bool {
 }
 
 /// Check if Subnautica 2 is currently running (Linux).
-/// Process detection is disabled — always returns `false` to avoid AV false positives.
+///
+/// Always returns `false` — process detection via `pgrep` is disabled to
+/// avoid false positives. Users are reminded to close the game manually.
 #[cfg(not(target_os = "windows"))]
 pub fn game_running() -> bool {
     false
@@ -61,7 +66,8 @@ fn _game_running_linux() -> bool {
 
 // ── transaction logging ────────────────────────────────────────────────────
 
-/// Path to transaction.log next to the binary.
+/// Path to `transaction.log` alongside the binary.  All timestamped actions
+/// are appended here for audit trail purposes.
 pub fn log_path() -> PathBuf {
     exe_dir().join("transaction.log")
 }
@@ -77,7 +83,11 @@ fn exe_dir() -> PathBuf {
 /// Maximum lines before rotation.
 const MAX_LOG_LINES: usize = 10_000;
 
-/// Append a timestamped log entry.  Auto-rotates if the log exceeds 10k lines.
+/// Append a timestamped log entry to `transaction.log`.
+///
+/// Format: `YYYY-MM-DD HH:MM:SS | ACTION   | detail | result`
+/// Auto-rotates if the log exceeds 10,000 lines — the oldest lines are
+/// discarded, keeping only the most recent 10,000.
 pub fn log_action(
     action: &str,
     detail: &str,
@@ -105,9 +115,11 @@ pub fn log_action(
     f.write_all(line.as_bytes())?;
     Ok(())
 }
-/// Truncate a filesystem path to start at `Subnautica2/` or `Subnautica2\`
-/// for privacy-safe logging.  Returns the original path if no truncation
-/// is possible.
+/// Truncate a filesystem path to start at `Subnautica2/` or `Subnautica2\`,
+/// stripping the user-specific prefix for privacy-safe logging.
+///
+/// Returns the original path unchanged if `Subnautica2` is not found in the
+/// input (e.g. custom paths entered via `Set save folder`).
 pub fn sanitize_path(p: &str) -> String {
     let needle = "Subnautica2";
     let sep = if p.contains('\\') { "\\" } else { "/" };
@@ -118,7 +130,8 @@ pub fn sanitize_path(p: &str) -> String {
     }
 }
 
-/// Check whether a path looks like a network/UNC path (for warning purposes).
+/// Check whether a path looks like a network/UNC path — for warning purposes.
+/// Matches paths starting with `\\` (Windows) or `//` (Linux).
 pub fn is_network_path(p: &str) -> bool {
     p.starts_with("\\\\") || p.starts_with("//")
 }
