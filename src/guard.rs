@@ -66,6 +66,40 @@ fn _game_running_linux() -> bool {
 
 // ── transaction logging ────────────────────────────────────────────────────
 
+/// Migrate the old `transaction.log` (next to the binary) into the new
+/// `logs/` directory.  Appends old entries to the new file, then renames
+/// the old file to `.migrated` so it won't be migrated again.
+/// Returns `true` if an old log was found and handled.
+pub fn migrate_old_log() -> bool {
+    let old = exe_dir().join("transaction.log");
+    if !old.exists() {
+        return false;
+    }
+    let new = log_path();
+    // Read old content
+    if let Ok(content) = std::fs::read_to_string(&old) {
+        if !content.trim().is_empty() {
+            // Append to new log with a migration header
+            let header = format!(
+                "───── migrated from old location [{ts}] ─────\n",
+                ts = chrono::Local::now().format("%Y-%m-%d %H:%M:%S")
+            );
+            if let Ok(mut f) = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&new)
+            {
+                use std::io::Write;
+                let _ = write!(f, "{header}{content}");
+            }
+        }
+    }
+    // Rename old file so it won't be processed again
+    let migrated = old.with_extension("log.migrated");
+    let _ = std::fs::rename(&old, &migrated);
+    true
+}
+
 /// Path to `transaction.log` inside the `logs/` directory.  All timestamped
 /// actions are appended here for audit trail purposes.
 pub fn log_path() -> PathBuf {

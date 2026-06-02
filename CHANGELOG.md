@@ -39,6 +39,8 @@ All notable changes to NotAlterra are documented in this file.
 - **Migration notification** — old backups in `NotAlterra_Backups/` are
   migrated silently on first launch with a log entry. The user is informed
   their original data remains untouched.
+- **Log migration** — existing `transaction.log` is moved into `logs/`
+  on first launch, appended to the new location.
 
 ### Removed
 - **`config.ini` eliminated entirely** — no save path, disclaimer flag, or

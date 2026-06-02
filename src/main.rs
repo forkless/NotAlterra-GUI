@@ -156,6 +156,11 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
          result in incomplete, corrupt, or overwritten save files.",
     )?;
 
+    // Migrate old transaction.log into logs/ directory
+    if guard::migrate_old_log() {
+        guard::log_action("MIGRATE", "old transaction.log moved to logs/", "OK", &app.log_path)?;
+    }
+
     // Clean up stale config.ini from v0.3.0 and earlier
     if crate::config::cleanup_stale_config() {
         guard::log_action("MIGRATE", "old config.ini removed", "SAFE", &app.log_path)?;
