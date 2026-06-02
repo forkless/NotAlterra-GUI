@@ -161,6 +161,13 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
         guard::log_action("MIGRATE", "old config.ini removed", "SAFE", &app.log_path)?;
     }
 
+    // Migrate old directory-tree backups to tar.gz
+    if let Ok(n) = ops::migrate_old_backups() {
+        if n > 0 {
+            guard::log_action("MIGRATE", &format!("{n} old backup(s) migrated to tar.gz, originals in NotAlterra_Backups/ untouched"), "OK", &app.log_path)?;
+        }
+    }
+
     // Quick check of common save locations (current user only, no profile scans)
     if app.save_folder.is_none() {
         if let Some(path) = discovery::quick_discover() {
