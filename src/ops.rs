@@ -444,8 +444,8 @@ mod tests {
         let tmp = tempfile::tempdir().unwrap();
         let old_root = tmp.path().join("NotAlterra_Backups");
         fs::create_dir_all(&old_root).unwrap();
-        create_old_backup(&old_root, "notalterra_copy_2026-01-01_120000", &["savegame_0.sav"]);
-        create_old_backup(&old_root, "notalterra_copy_2026-01-02_120000", &["savegame_0.sav", "savegame_1.sav"]);
+        create_old_backup(&old_root, "notalterra_copy_2025-01-01_120000", &["savegame_0.sav"]);
+        create_old_backup(&old_root, "notalterra_copy_2025-01-02_120000", &["savegame_0.sav", "savegame_1.sav"]);
 
         let count = migrate_backups_from(old_root.clone()).unwrap();
         assert_eq!(count, 2, "two old backups should be migrated");
