@@ -1,11 +1,8 @@
 //! Save-folder discovery.
 //!
-//! **Deprecated.** Auto-scanning user profiles and system directories for
-//! Subnautica 2 saves is a privacy concern. Scheduled for removal in v0.4.0.
-//! Use `Set save folder` from the main menu instead to enter paths manually.
-//!
-//! Traverses known path patterns across user profiles and common install
-//! locations to find Subnautica 2 save folders.
+//! Checks the current user's default save locations — no scanning of other
+//! profiles or system drives. Run at startup as a convenience; if nothing is
+//! found the user enters a path manually via `Set save folder`.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -338,6 +335,55 @@ fn fixed_drives() -> Vec<String> {
         }
     }
     drives
+}
+
+/// Quick check of the current user's default save locations.
+///
+/// No scanning of other profiles, no recursion into system directories.
+/// Returns the first valid path found, or `None`.
+///
+/// **Windows** (checked in order):
+/// 1. `%LOCALAPPDATA%\Subnautica2\Saved\SaveGames`
+///
+/// **Linux / Steam Deck** (checked in order):
+/// 1. `~/.steam/steam/steamapps/compatdata/1962700/pfx/drive_c/users/steamuser/AppData/Local/Subnautica2/Saved/SaveGames`
+/// 2. `~/.local/share/Steam/steamapps/compatdata/1962700/pfx/drive_c/users/steamuser/AppData/Local/Subnautica2/Saved/SaveGames`
+/// 3. `$XDG_DATA_HOME/Subnautica2/Saved/SaveGames` (typically `~/.local/share/Subnautica2/Saved/SaveGames`)
+pub fn quick_discover() -> Option<PathBuf> {
+    // Primary: %LOCALAPPDATA%\Subnautica2\Saved\SaveGames (Windows)
+    #[cfg(target_os = "windows")]
+    {
+        if let Some(local) = dirs::data_local_dir() {
+            let primary = local.join("Subnautica2").join("Saved").join("SaveGames");
+            if primary.exists() && has_save_files(&primary) {
+                return Some(primary);
+            }
+        }
+    }
+
+    // Primary: Proton paths + XDG data (Linux / Steam Deck)
+    #[cfg(not(target_os = "windows"))]
+    {
+        if let Some(home) = dirs::home_dir() {
+            for rel in &[
+                ".steam/steam/steamapps/compatdata/1962700/pfx/drive_c/users/steamuser/AppData/Local/Subnautica2/Saved/SaveGames",
+                ".local/share/Steam/steamapps/compatdata/1962700/pfx/drive_c/users/steamuser/AppData/Local/Subnautica2/Saved/SaveGames",
+            ] {
+                let candidate = home.join(rel);
+                if candidate.exists() && has_save_files(&candidate) {
+                    return Some(candidate);
+                }
+            }
+        }
+        if let Some(data) = dirs::data_local_dir() {
+            let primary = data.join("Subnautica2").join("Saved").join("SaveGames");
+            if primary.exists() && has_save_files(&primary) {
+                return Some(primary);
+            }
+        }
+    }
+
+    None
 }
 
 // ── helpers for the TUI ──────────────────────────────────────────────────

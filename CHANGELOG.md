@@ -6,6 +6,12 @@ All notable changes to NotAlterra are documented in this file.
 
 ## [v0.3.2] — 2026-06-02
 
+### Added
+- **Lightweight startup check** — on launch, the app silently checks the
+  current user's default save locations (`%LOCALAPPDATA%` on Windows,
+  Proton + XDG data on Linux). No scanning of other profiles or system
+  drives. If nothing is found, use **Set save folder** as before.
+
 ### Removed
 - **`config.ini` eliminated entirely** — no save path, disclaimer flag, or
   scan timestamp is written to disk anymore. The save folder is session-only,

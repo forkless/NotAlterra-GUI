@@ -144,6 +144,14 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
          result in incomplete, corrupt, or overwritten save files.",
     )?;
 
+    // Quick check of common save locations (current user only, no profile scans)
+    if app.save_folder.is_none() {
+        if let Some(path) = discovery::quick_discover() {
+            app.save_folder = Some(path);
+            refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
+        }
+    }
+
     // Disclaimer flow
     if !crate::config::disclaimer_accepted() {
         match run_disclaimer(terminal, &mut app)? {

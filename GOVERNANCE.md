@@ -84,7 +84,7 @@ Planned changes for upcoming releases, ordered by priority.
 
 | Target | Item |
 |--------|------|
-| v0.4.0 | Extract `validate_custom_path` and `derive_ini_path` from `discovery.rs`, then remove the module |
+| v0.4.0 | TBD — see GitHub issues for planned features |
 
 Items may shift between releases depending on feedback and urgency.
 
