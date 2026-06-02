@@ -71,12 +71,11 @@ jobs:
         run: |
           cd builds
           echo "hashes=$(sha256sum * | base64 -w0)" >> "$GITHUB_OUTPUT"
-      - name: Upload to release (draft)
-        uses: softprops/action-gh-release@v2
+      - name: Upload binaries as artifacts
+        uses: actions/upload-artifact@v4
         with:
-          files: builds/*
-          body_path: _release.md
-          draft: true
+          name: release-binaries
+          path: builds/
 
   provenance:
     needs: build
@@ -88,4 +87,31 @@ jobs:
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
     with:
       base64-subjects: "${{ needs.build.outputs.hashes }}"
-      upload-assets: true
+      upload-assets: false
+
+  release:
+    needs: [build, provenance]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-binaries
+          path: builds/
+      - name: Download provenance
+        uses: actions/download-artifact@v4
+        with:
+          name: "${{ github.event.repository.name }}-${{ github.ref_name }}.attestation"
+          path: builds/
+        continue-on-error: true
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: builds/*
+          body_path: _release.md
+          draft: true
