@@ -75,52 +75,30 @@ impl Default for AppState {
 
 // ── public rendering entry points ──────────────────────────────────────────
 
-/// Draw the main menu.  Hides the locate item when saves are already found.
-pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, save_found: bool) {
-    let items: Vec<&str> = if save_found {
-        vec![
-            "  Recover save file",
-            "  Create full backup",
-            "  Restore full backup",
-            "  Inspect save files",
-            "  Manage UE5 Config (.ini) files",
-            "  View disclaimer",
-            "  Exit",
-        ]
-    } else {
-        vec![
-            "  Locate Subnautica save files",
-            "  Recover save file",
-            "  Create full backup",
-            "  Restore full backup",
-            "  Inspect save files",
-            "  Manage UE5 Config (.ini) files",
-            "  View disclaimer",
-            "  Exit",
-        ]
-    };
-    let descs: Vec<&str> = if save_found {
-        vec![
-            "Restore a save file from a backup",
-            "Copy the savegame files to NotAlterra_Backups",
-            "Restore a full backup from NotAlterra_Backups",
-            "View detailed GVAS metadata for each save file",
-            "Backup, restore, or delete .ini files in Config/Windows",
-            "Re-read the disclaimer and terms of use",
-            "Close NotAlterra",
-        ]
-    } else {
-        vec![
-            "Scan all drives for Subnautica 2 save folders",
-            "Restore a save file from a backup",
-            "Copy the savegame files to NotAlterra_Backups",
-            "Restore a full backup from NotAlterra_Backups",
-            "View detailed GVAS metadata for each save file",
-            "Backup, restore, or delete .ini files in Config/Windows",
-            "Re-read the disclaimer and terms of use",
-            "Close NotAlterra",
-        ]
-    };
+/// Draw the main menu.
+pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, _save_found: bool) {
+    let items: Vec<&str> = vec![
+        "  Set save folder",
+        "  Locate save files (deprecated)",
+        "  Recover save file",
+        "  Create full backup",
+        "  Restore full backup",
+        "  Inspect save files",
+        "  Manage UE5 Config (.ini) files",
+        "  View disclaimer",
+        "  Exit",
+    ];
+    let descs: Vec<&str> = vec![
+        "Enter your save folder path manually",
+        "Auto-scan for save folders (deprecated — will be removed in a future release)",
+        "Restore a save file from a backup",
+        "Copy the savegame files to NotAlterra_Backups",
+        "Restore a full backup from NotAlterra_Backups",
+        "View detailed GVAS metadata for each save file",
+        "Backup, restore, or delete .ini files in Config/Windows",
+        "Re-read the disclaimer and terms of use",
+        "Close NotAlterra",
+    ];
     let chunks = standard_layout(f.area(), items.len());
 
     draw_header(f, chunks[0], app);
@@ -630,6 +608,195 @@ pub fn draw_whale_separator(f: &mut Frame, area: Rect, app: &AppState) {
             Rect { x: area.x + (x as u16).min(area.width.saturating_sub(4)), y: area.y, width: 4, height: 1 },
         );
     }
+}
+
+// ── input dialog ─────────────────────────────────────────────────────────────
+
+/// State for the text-input dialog used to enter a save-folder path.
+pub struct InputDialogState {
+    pub input: String,
+    pub cursor: usize,
+    pub prompt: String,
+    pub confirmed: bool,
+    pub cancelled: bool,
+}
+
+impl InputDialogState {
+    pub fn new(prompt: impl Into<String>) -> Self {
+        Self {
+            input: String::new(),
+            cursor: 0,
+            prompt: prompt.into(),
+            confirmed: false,
+            cancelled: false,
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.input.clear();
+        self.cursor = 0;
+        self.confirmed = false;
+        self.cancelled = false;
+    }
+
+    /// Insert a character at the cursor position.
+    pub fn insert(&mut self, c: char) {
+        self.input.insert(self.cursor, c);
+        self.cursor += c.len_utf8();
+    }
+
+    /// Insert a string at the cursor position (for paste).
+    pub fn insert_str(&mut self, s: &str) {
+        self.input.insert_str(self.cursor, s);
+        self.cursor += s.len();
+    }
+
+    /// Delete the character before the cursor (Backspace).
+    pub fn backspace(&mut self) {
+        if self.cursor > 0 {
+            let prev = self.cursor.saturating_sub(1);
+            self.input.remove(prev);
+            self.cursor = prev;
+        }
+    }
+
+    /// Delete the character at the cursor (Delete).
+    pub fn delete(&mut self) {
+        if self.cursor < self.input.len() {
+            self.input.remove(self.cursor);
+        }
+    }
+
+    /// Move cursor left by one grapheme boundary.
+    pub fn cursor_left(&mut self) {
+        if self.cursor > 0 {
+            self.cursor = self.input[..self.cursor]
+                .char_indices()
+                .nth_back(0)
+                .map(|(i, _c)| i)
+                .unwrap_or(0);
+        }
+    }
+
+    /// Move cursor right by one grapheme boundary.
+    pub fn cursor_right(&mut self) {
+        if self.cursor < self.input.len() {
+            self.cursor = self.input[self.cursor..]
+                .char_indices()
+                .nth(1)
+                .map(|(i, _c)| self.cursor + i)
+                .unwrap_or(self.input.len());
+        }
+    }
+}
+
+/// Draw the text input dialog for entering a custom save-folder path.
+///
+/// Layout: title bar, prompt, input line with cursor indicator,
+/// instruction line, and [ OK ] [ Cancel ] buttons.
+pub fn draw_input_dialog(
+    f: &mut Frame,
+    _app: &AppState,
+    state: &InputDialogState,
+    ok_selected: bool,
+) {
+    let prompt_w = state.prompt.len() as u16 + 4;
+    let input_display = &state.input;
+    let display_w = input_display.len() + 4; // rough, but good enough for sizing
+    let popup_w = (prompt_w.max(display_w as u16).max(40) + 4)
+        .min(f.area().width.saturating_sub(4));
+    let popup_h = 10u16.min(f.area().height.saturating_sub(4));
+    let area = centered_rect_size(popup_w, popup_h, f.area());
+    f.render_widget(Clear, area);
+
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Plain)
+        .border_style(Style::default().fg(Color::Yellow));
+    f.render_widget(block, area);
+
+    let inner = inner(area, 2, 1);
+
+    // Title
+    f.render_widget(
+        Paragraph::new(Span::styled(
+            "Set Save Folder",
+            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+        )),
+        Rect { height: 1, ..inner },
+    );
+
+    // Prompt text
+    f.render_widget(
+        Paragraph::new(Span::styled(
+            &state.prompt,
+            Style::default().fg(Color::White),
+        )),
+        Rect { y: inner.y + 2, height: 1, width: inner.width, x: inner.x },
+    );
+
+    // Input line with cursor
+    let cursor_visible = (std::time::Instant::now().elapsed().as_millis() / 500) % 2 == 0;
+    let mut input_spans = vec![
+        Span::styled("  ", Style::default()),
+    ];
+    // Show the text up to cursor
+    let before = &state.input[..state.cursor.min(state.input.len())];
+    let after = if state.cursor < state.input.len() {
+        Some(&state.input[state.cursor..])
+    } else {
+        None
+    };
+    input_spans.push(Span::styled(
+        before,
+        Style::default().fg(Color::White),
+    ));
+    if cursor_visible && !state.confirmed && !state.cancelled {
+        input_spans.push(Span::styled(
+            "█",
+            Style::default().fg(Color::Cyan),
+        ));
+    }
+    if let Some(a) = after {
+        input_spans.push(Span::styled(
+            a,
+            Style::default().fg(Color::White),
+        ));
+    }
+    f.render_widget(
+        Paragraph::new(Line::from(input_spans)),
+        Rect { y: inner.y + 3, height: 1, width: inner.width, x: inner.x },
+    );
+
+    // Instruction line
+    f.render_widget(
+        Paragraph::new(Span::styled(
+            "Type a path, then Tab to buttons  Enter to confirm  Esc to cancel",
+            Style::default().fg(Color::DarkGray),
+        )),
+        Rect { y: inner.y + 5, height: 1, width: inner.width, x: inner.x },
+    );
+
+    // OK / Cancel buttons
+    let ok_style = if ok_selected {
+        Style::default().fg(Color::Black).bg(Color::Green).add_modifier(Modifier::BOLD)
+    } else {
+        Style::default().fg(Color::Green)
+    };
+    let cancel_style = if !ok_selected {
+        Style::default().fg(Color::Black).bg(Color::Red).add_modifier(Modifier::BOLD)
+    } else {
+        Style::default().fg(Color::Red)
+    };
+    let buttons = Line::from(vec![
+        Span::styled(" [ OK ] ", ok_style),
+        Span::raw("  "),
+        Span::styled(" [ Cancel ] ", cancel_style),
+    ]);
+    f.render_widget(
+        Paragraph::new(buttons).alignment(Alignment::Center),
+        Rect { y: inner.y + 6, height: 1, width: inner.width, x: inner.x },
+    );
 }
 
 /// Truncate a path to show the tail (most specific directories).

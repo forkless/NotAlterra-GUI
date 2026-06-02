@@ -9,7 +9,7 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 
 ## Features
 
-- **Auto-locate** save folders across Steam, Xbox, Epic, and custom installs
+- **Manual path entry** — set your save folder from the menu (paste supported)
 - **Recover** a corrupted `.sav` from its `.bak` backup with rollback
 - **Create / restore** full backups (only `savegame_*` files)
 - **Manage** UE5 Config `.ini` files — backup, restore, delete
@@ -72,7 +72,8 @@ folder and run `.\NotAlterra.exe`.
 
 ## Usage
 
-Run the binary. On first launch it auto-scans for your save folder. The menu is keyboard-driven:
+Run the binary. Use **Set save folder** from the main menu to enter your save
+path manually (paste is supported). The menu is keyboard-driven:
 
 | Key | Action |
 |---|---|
@@ -83,13 +84,15 @@ Run the binary. On first launch it auto-scans for your save folder. The menu is 
 
 ### Menu
 
-1. **Recover save file** — pick a backup, preview metadata, overwrite the live save
-2. **Create full backup** — copies all `savegame_*` files to `NotAlterra_Backups`
-3. **Restore full backup** — overwrite the save folder from a previous backup
-4. **Inspect save files** — view all GVAS properties of any `.sav` / `.bak`
-5. **Manage UE5 Config (.ini) files** — backup, restore, or delete `.ini` files
-6. **View disclaimer**
-7. **Exit**
+1. **Set save folder** — enter your save folder path manually (paste supported)
+2. **Locate save files (deprecated)** — auto-scan for save folders (will be removed in v0.3.0)
+3. **Recover save file** — pick a backup, preview metadata, overwrite the live save
+4. **Create full backup** — copies all `savegame_*` files to `NotAlterra_Backups`
+5. **Restore full backup** — overwrite the save folder from a previous backup
+6. **Inspect save files** — view all GVAS properties of any `.sav` / `.bak`
+7. **Manage UE5 Config (.ini) files** — backup, restore, or delete `.ini` files
+8. **View disclaimer**
+9. **Exit**
 
 
 ## Where Files Live
@@ -112,12 +115,9 @@ Run the binary. On first launch it auto-scans for your save folder. The menu is 
     ...
 ```
 
-NotAlterra checks both `~/.steam` and `~.local/share/Steam` — no manual
-path change needed for legacy or modern Steam installs.
-
-> [!IMPORTANT]
-> If the tool cannot locate your `SaveGames` folder, you can manually
-> override the path by editing the `save_path` field in `config.ini`.
+Use **Set save folder** from the menu to enter your save path. The path is
+persisted in `config.ini` for re-use across sessions. Delete the config file
+or use the menu option again to change it.
 
 Backups are stored in `NotAlterra_Backups\` alongside the binary.
 
@@ -134,7 +134,8 @@ disclaimer_accepted = true
 ini_path = C:\Users\...\Subnautica2\Saved\Config\Windows
 ```
 
-Delete `config.ini` to force a fresh scan on next launch.
+Delete `config.ini` to clear the cached path — you will be prompted to set
+a new one on next launch.
 
 Only the disclaimer flag and save-folder paths are stored — no backup
 state or file metadata is persisted.
@@ -143,9 +144,8 @@ state or file metadata is persisted.
 ## Platform Support
 
 - **Windows** — fully tested and supported.
-- **Linux** — builds and runs, but automatic save-file detection has not been
-  tested on a Linux/Steam Deck install yet. The directory layout should be the
-  same, but feedback and bug reports are appreciated.
+- **Linux** — builds and runs. Use **Set save folder** to enter your save
+  path (typical Proton locations are shown under "Where Files Live" above).
 
 
 ## Safety

@@ -10,14 +10,45 @@ All notable changes to NotAlterra are documented in this file.
 - SECURITY.md with vulnerability disclosure policy
 - Release checklist in GOVERNANCE.md
 - 32-test integration suite (guard, config, ops, gvas, ini backup/restore)
-- Fuzz target for GVAS parser
+- Fuzz target for GVAS parser (`parse_gvas`)
+- Second fuzz target (`full_metadata`) — exercises IntProperty, DoubleProperty,
+  and additional StrProperty/BoolProperty code paths
+- `fuzz/Cargo.toml` manifest with both fuzz targets registered
+- **`Set save folder` menu option** — manual path entry with clipboard paste
+  support (bracketed paste mode), replaces auto-discovery as the primary way to
+  set the save location
 - cargo clippy, cargo audit, and cargo-deny in CI
 - deny(unsafe_code) in library crate
 - Build script validates CHANGELOG has current version entry
 
+### Fixed
+- Index-out-of-bounds panic in all four GVAS property extractors
+  (`extract_str_property`, `extract_bool_property`, `extract_int_property`,
+  `extract_double_property`) when a property name appeared too close to the
+  end of the buffer — discovered by fuzzing the existing `parse_gvas` target
+
+### Deprecated
+- **Auto-scan for save folders** (`Locate save files` menu item / `discovery.rs`
+  module). Scans user profiles and system directories, which is a privacy
+  concern. Shows a deprecation notice once per session. Scheduled for removal
+  in v0.3.0 — use `Set save folder` instead.
+
 ### Changed
 - Zero compiler warnings
 - Example dump_samples compiles and runs
+- `fuzz/target/` added to `.gitignore`
+- Fuzz targets rewritten from `#[fuzz]` attribute to `libfuzzer_sys::fuzz_target!`
+  macro for nightly-toolchain compatibility
+- **No auto-scan on startup** — the application no longer scans user profiles
+  and system drives for save folders at launch. Only the cached path from
+  `config.ini` is loaded.
+- **Menu is always 9 items** — `Set save folder` is always visible. `Locate
+  save files` is always visible (with deprecation label). No conditional hiding
+  or index remapping.
+- **`ensure_save_folder()` and `get_ini_path()`** no longer fall back to
+  `discover_save_folders()`. They use the cached path or error with a message.
+- **`is_cloud_path()` removed** — was only used by the discovery-era cloud
+  detection path.
 
 ## [v0.2.3] — 2026-06-01
 

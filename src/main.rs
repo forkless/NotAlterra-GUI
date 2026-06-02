@@ -20,7 +20,7 @@ use anyhow::Result;
 use chrono::TimeZone;
 use config::AppConfig;
 use crossterm::{
-    event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode, KeyEventKind},
+    event::{self, DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture, Event, KeyCode, KeyEventKind},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -49,7 +49,7 @@ fn main() -> Result<()> {
     // ── setup terminal ─────────────────────────────────────────────────
     enable_raw_mode()?;
     let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen, EnableMouseCapture)?;
+    execute!(stdout, EnterAlternateScreen, EnableBracketedPaste, EnableMouseCapture)?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
@@ -60,6 +60,7 @@ fn main() -> Result<()> {
     execute!(
         terminal.backend_mut(),
         LeaveAlternateScreen,
+        DisableBracketedPaste,
         DisableMouseCapture
     )?;
     terminal.show_cursor()?;
@@ -75,6 +76,7 @@ struct App {
     log_path: PathBuf,
     save_folder: Option<PathBuf>,
     tui_state: tui::AppState,
+    discovery_deprecation_shown: bool,
 }
 
 impl App {
@@ -98,6 +100,7 @@ impl App {
             log_path,
             save_folder,
             tui_state,
+            discovery_deprecation_shown: false,
         })
     }
 
@@ -167,30 +170,8 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
         }
     }
 
-    // Auto-scan on startup if no cached path
-    let save_found = if app.save_folder.is_some() {
-        true
-    } else {
-        app.set_spinner(true);
-        terminal.draw(|f| {
-            tui::draw_text_screen(f, &app.tui_state,
-                &[Line::from(Span::styled("Locating save folder…", Style::default().add_modifier(Modifier::BOLD)))],
-                "",
-            );
-        })?;
-        let folders = discovery::discover_save_folders();
-        app.set_spinner(false);
-        if let Some(first) = folders.first() {
-            app.save_folder = Some(first.path.clone());
-            app.config.save_path = Some(first.path.display().to_string());
-            app.config.save_scan = Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
-            crate::config::save_config(&app.ini_path, &app.config)?;
-            refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
-            true
-        } else {
-            false
-        }
-    };
+    // Load cached path only — no auto-scan (privacy: discovery scans user profiles)
+    let save_found = app.save_folder.is_some();
 
     // Main menu loop
     let mut menu_state = ListState::default().with_selected(Some(0));
@@ -206,7 +187,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
             tui::draw_main_menu(f, &mut menu_state, &app.tui_state, save_found);
         })?;
 
-        let max_idx = if save_found { 6 } else { 7 };
+        let max_idx = 8usize;
         if event::poll(std::time::Duration::from_millis(250))? {
             if let Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Release { continue; }
@@ -221,21 +202,20 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
                 }
                 KeyCode::Enter => {
                     let idx = menu_state.selected().unwrap_or(0);
-                    // Remap: when locate is hidden, shift by 1
-                    let remap = if save_found { idx + 1 } else { idx };
-                    match remap {
-                        0 => action_locate_saves(terminal, &mut app)?,
-                        1 => action_recover_bak(terminal, &mut app)?,
-                        2 => action_create_backup(terminal, &mut app)?,
-                        3 => action_restore_backup(terminal, &mut app)?,
-                        4 => action_inspect_saves(terminal, &mut app)?,
-                        5 => run_ini_submenu(terminal, &mut app)?,
-                        6 => {
+                    match idx {
+                        0 => action_set_save_folder(terminal, &mut app)?,
+                        1 => action_locate_saves(terminal, &mut app)?,
+                        2 => action_recover_bak(terminal, &mut app)?,
+                        3 => action_create_backup(terminal, &mut app)?,
+                        4 => action_restore_backup(terminal, &mut app)?,
+                        5 => action_inspect_saves(terminal, &mut app)?,
+                        6 => run_ini_submenu(terminal, &mut app)?,
+                        7 => {
                             if let Some(false) = run_disclaimer(terminal, &mut app)? {
                                 return Ok(());
                             }
                         }
-                        7 => return Ok(()), // Exit
+                        8 => return Ok(()), // Exit
                         _ => {}
                     }
                     app.clear_status();
@@ -300,8 +280,119 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
 ///
 /// Spawns a background thread for the scan and shows a live elapsed timer.
 // ── menu actions ───────────────────────────────────────────────────────────
+
+/// Open the input dialog for the user to type a save-folder path.
+/// Validates the path exists and contains .sav files before accepting it.
+fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    let mut input_state = tui::InputDialogState::new(
+        "Enter the path to your Subnautica 2 SaveGames folder:",
+    );
+    let mut ok_selected = true;
+
+    loop {
+        terminal.draw(|f| {
+            tui::draw_input_dialog(f, &app.tui_state, &input_state, ok_selected);
+        })?;
+
+        if crossterm::event::poll(std::time::Duration::from_millis(250))? {
+            match crossterm::event::read()? {
+                Event::Key(key) => {
+                    if key.kind == KeyEventKind::Release { continue; }
+                    match key.code {
+                        KeyCode::Enter => {
+                            if ok_selected && !input_state.input.is_empty() {
+                                let candidate = discovery::validate_custom_path(&input_state.input);
+                                if let Some(path) = candidate {
+                                    app.save_folder = Some(path.clone());
+                                    app.config.save_path = Some(path.display().to_string());
+                                    crate::config::save_config(&app.ini_path, &app.config)?;
+                                    refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
+                                    let msg = format!("Save folder set to {}", path.display());
+                                    app.set_status(&msg, tui::StatusStyle::Success);
+                                    input_state.confirmed = true;
+                                    return Ok(());
+                                } else {
+                                    // Invalid path — show error and let them retry
+                                    ok_dialog(terminal, app, "Invalid Path",
+                                        "The path you entered does not exist or\n\
+                                         does not contain any .sav save files.\n\
+                                         \n\
+                                         Please enter the full path to your\n\
+                                         SaveGames folder (e.g.\n\
+                                         /home/user/.../SaveGames)."
+                                    )?;
+                                    input_state.reset();
+                                    ok_selected = true;
+                                    continue;
+                                }
+                            }
+                            // Cancel was selected
+                            input_state.cancelled = true;
+                            return Ok(());
+                        }
+                        KeyCode::Char(c) => {
+                            if ok_selected {
+                                input_state.insert(c);
+                            }
+                        }
+                        KeyCode::Backspace => {
+                            if ok_selected {
+                                input_state.backspace();
+                            }
+                        }
+                        KeyCode::Delete => {
+                            if ok_selected {
+                                input_state.delete();
+                            }
+                        }
+                        KeyCode::Left => {
+                            if ok_selected {
+                                input_state.cursor_left();
+                            }
+                        }
+                        KeyCode::Right => {
+                            if ok_selected {
+                                input_state.cursor_right();
+                            }
+                        }
+                        KeyCode::Tab => {
+                            ok_selected = !ok_selected;
+                        }
+                        KeyCode::Esc => {
+                            input_state.cancelled = true;
+                            return Ok(());
+                        }
+                        _ => {}
+                    }
+                }
+                Event::Paste(s) => {
+                    if ok_selected {
+                        input_state.insert_str(&s);
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
 /// Caches the first match as `save_path` in config.ini.
 fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    // Deprecation notice — show once per session
+    if !app.discovery_deprecation_shown {
+        app.discovery_deprecation_shown = true;
+        ok_dialog(terminal, app,
+            "Deprecation Notice",
+            "Auto-scan for save folders is deprecated and will\n\
+             be removed in a future release.\n\
+             \n\
+             Please use 'Set save folder' from the main menu\n\
+             to enter your save path manually. This protects\n\
+             your privacy by not scanning other user profiles\n\
+             and system directories.",
+        )?;
+        // Let the user decide — proceed with the scan anyway
+    }
     // Run scan on a background thread so we can show a live elapsed timer.
     let (tx, rx) = std::sync::mpsc::channel();
     let scan_start = std::time::Instant::now();
@@ -1020,29 +1111,19 @@ fn poll_key(timeout_ms: u64) -> Result<Option<crossterm::event::KeyEvent>> {
     Ok(None)
 }
 
-/// Ensure we have a save folder — prompt discovery if not.
+/// Ensure we have a cached save folder path that exists.
 fn ensure_save_folder<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Result<PathBuf> {
-    // Try cached path first
     if let Some(ref sf) = app.save_folder {
         if sf.exists() {
             return Ok(sf.clone());
         }
     }
-
-    // Discover
-    let folders = discovery::discover_save_folders();
-    if let Some(first) = folders.first() {
-        app.save_folder = Some(first.path.clone());
-        app.config.save_path = Some(first.path.display().to_string());
-        crate::config::save_config(&app.ini_path, &app.config)?;
-        refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
-        return Ok(first.path.clone());
-    }
-
-    anyhow::bail!("No save folders found. Run 'Locate Subnautica save files' from the main menu.")
+    anyhow::bail!(
+        "No save folder set. Use 'Set save folder' from the main menu first."
+    )
 }
 
-/// Get or discover the Config\Windows path.
+/// Derive the Config\Windows path from the save folder or cached config.
 fn get_ini_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Result<PathBuf> {
     // Try cached config path
     if let Some(ref cp) = app.config.ini_path {
@@ -1059,23 +1140,9 @@ fn get_ini_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Resul
         }
     }
 
-    // Fall back to discovery
-    let folders = discovery::discover_save_folders();
-    for f in &folders {
-        if let Some(cp) = discovery::derive_ini_path(&f.path) {
-            app.config.ini_path = Some(cp.display().to_string());
-            crate::config::save_config(&app.ini_path, &app.config)?;
-            return Ok(cp);
-        }
-    }
-
-    anyhow::bail!("Cannot determine Config/Windows path. Run 'Locate Subnautica save files' first.")
-}
-
-/// Determine if a save folder is cloud-backed (Xbox/Game Pass wgs path).
-fn is_cloud_path(path: &Path) -> bool {
-    let s = path.to_string_lossy().to_lowercase();
-    s.contains("\\packages\\") || s.contains("/packages/") || s.contains("\\wgs") || s.contains("/wgs")
+    anyhow::bail!(
+        "Cannot determine Config/Windows path. Set your save folder first via 'Set save folder'."
+    )
 }
 
 /// Extract the numeric suffix from a slot name like "savegame_3".

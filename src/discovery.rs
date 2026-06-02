@@ -1,5 +1,9 @@
 //! Save-folder discovery.
 //!
+//! **Deprecated.** Auto-scanning user profiles and system directories for
+//! Subnautica 2 saves is a privacy concern. Scheduled for removal in v0.3.0.
+//! Use `Set save folder` from the main menu instead to enter paths manually.
+//!
 //! Traverses known path patterns across user profiles and common install
 //! locations to find Subnautica 2 save folders.
 
