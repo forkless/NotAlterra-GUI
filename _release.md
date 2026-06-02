@@ -4,6 +4,13 @@ Cross-platform terminal application.  No admin permissions or network access req
 Pre-compiled binaries — no installation, no dependencies.  Just download,
 extract, and run.
 
+### v0.3.2
+
+• `config.ini` removed entirely — no paths written to disk
+• Save folder is session-only, entered via `Set save folder`
+• Disclaimer tracked via 0-byte sentinel file (`NotAlterra_LICENSE_ACCEPTED`)
+• Sentinel and path utilities live in reduced `config.rs`
+
 ### v0.3.1
 
 • Patrolling whale added to Set save folder input dialog

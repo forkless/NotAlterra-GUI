@@ -4,6 +4,21 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.3.2] — 2026-06-02
+
+### Removed
+- **`config.ini` eliminated entirely** — no save path, disclaimer flag, or
+  scan timestamp is written to disk anymore. The save folder is session-only,
+  entered via **Set save folder**. The disclaimer acceptance is tracked via a
+  0-byte sentinel file (`NotAlterra_LICENSE_ACCEPTED`) alongside the binary.
+  - `src/config.rs` reduced to sentinel utilities and `exe_dir()`
+  - `AppConfig`, `load_config()`, `save_config()` removed
+  - Integration tests for config round-trips removed (replaced by sentinel test)
+
+### Changed
+- `get_ini_path()` now derives the Config/Windows path from the save folder
+  at runtime — no cached `ini_path` in memory or on disk.
+
 ## [v0.3.1] — 2026-06-02
 
 ### Added

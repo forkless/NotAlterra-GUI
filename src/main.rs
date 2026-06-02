@@ -18,7 +18,6 @@ mod tui;
 
 use anyhow::Result;
 use chrono::TimeZone;
-use config::AppConfig;
 use crossterm::{
     event::{self, DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture, Event, KeyCode, KeyEventKind},
     execute,
@@ -71,8 +70,6 @@ fn main() -> Result<()> {
 // ── app state ──────────────────────────────────────────────────────────────
 
 struct App {
-    config: AppConfig,
-    ini_path: PathBuf,
     log_path: PathBuf,
     save_folder: Option<PathBuf>,
     tui_state: tui::AppState,
@@ -80,24 +77,11 @@ struct App {
 
 impl App {
     fn new() -> Result<Self> {
-        let ini_path = crate::config::ini_path();
-        let config = crate::config::load_config(&ini_path)?;
         let log_path = guard::log_path();
-
-        let save_folder = config.save_path.as_deref().map(PathBuf::from);
-
-        let mut tui_state = tui::AppState { version: VERSION.to_string(), ..Default::default() };
-
-        tui_state.save_path = save_folder.as_ref().map(|p| p.display().to_string());
-
-        // Refresh stats for the dashboard
-        refresh_stats(&mut tui_state, save_folder.as_deref());
-
+        let tui_state = tui::AppState { version: VERSION.to_string(), ..Default::default() };
         Ok(Self {
-            config,
-            ini_path,
             log_path,
-            save_folder,
+            save_folder: None,
             tui_state,
         })
     }
@@ -161,7 +145,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
     )?;
 
     // Disclaimer flow
-    if !app.config.disclaimer_accepted {
+    if !crate::config::disclaimer_accepted() {
         match run_disclaimer(terminal, &mut app)? {
             Some(true) => {}  // accepted
             _ => return Ok(()), // declined or cancelled on first launch → exit
@@ -242,14 +226,11 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
                 KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down => selected_yes = !selected_yes,
                 KeyCode::Char('y') | KeyCode::Char('Y') => {
                     guard::log_action("LICENSE", "accepted", "OK", &app.log_path)?;
-                    app.config.disclaimer_accepted = true;
-                    crate::config::save_config(&app.ini_path, &app.config)?;
+                    crate::config::accept_disclaimer()?;
                     return Ok(Some(true));
                 }
                 KeyCode::Char('n') | KeyCode::Char('N') => {
                     guard::log_action("LICENSE", "declined", "OK", &app.log_path)?;
-                    app.config.disclaimer_accepted = false;
-                    crate::config::save_config(&app.ini_path, &app.config)?;
                     return Ok(Some(false));
                 }
                 KeyCode::Esc => {
@@ -259,8 +240,9 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
                     let accepted = selected_yes;
                     let detail = if accepted { "accepted" } else { "declined" };
                     guard::log_action("LICENSE", detail, "OK", &app.log_path)?;
-                    app.config.disclaimer_accepted = accepted;
-                    crate::config::save_config(&app.ini_path, &app.config)?;
+                    if accepted {
+                        crate::config::accept_disclaimer()?;
+                    }
                     return Ok(Some(accepted));
                 }
                 _ => {}
@@ -300,8 +282,6 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
                                 let candidate = discovery::validate_custom_path(&sanitized);
                                 if let Some(path) = candidate {
                                     app.save_folder = Some(path.clone());
-                                    app.config.save_path = Some(path.display().to_string());
-                                    crate::config::save_config(&app.ini_path, &app.config)?;
                                     refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
                                     let msg = format!("Save folder set to {}", path.display());
                                     app.set_status(&msg, tui::StatusStyle::Success);
@@ -992,23 +972,13 @@ fn ensure_save_folder<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) ->
     )
 }
 
-/// Derive the Config\Windows path from the save folder or cached config.
+/// Derive the Config\Windows path from the save folder.
 fn get_ini_path<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) -> Result<PathBuf> {
-    // Try cached config path
-    if let Some(ref cp) = app.config.ini_path {
-        let p = PathBuf::from(cp);
-        if p.exists() {
-            return Ok(p);
-        }
-    }
-
-    // Derive from save folder
     if let Some(ref sf) = app.save_folder {
         if let Some(cp) = discovery::derive_ini_path(sf) {
             return Ok(cp);
         }
     }
-
     anyhow::bail!(
         "Cannot determine Config/Windows path. Set your save folder first via 'Set save folder'."
     )

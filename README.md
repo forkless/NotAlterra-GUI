@@ -114,30 +114,22 @@ path manually (paste is supported). The menu is keyboard-driven:
     ...
 ```
 
-Use **Set save folder** from the menu to enter your save path. The path is
-persisted in `config.ini` for re-use across sessions. Delete the config file
-or use the menu option again to change it.
+Use **Set save folder** from the menu to enter your save path (paste is
+supported). The path exists only in memory for the current session —
+re-enter it the next time you run the tool.
 
 Backups are stored in `NotAlterra_Backups\` alongside the binary.
 
 
-## config.ini
+## Session Persistence
 
-Created automatically next to the binary:
+No configuration file is written to disk. The save folder path exists only
+in memory for the current session — set it each time via **Set save folder**
+from the main menu (paste is supported).
 
-```ini
-[alterra]
-save_path = C:\Users\...\Subnautica2\Saved\SaveGames
-save_scan = 2026-05-31 18:00:00
-disclaimer_accepted = true
-ini_path = C:\Users\...\Subnautica2\Saved\Config\Windows
-```
-
-Delete `config.ini` to clear the cached path — you will be prompted to set
-a new one on next launch.
-
-Only the disclaimer flag and save-folder paths are stored — no backup
-state or file metadata is persisted.
+The disclaimer acceptance is tracked via a 0-byte sentinel file
+(`NotAlterra_LICENSE_ACCEPTED`) alongside the binary. Delete this file to
+re-prompt the disclaimer on next launch.
 
 
 ## Platform Support
