@@ -4,7 +4,7 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
-## [v0.2.4] — 2026-06-01
+## [v0.3.0] — 2026-06-02
 
 ### Added
 - SECURITY.md with vulnerability disclosure policy
@@ -31,7 +31,7 @@ All notable changes to NotAlterra are documented in this file.
 - **Auto-scan for save folders** (`Locate save files` menu item / `discovery.rs`
   module). Scans user profiles and system directories, which is a privacy
   concern. Shows a deprecation notice once per session. Scheduled for removal
-  in v0.3.0 — use `Set save folder` instead.
+  in v0.4.0 — use `Set save folder` instead.
 
 ### Changed
 - Zero compiler warnings
@@ -49,6 +49,9 @@ All notable changes to NotAlterra are documented in this file.
   `discover_save_folders()`. They use the cached path or error with a message.
 - **`is_cloud_path()` removed** — was only used by the discovery-era cloud
   detection path.
+- **Zero clippy warnings on CI** — fixed `collapsible_match` (6 instances),
+  `empty_line_after_doc_comments`, and `manual_is_multiple_of` lints from
+  rustc 1.95 nightly.
 
 ### Notes
 - Working copy diverged from remote after signing the previous commit
