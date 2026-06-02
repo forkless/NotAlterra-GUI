@@ -75,7 +75,7 @@ Planned changes for upcoming releases, ordered by priority.
 
 | Target | Item |
 |--------|------|
-| v0.4.0 | Remove `discovery.rs` entirely |
+| v0.4.0 | Extract `validate_custom_path` and `derive_ini_path` from `discovery.rs`, then remove the module |
 | v0.4.0 | Replace `disclaimer_accepted` with 0-byte sentinel file |
 | v0.4.0 | Drop `save_scan` from `config.ini` |
 | v0.4.0 | Remove `config.ini` entirely — re-request path each session |

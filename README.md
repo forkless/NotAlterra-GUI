@@ -85,14 +85,13 @@ path manually (paste is supported). The menu is keyboard-driven:
 ### Menu
 
 1. **Set save folder** — enter your save folder path manually (paste supported)
-2. **Locate save files (deprecated)** — auto-scan for save folders (will be removed in v0.3.0)
-3. **Recover save file** — pick a backup, preview metadata, overwrite the live save
-4. **Create full backup** — copies all `savegame_*` files to `NotAlterra_Backups`
-5. **Restore full backup** — overwrite the save folder from a previous backup
-6. **Inspect save files** — view all GVAS properties of any `.sav` / `.bak`
-7. **Manage UE5 Config (.ini) files** — backup, restore, or delete `.ini` files
-8. **View disclaimer**
-9. **Exit**
+2. **Recover save file** — pick a backup, preview metadata, overwrite the live save
+3. **Create full backup** — copies all `savegame_*` files to `NotAlterra_Backups`
+4. **Restore full backup** — overwrite the save folder from a previous backup
+5. **Inspect save files** — view all GVAS properties of any `.sav` / `.bak`
+6. **Manage UE5 Config (.ini) files** — backup, restore, or delete `.ini` files
+7. **View disclaimer**
+8. **Exit**
 
 
 ## Where Files Live

@@ -76,10 +76,9 @@ impl Default for AppState {
 // ── public rendering entry points ──────────────────────────────────────────
 
 /// Draw the main menu.
-pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, _save_found: bool) {
+pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState) {
     let items: Vec<&str> = vec![
         "  Set save folder",
-        "  Locate save files (deprecated)",
         "  Recover save file",
         "  Create full backup",
         "  Restore full backup",
@@ -90,7 +89,6 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState, _sav
     ];
     let descs: Vec<&str> = vec![
         "Enter your save folder path manually",
-        "Auto-scan for save folders (deprecated — will be removed in a future release)",
         "Restore a save file from a backup",
         "Copy the savegame files to NotAlterra_Backups",
         "Restore a full backup from NotAlterra_Backups",
@@ -797,6 +795,10 @@ pub fn draw_input_dialog(
         Paragraph::new(buttons).alignment(Alignment::Center),
         Rect { y: inner.y + 6, height: 1, width: inner.width, x: inner.x },
     );
+
+    // Whale
+    let bar = Rect { x: 0, y: f.area().height.saturating_sub(1), width: f.area().width, height: 1 };
+    draw_whale_separator(f, bar, _app);
 }
 
 /// Truncate a path to show the tail (most specific directories).

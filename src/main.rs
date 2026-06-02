@@ -76,7 +76,6 @@ struct App {
     log_path: PathBuf,
     save_folder: Option<PathBuf>,
     tui_state: tui::AppState,
-    discovery_deprecation_shown: bool,
 }
 
 impl App {
@@ -100,7 +99,6 @@ impl App {
             log_path,
             save_folder,
             tui_state,
-            discovery_deprecation_shown: false,
         })
     }
 
@@ -170,9 +168,6 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
         }
     }
 
-    // Load cached path only — no auto-scan (privacy: discovery scans user profiles)
-    let save_found = app.save_folder.is_some();
-
     // Main menu loop
     let mut menu_state = ListState::default().with_selected(Some(0));
 
@@ -184,10 +179,10 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
                 draw_too_small(f);
                 return;
             }
-            tui::draw_main_menu(f, &mut menu_state, &app.tui_state, save_found);
+            tui::draw_main_menu(f, &mut menu_state, &app.tui_state);
         })?;
 
-        let max_idx = 8usize;
+        let max_idx = 7usize;
         if event::poll(std::time::Duration::from_millis(250))? {
             if let Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Release { continue; }
@@ -204,18 +199,17 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
                     let idx = menu_state.selected().unwrap_or(0);
                     match idx {
                         0 => action_set_save_folder(terminal, &mut app)?,
-                        1 => action_locate_saves(terminal, &mut app)?,
-                        2 => action_recover_bak(terminal, &mut app)?,
-                        3 => action_create_backup(terminal, &mut app)?,
-                        4 => action_restore_backup(terminal, &mut app)?,
-                        5 => action_inspect_saves(terminal, &mut app)?,
-                        6 => run_ini_submenu(terminal, &mut app)?,
-                        7 => {
+                        1 => action_recover_bak(terminal, &mut app)?,
+                        2 => action_create_backup(terminal, &mut app)?,
+                        3 => action_restore_backup(terminal, &mut app)?,
+                        4 => action_inspect_saves(terminal, &mut app)?,
+                        5 => run_ini_submenu(terminal, &mut app)?,
+                        6 => {
                             if let Some(false) = run_disclaimer(terminal, &mut app)? {
                                 return Ok(());
                             }
                         }
-                        8 => return Ok(()), // Exit
+                        7 => return Ok(()), // Exit
                         _ => {}
                     }
                     app.clear_status();
@@ -298,7 +292,12 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
                     match key.code {
                         KeyCode::Enter => {
                             if ok_selected && !input_state.input.is_empty() {
-                                let candidate = discovery::validate_custom_path(&input_state.input);
+                                // Sanitize: strip control characters to prevent
+                                // config.ini injection and log forgery.
+                                let sanitized: String = input_state.input.chars()
+                                    .filter(|c| !c.is_control())
+                                    .collect();
+                                let candidate = discovery::validate_custom_path(&sanitized);
                                 if let Some(path) = candidate {
                                     app.save_folder = Some(path.clone());
                                     app.config.save_path = Some(path.display().to_string());
@@ -359,121 +358,6 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
             }
         }
     }
-}
-
-/// Caches the first match as `save_path` in config.ini.
-fn action_locate_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
-    // Deprecation notice — show once per session
-    if !app.discovery_deprecation_shown {
-        app.discovery_deprecation_shown = true;
-        ok_dialog(terminal, app,
-            "Deprecation Notice",
-            "Auto-scan for save folders is deprecated and will\n\
-             be removed in a future release.\n\
-             \n\
-             Please use 'Set save folder' from the main menu\n\
-             to enter your save path manually. This protects\n\
-             your privacy by not scanning other user profiles\n\
-             and system directories.",
-        )?;
-        // Let the user decide — proceed with the scan anyway
-    }
-    // Run scan on a background thread so we can show a live elapsed timer.
-    let (tx, rx) = std::sync::mpsc::channel();
-    let scan_start = std::time::Instant::now();
-    std::thread::spawn(move || {
-        let result = discovery::discover_save_folders();
-        tx.send(result).ok();
-    });
-
-    app.set_spinner(true);
-    let folders = loop {
-        let elapsed = scan_start.elapsed().as_secs();
-        terminal.draw(|f| {
-            tui::draw_text_screen(
-                f,
-                &app.tui_state,
-                &[
-                    Line::from(Span::styled(
-                        "Scanning for Subnautica save files…",
-                        Style::default().add_modifier(Modifier::BOLD),
-                    )),
-                    Line::from(""),
-                    Line::from(Span::styled(
-                        "The first scan checks every user profile and common",
-                        Style::default().fg(Color::DarkGray),
-                    )),
-                    Line::from(Span::styled(
-                        "install location — it may take a moment.",
-                        Style::default().fg(Color::DarkGray),
-                    )),
-                    Line::from(""),
-                    Line::from(Span::styled(
-                        format!("  ⏱  {elapsed}s elapsed"),
-                        Style::default().fg(Color::Cyan),
-                    )),
-                ],
-                "",
-            );
-        })?;
-
-        match rx.try_recv() {
-            Ok(f) => break f,
-            Err(std::sync::mpsc::TryRecvError::Disconnected) => break Vec::new(),
-            _ => {}
-        }
-        std::thread::sleep(std::time::Duration::from_millis(100));
-    };
-    app.set_spinner(false);
-
-    let elapsed = scan_start.elapsed();
-    let elapsed_str = if elapsed.as_secs() >= 1 {
-        format!("{:.1}s", elapsed.as_secs_f64())
-    } else {
-        format!("{}ms", elapsed.as_millis())
-    };
-
-    if folders.is_empty() {
-        app.set_status("No Subnautica 2 save folders detected.", tui::StatusStyle::Error);
-        wait_for_key(terminal, app)?;
-        return Ok(());
-    }
-
-    // Cache the first result
-    if let Some(first) = folders.first() {
-        app.save_folder = Some(first.path.clone());
-        app.config.save_path = Some(first.path.display().to_string());
-        app.config.save_scan = Some(chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string());
-        crate::config::save_config(&app.ini_path, &app.config)?;
-    }
-
-    refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
-
-    let msg = format!("Found {} save folder(s) in {elapsed_str}.", folders.len());
-    app.set_status(&msg, tui::StatusStyle::Success);
-
-    // Show found folders
-    let lines: Vec<Line> = std::iter::once(Line::from(Span::styled(
-        format!("Found {} save folder(s):", folders.len()),
-        Style::default().fg(Color::Green),
-    )))
-    .chain(folders.iter().map(|f| {
-        Line::from(Span::styled(
-            format!("  {} — {}", f.label, f.path.display()),
-            Style::default().fg(Color::Gray),
-        ))
-    }))
-    .collect();
-
-    let prompt = "Press any key to return to menu…";
-    loop {
-        terminal.draw(|f| tui::draw_text_screen(f, &app.tui_state, &lines, prompt))?;
-        if let Event::Key(_) = event::read()? {
-            break;
-        }
-    }
-
-    Ok(())
 }
 
 /// Recover a .sav from its .bak backup with a rollback safety net.

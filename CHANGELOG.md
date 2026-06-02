@@ -54,6 +54,9 @@ All notable changes to NotAlterra are documented in this file.
   rustc 1.95 nightly.
 - **`KNOWN_ISSUES.md` moved from `docs/` to project root** — reflects v0.3.0
   privacy improvements (manual path entry live, discovery deprecated).
+- **`Locate save files` menu item removed** — the deprecated auto-discovery
+  entry point is gone. `Set save folder` is the only path for configuring the
+  save location.
 
 ### Notes
 - Working copy diverged from remote after signing the previous commit
