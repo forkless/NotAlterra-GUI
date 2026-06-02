@@ -52,6 +52,8 @@ All notable changes to NotAlterra are documented in this file.
 - **Zero clippy warnings on CI** — fixed `collapsible_match` (6 instances),
   `empty_line_after_doc_comments`, and `manual_is_multiple_of` lints from
   rustc 1.95 nightly.
+- **`KNOWN_ISSUES.md` moved from `docs/` to project root** — reflects v0.3.0
+  privacy improvements (manual path entry live, discovery deprecated).
 
 ### Notes
 - Working copy diverged from remote after signing the previous commit
