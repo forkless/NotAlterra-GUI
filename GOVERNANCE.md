@@ -61,13 +61,22 @@ welcome.  Patience is appreciated.  Kindness is non-negotiable.
 
 ## Release Checklist
 
+CI now creates releases as drafts — binaries are built and uploaded but
+not published. The maintainer tests the draft binaries before publishing.
+
 Before signing a release tag, the maintainer verifies:
 
 - [ ] `cargo test --workspace` — all tests pass
 - [ ] `python3 tests/_check.py` — 100% doc coverage
 - [ ] CHANGELOG.md has an entry for the new version
 - [ ] `git status` — no uncommitted changes
-- [ ] `_release.md` What's New section is updated
+- [ ] `_release.md` is updated for the new version
+
+After the CI run completes:
+
+- [ ] Download draft binaries from the GitHub releases page
+- [ ] Test on target platform(s) — basic menu flow, backup, restore, inspect
+- [ ] Click **Publish release** on GitHub when satisfied
 
 ## Roadmap
 

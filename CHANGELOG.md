@@ -4,6 +4,25 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.3.1] — 2026-06-02
+
+### Added
+- **Patrolling whale** in the Set save folder input dialog (was missing
+  the bottom separator present on all other screens)
+
+### Fixed
+- **Path injection via paste** — control characters (newlines, tabs, null
+  bytes) are now stripped from user-provided paths before they reach
+  `config.ini` or `transaction.log`
+- **Draft releases** — CI now creates releases as drafts. You can download
+  and test the binaries before publishing them live.
+
+### Removed
+- **`Locate save files` menu item** — the deprecated auto-discovery entry
+  point is gone. `Set save folder` is the only path for configuring the
+  save location. The `discovery.rs` module remains for `validate_custom_path`
+  and `derive_ini_path` but is marked for removal in v0.4.0.
+
 ## [v0.3.0] — 2026-06-02
 
 ### Added
@@ -54,9 +73,6 @@ All notable changes to NotAlterra are documented in this file.
   rustc 1.95 nightly.
 - **`KNOWN_ISSUES.md` moved from `docs/` to project root** — reflects v0.3.0
   privacy improvements (manual path entry live, discovery deprecated).
-- **`Locate save files` menu item removed** — the deprecated auto-discovery
-  entry point is gone. `Set save folder` is the only path for configuring the
-  save location.
 
 ### Notes
 - Working copy diverged from remote after signing the previous commit

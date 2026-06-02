@@ -4,13 +4,21 @@ Cross-platform terminal application.  No admin permissions or network access req
 Pre-compiled binaries — no installation, no dependencies.  Just download,
 extract, and run.
 
-### What's New:
+### v0.3.1
 
-• Column headers in file pickers
-• Navigation prompt alongside item description
-• Config keys renamed (save_path, save_scan, ini_path)
-• Windows executable renamed to NotAlterra.exe
-• Playtime zero-padded to 2 digits
-• Removed unused dependencies — lighter compile
+• Patrolling whale added to Set save folder input dialog
+• Path injection sanitized — control characters stripped before writing to config or log
+• Deprecated `Locate save files` menu item removed
+• `Set save folder` is the sole method for configuring the save location
+
+### v0.3.0
+
+• `Set save folder` — manual path entry with clipboard paste support
+• No auto-scan on startup (privacy: scanning user profiles is disabled)
+• Fuzz testing for GVAS parser (2 targets, ~450k runs clean)
+• SLSA v3 provenance attestation on all release artifacts
+• GPG-signed release tags
+• Index-out-of-bounds fix in GVAS property extractors (found by fuzzing)
+• Auto-discovery deprecated — scheduled for removal in v0.4.0
 
 _Builds:  Linux (amd64)  •  Windows x64_
