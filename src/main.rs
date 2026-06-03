@@ -160,21 +160,32 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
     crate::config::ensure_dir(crate::config::backups_saves_dir());
     crate::config::ensure_dir(crate::config::backups_config_dir());
 
+    // Track whether any migrations occurred for the startup status message
+    let mut migrated_something = false;
+
     // Migrate old transaction.log into logs/ directory
     if guard::migrate_old_log() {
         guard::log_action("MIGRATE", "old transaction.log moved to logs/", "OK", &app.log_path)?;
+        migrated_something = true;
     }
 
     // Clean up stale config.ini from v0.3.0 and earlier
     if crate::config::cleanup_stale_config() {
         guard::log_action("MIGRATE", "old config.ini removed", "SAFE", &app.log_path)?;
+        migrated_something = true;
     }
 
     // Migrate old directory-tree backups to tar.gz
     if let Ok(n) = ops::migrate_old_backups() {
         if n > 0 {
             guard::log_action("MIGRATE", &format!("{n} old backup(s) migrated to tar.gz, originals in NotAlterra_Backups/ untouched"), "OK", &app.log_path)?;
+            migrated_something = true;
         }
+    }
+
+    // Notify the user about completed migrations
+    if migrated_something {
+        app.set_status("Data migrated from previous version. Old files remain — delete manually if desired.", tui::StatusStyle::Info);
     }
 
     // Quick check of common save locations (current user only, no profile scans)
