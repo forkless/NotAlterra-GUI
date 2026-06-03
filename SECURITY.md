@@ -38,5 +38,5 @@ Only the latest release receives security patches.
 
 | Version | Supported |
 |---|---|
-| Latest (v0.2.x) | Yes |
+| Latest (v0.4.x) | Yes |
 | Older | No |
