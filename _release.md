@@ -4,6 +4,13 @@ Cross-platform terminal application.  No admin permissions or network access req
 Pre-compiled binaries — no installation, no dependencies.  Just download,
 extract, and run.
 
+### What's new in v0.4.1
+
+• Log migration — existing `transaction.log` is moved into `logs/` on first launch
+• Backup directory structure scaffolded at startup (`backups/saves/`, `backups/config/`, `logs/`)
+• `ensure_dir()` helper for consistent directory creation
+• All migration paths integrated into startup (config.ini, backups, log)
+
 ### What's new in v0.4.0
 
 • tar.gz backup format — one archive per backup event, standard `tar -xzf` recovers data without the tool
@@ -15,4 +22,4 @@ extract, and run.
 • 6 migration tests, full round-trip tar.gz integration tests
 • `tar` + `flate2` dependencies added (pure Rust, ~150KB increase)
 
-_Builds:  Linux (amd64)  •  Windows x64_
+Builds:  Linux (amd64)  •  Windows x64

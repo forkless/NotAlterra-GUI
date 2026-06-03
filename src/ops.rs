@@ -395,28 +395,38 @@ fn migrate_backups_from(old_root: PathBuf) -> Result<usize> {
                 continue;
             }
             let dir_name = entry.file_name().to_string_lossy().to_string();
-            if !dir_name.starts_with("notalterra_copy_") {
-                continue;
-            }
-            // Check if this directory contains save files
-            let has_saves = fs::read_dir(&path)
-                .map(|e| e.flatten().any(|f| {
-                    let fname = f.file_name();
-                    let n = fname.to_string_lossy();
-                    n.starts_with("savegame_")
-                }))
-                .unwrap_or(false);
-            if !has_saves {
-                continue;
-            }
-            let backup_dir = crate::config::backups_saves_dir();
-            match create_tar_gz(&path, &backup_dir, "savegame_", &format!("migrated_{dir_name}")) {
-                Ok((_count, _size, archive_path)) if archive_path.exists() => {
-                    migrated += 1;
+
+            if dir_name.starts_with("notalterra_copy_") {
+                // Migrate old save backups → backups/saves/
+                let has_saves = fs::read_dir(&path)
+                    .map(|e| e.flatten().any(|f| {
+                        f.file_name().to_string_lossy().starts_with("savegame_")
+                    }))
+                    .unwrap_or(false);
+                if !has_saves {
+                    continue;
                 }
-                Ok(_) => {},
-                Err(e) => {
-                    eprintln!("migration warning: failed to archive {:?}: {}", path, e);
+                let backup_dir = crate::config::backups_saves_dir();
+                match create_tar_gz(&path, &backup_dir, "savegame_", &format!("migrated_{dir_name}")) {
+                    Ok((_count, _size, archive_path)) if archive_path.exists() => {
+                        migrated += 1;
+                    }
+                    Ok(_) => {},
+                    Err(e) => {
+                        eprintln!("migration warning: failed to archive {:?}: {}", path, e);
+                    }
+                }
+            } else if dir_name.starts_with("config_") {
+                // Migrate old .ini backups → backups/config/
+                let backup_dir = crate::config::backups_config_dir();
+                match create_tar_gz(&path, &backup_dir, "", &format!("migrated_{dir_name}")) {
+                    Ok((_count, _size, archive_path)) if archive_path.exists() => {
+                        migrated += 1;
+                    }
+                    Ok(_) => {},
+                    Err(e) => {
+                        eprintln!("migration warning: failed to archive {:?}: {}", path, e);
+                    }
                 }
             }
         }
