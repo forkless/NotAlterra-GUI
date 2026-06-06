@@ -2,12 +2,34 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security issue in NotAlterra, please report it privately:
+If you discover a security issue in NotAlterra, report it privately
+through one of the channels below. Do **not** open a public issue.
+
+### Preferred: GitHub Private Vulnerability Reporting
+
+1. Go to the repository's **Security** tab:
+   <https://github.com/forkless/NotAlterra/security/advisories>
+2. Click **Report a vulnerability**.
+3. Fill in the form — no GPG needed, the thread is private by default.
+4. GitHub can assign a CVE ID directly through their CNA.
+
+### Fallback: Email
+
+If you cannot use the GitHub advisory form, email the maintainer directly:
 
 - **Email**: forkless@protonmail.com
 - **GPG**: [314BB48A3C72D8EC2830B8BED2B0DF63E2CBEA16](https://github.com/forkless.gpg)
 
-Do not open a public issue.
+Encrypted email is preferred when the report includes sensitive details
+or proof-of-concept code.
+
+## Safe Harbor
+
+If you report a vulnerability in good faith and follow this policy —
+report privately, allow time for a patch, do not publish exploit code
+before a release — NotAlterra will not pursue legal action against you.
+Your testing is authorized within the scope defined below. No other
+authorization, express or implied, is granted.
 
 ## Response Timeline
 
