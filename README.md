@@ -15,7 +15,7 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 - **Manage** UE5 Config `.ini` files — backup, restore, delete
 - **Inspect** any `.sav` or `.bak` file — full GVAS metadata dump
 - **Slot grouping** with Multiplayer / Single Player detection
-- **Playtime extraction** — displays total playtime from save metadata (read-only — not stored, not tracked; helps distinguish between backups when browsing the picker)
+- **Playtime extraction** — displays total playtime from save metadata (read-only — not stored, not tracked; helps the user identify which savegame backup they are dealing with)
 - **Warns** on name changes and mode switches before recovery
 - **Startup reminder** to close Subnautica 2 before use
 - **Transaction log** — all actions timestamped to `transaction.log`
