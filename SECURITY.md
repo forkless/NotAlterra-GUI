@@ -37,6 +37,10 @@ authorization, express or implied, is granted.
 - **Patch**: Fix committed within 48 hours of triage.
 - **Disclosure**: Public advisory posted after the patch release ships.
 
+These are best-effort targets. NotAlterra is maintained by a single
+person — real-life delays happen. If you haven't heard back within the
+timeline, a polite follow-up is welcome.
+
 ## Scope
 
 NotAlterra is an offline desktop application.  Security concerns include
