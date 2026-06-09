@@ -6,6 +6,26 @@ extract, and run.
 
 ---
 
+### v0.4.2 — Pinned headers & layout polish
+
+**UI**
+• Restore backup picker: pinned column headers, wider Backup column, right-aligned Size
+• INI restore picker: matching pinned header with "INI Backup" / "Size" columns  
+• All picker highlight colour changed to yellow for better visibility
+• Main menu entries shifted 1 left; INI submenu entries aligned with main menu
+• Spacer row between list content and status bar on all screens
+• Non-blocking info dialog for backup-in-progress (no button, auto-replaced)
+
+**Layout**
+• Backup column widened from 30→38 chars; header/data total widths matched
+• Size header right-aligned above file-size values in both restore pickers
+• INI submenu header changed to cyan, shifted 3 right
+
+**Backup flow**
+• No intermediate spinner page — info popup followed by summary dialog
+
+---
+
 ### v0.4.1 — Persistent config & split-layout picker
 
 **UI**
