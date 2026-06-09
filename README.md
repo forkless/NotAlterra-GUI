@@ -84,13 +84,14 @@ path manually (paste is supported). The menu is keyboard-driven:
 
 ### Menu
 
-1. **Set save folder** — enter your save folder path manually (paste supported)
+1. **Set Subnautica 2 location** — enter your save folder path manually (paste supported)
 2. **Recover save file** — pick a backup, preview metadata, overwrite the live save
-3. **Create full backup** — copies all `savegame_*` files to `NotAlterra_Backups`
-4. **Restore full backup** — overwrite the save folder from a previous backup
-5. **Manage UE5 Config (.ini) files** — backup, restore, or delete `.ini` files
-6. **View disclaimer**
-7. **Exit**
+3. **Set backup location** — choose where backup archives are stored (default: `~/NotAlterra`)
+4. **Create full backup** — copies all `savegame_*` files to the backup root
+5. **Restore full backup** — overwrite the save folder from a previous backup
+6. **Manage UE5 Config (.ini) files** — backup, restore, or delete `.ini` files
+7. **View disclaimer**
+8. **Exit**
 
 
 ## Where Files Live
