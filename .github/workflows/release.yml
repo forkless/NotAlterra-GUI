@@ -77,35 +77,8 @@ jobs:
           name: release-binaries
           path: builds/
 
-  release:
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write
-      attestations: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: release-binaries
-          path: builds/
-      - name: Download provenance
-        uses: actions/download-artifact@v4
-        with:
-          name: "${{ github.event.repository.name }}-${{ github.ref_name }}.attestation"
-          path: builds/
-        continue-on-error: true
-      - name: Create draft release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: builds/*
-          body_path: _release.md
-          draft: true
-
   provenance:
-    needs: [build, release]
+    needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
       id-token: write
@@ -114,4 +87,25 @@ jobs:
     uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
     with:
       base64-subjects: "${{ needs.build.outputs.hashes }}"
-      upload-assets: true
+      upload-assets: false
+
+  release:
+    needs: [build, provenance]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: builds/
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: builds/*/*
+          body_path: _release.md
+          draft: true
