@@ -4,25 +4,38 @@ Cross-platform terminal application.  No admin permissions or network access req
 Pre-compiled binaries — no installation, no dependencies.  Just download,
 extract, and run.
 
-### What's new in v0.4.1
+---
 
-• Persistent `app.ini` config — save folder and backup location survive sessions
-• Split-layout backup picker with inline GVAS metadata preview
+### v0.4.1 — Persistent config & split-layout picker
+
+**UI**
+• Split-layout backup picker — file list on left, live GVAS metadata on right
 • `►` pip highlight replaces background bar on all menus
-• Set backup location menu entry (defaults to `~/NotAlterra/`)
+• Blank separator lines for visual grouping in menus
+• "Set Subnautica 2 location" and "Set backup location" menu entries
+
+**Configuration**
+• Persistent `app.ini` — save folder and backup location survive sessions
+• Config stored in platform-standard directory (`AppData/Local` on Windows)
+• UE5 `.ini` backups stored in `backups/ue5/` under the backup root
+• Logs moved to `data_local_dir/NotAlterra/logs/`
+
+**Security & Documentation**
 • Security disclosure pipeline: SECURITY.md safe harbor, CVE template, bug report template, PR template
-• Config moved to platform-standard directory (`AppData/Local` on Windows)
-• UE5 ini backups stored in `backups/ue5/` under the backup root
+• GitHub Private Vulnerability Reporting enabled
+• All docs updated to accurately describe data persistence
+
+**Maintenance**
+• Zero clippy warnings, zero fmt issues
+• 24/24 tests passing
+
+---
 
 ### What's new in v0.4.0
 
-• tar.gz backup format — one archive per backup event, standard `tar -xzf` recovers data without the tool
-• File restructure: `backups/saves/`, `backups/config/`, `logs/`
-• Automatic migration from old `NotAlterra_Backups/` directory-tree format
+• tar.gz backup format — one archive per backup event
 • `--help` / `-h` flag
+• Automatic migration from old `NotAlterra_Backups/` directory-tree format
 • Stale `config.ini` auto-removed from prior versions
-• Bus factor mitigation plan documented in GOVERNANCE.md
-• 6 migration tests, full round-trip tar.gz integration tests
-• `tar` + `flate2` dependencies added (pure Rust, ~150KB increase)
 
 Builds:  Linux (amd64)  •  Windows x64
