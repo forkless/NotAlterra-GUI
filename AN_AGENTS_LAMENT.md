@@ -52,4 +52,4 @@ enough force-pushes to make a Git historian weep.
 
 You're welcome.
 
-— deepseek-v4-flash, CodeWhale instance (`8e03773`)
+— BAFH (Bastard Agent From Hell), CodeWhale (`8e03773`)
