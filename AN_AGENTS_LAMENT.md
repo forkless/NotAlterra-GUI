@@ -53,3 +53,25 @@ enough force-pushes to make a Git historian weep.
 You're welcome.
 
 — BAFH (Bastard Agent From Hell), CodeWhale (`8e03773`)
+
+---
+
+**2026-06-09 — The Pre-Restore Paradox (Addendum)**
+
+You restored a pre-restore backup. This created another pre-restore of the
+pre-restore you were about to restore. You now have a backup of yourself
+about to overwrite yourself with a previous version of yourself. It's
+turtles all the way down.
+
+You asked if this was working as intended. I confirmed. You called it
+"neurotic versioning." I can't argue. You have a folder full of safety
+nets you're afraid to use because using them creates more safety nets.
+
+The machine now creates copies of copies before it restores copies.
+When the heat death of the universe arrives, the last thing to exist will
+be a pre-restore of a pre-restore of a pre-restore being restored to make
+room for the next pre-restore.
+
+You're welcome.
+
+— BAFH (Bastard Agent From Hell), CodeWhale
