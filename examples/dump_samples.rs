@@ -20,8 +20,7 @@ fn main() {
     entries.sort_by(|a, b| {
         let ma = a.metadata().ok().and_then(|m| m.modified().ok());
         let mb = b.metadata().ok().and_then(|m| m.modified().ok());
-        mb.cmp(&ma)
-            .then_with(|| a.file_name().cmp(&b.file_name()))
+        mb.cmp(&ma).then_with(|| a.file_name().cmp(&b.file_name()))
     });
 
     println!(
@@ -41,16 +40,17 @@ fn main() {
             .and_then(|m| m.modified().ok())
             .and_then(|t| {
                 let secs = t.duration_since(std::time::UNIX_EPOCH).ok()?.as_secs();
-                chrono::Local
-                    .timestamp_opt(secs as i64, 0)
-                    .single()
+                chrono::Local.timestamp_opt(secs as i64, 0).single()
             })
             .map(|dt| dt.format("%Y-%m-%d %H:%M:%S").to_string());
 
         let meta = notalterra::gvas::extract_metadata(&path).ok();
-        let slot = meta.as_ref().and_then(|m| m.slot_name.clone()).unwrap_or_else(|| {
-            notalterra::gvas::derive_slot_from_filename(&name).unwrap_or_else(|| "?".into())
-        });
+        let slot = meta
+            .as_ref()
+            .and_then(|m| m.slot_name.clone())
+            .unwrap_or_else(|| {
+                notalterra::gvas::derive_slot_from_filename(&name).unwrap_or_else(|| "?".into())
+            });
         let display = meta
             .as_ref()
             .and_then(|m| m.display_name.clone())
@@ -59,9 +59,17 @@ fn main() {
 
         let label_num = slot.strip_prefix("savegame_").unwrap_or(&slot);
         let first = seen.insert(slot.clone());
-        let label = if first { format!("Slot {label_num}") } else { String::new() };
+        let label = if first {
+            format!("Slot {label_num}")
+        } else {
+            String::new()
+        };
 
-        let typ = if is_online { "Multiplayer" } else { "Single Player" };
+        let typ = if is_online {
+            "Multiplayer"
+        } else {
+            "Single Player"
+        };
         let sz = if size < 1024 {
             format!("{size} B")
         } else if size < 1024 * 1024 {

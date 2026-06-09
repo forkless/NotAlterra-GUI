@@ -7,8 +7,6 @@
 //!
 //! MIT License.  Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 
-
-
 mod config;
 mod discovery;
 mod guard;
@@ -19,7 +17,10 @@ mod tui;
 use anyhow::Result;
 use chrono::TimeZone;
 use crossterm::{
-    event::{self, DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture, Event, KeyCode, KeyEventKind},
+    event::{
+        self, DisableBracketedPaste, DisableMouseCapture, EnableBracketedPaste, EnableMouseCapture,
+        Event, KeyCode, KeyEventKind,
+    },
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -57,7 +58,12 @@ fn main() -> Result<()> {
     // ── setup terminal ─────────────────────────────────────────────────
     enable_raw_mode()?;
     let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen, EnableBracketedPaste, EnableMouseCapture)?;
+    execute!(
+        stdout,
+        EnterAlternateScreen,
+        EnableBracketedPaste,
+        EnableMouseCapture
+    )?;
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
@@ -87,7 +93,10 @@ struct App {
 impl App {
     fn new() -> Result<Self> {
         let log_path = guard::log_path();
-        let tui_state = tui::AppState { version: VERSION.to_string(), ..Default::default() };
+        let tui_state = tui::AppState {
+            version: VERSION.to_string(),
+            ..Default::default()
+        };
         Ok(Self {
             log_path,
             save_folder: None,
@@ -143,7 +152,10 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
     let mut app = App::new()?;
 
     // Reminder — the user should close the game before using the tool
-    ok_dialog(terminal, &app, "Before You Begin",
+    ok_dialog(
+        terminal,
+        &app,
+        "Before You Begin",
         "Please close Subnautica 2 before using NotAlterra.\n\
          \n\
          The game holds file locks on your save files while active.\n\
@@ -160,7 +172,12 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
 
     // Migrate old transaction.log into logs/ directory
     if guard::migrate_old_log() {
-        guard::log_action("MIGRATE", "old transaction.log moved to logs/", "OK", &app.log_path)?;
+        guard::log_action(
+            "MIGRATE",
+            "old transaction.log moved to logs/",
+            "OK",
+            &app.log_path,
+        )?;
         migrated_something = true;
     }
 
@@ -180,7 +197,10 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
 
     // Notify the user about completed migrations
     if migrated_something {
-        app.set_status("Data migrated from previous version. Old files remain — delete manually if desired.", tui::StatusStyle::Info);
+        app.set_status(
+            "Data migrated from previous version. Old files remain — delete manually if desired.",
+            tui::StatusStyle::Info,
+        );
     }
 
     // Quick check of common save locations (current user only, no profile scans)
@@ -210,7 +230,7 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
     // Disclaimer flow
     if !crate::config::disclaimer_accepted() {
         match run_disclaimer(terminal, &mut app)? {
-            Some(true) => {}  // accepted
+            Some(true) => {}    // accepted
             _ => return Ok(()), // declined or cancelled on first launch → exit
         }
     }
@@ -233,48 +253,54 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
         let max_idx = 10usize;
         if event::poll(std::time::Duration::from_millis(250))? {
             if let Event::Key(key) = event::read()? {
-                if key.kind == KeyEventKind::Release { continue; }
-            match key.code {
-                KeyCode::Up => {
-                    let mut i = menu_state.selected().unwrap_or(1);
-                    loop {
-                        i = i.saturating_sub(1);
-                        if !SKIP.contains(&i) || i == 0 { break; }
-                    }
-                    menu_state.select(Some(i));
+                if key.kind == KeyEventKind::Release {
+                    continue;
                 }
-                KeyCode::Down => {
-                    let mut i = menu_state.selected().unwrap_or(0);
-                    loop {
-                        i = (i + 1).min(max_idx);
-                        if !SKIP.contains(&i) || i == max_idx { break; }
-                    }
-                    menu_state.select(Some(i));
-                }
-                KeyCode::Enter => {
-                    let idx = menu_state.selected().unwrap_or(0);
-                    match idx {
-                        0 => action_set_save_folder(terminal, &mut app)?,
-                        1 => action_recover_bak(terminal, &mut app)?,
-                        3 => action_set_backup_location(terminal, &mut app)?,
-                        4 => action_create_backup(terminal, &mut app)?,
-                        5 => action_restore_backup(terminal, &mut app)?,
-                        7 => run_ini_submenu(terminal, &mut app)?,
-                        9 => {
-                            if let Some(false) = run_disclaimer(terminal, &mut app)? {
-                                return Ok(());
+                match key.code {
+                    KeyCode::Up => {
+                        let mut i = menu_state.selected().unwrap_or(1);
+                        loop {
+                            i = i.saturating_sub(1);
+                            if !SKIP.contains(&i) || i == 0 {
+                                break;
                             }
                         }
-                        10 => return Ok(()), // Exit
-                        _ => {}
+                        menu_state.select(Some(i));
                     }
-                    app.clear_status();
+                    KeyCode::Down => {
+                        let mut i = menu_state.selected().unwrap_or(0);
+                        loop {
+                            i = (i + 1).min(max_idx);
+                            if !SKIP.contains(&i) || i == max_idx {
+                                break;
+                            }
+                        }
+                        menu_state.select(Some(i));
+                    }
+                    KeyCode::Enter => {
+                        let idx = menu_state.selected().unwrap_or(0);
+                        match idx {
+                            0 => action_set_save_folder(terminal, &mut app)?,
+                            1 => action_recover_bak(terminal, &mut app)?,
+                            3 => action_set_backup_location(terminal, &mut app)?,
+                            4 => action_create_backup(terminal, &mut app)?,
+                            5 => action_restore_backup(terminal, &mut app)?,
+                            7 => run_ini_submenu(terminal, &mut app)?,
+                            9 => {
+                                if let Some(false) = run_disclaimer(terminal, &mut app)? {
+                                    return Ok(());
+                                }
+                            }
+                            10 => return Ok(()), // Exit
+                            _ => {}
+                        }
+                        app.clear_status();
+                    }
+                    KeyCode::Esc => {
+                        return Ok(());
+                    }
+                    _ => {}
                 }
-                KeyCode::Esc => {
-                    return Ok(());
-                }
-                _ => {}
-            }
             }
         }
     }
@@ -295,7 +321,9 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
         })?;
         if let Some(key) = poll_key(250)? {
             match key.code {
-                KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down => selected_yes = !selected_yes,
+                KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down => {
+                    selected_yes = !selected_yes
+                }
                 KeyCode::Char('y') | KeyCode::Char('Y') => {
                     guard::log_action("LICENSE", "accepted", "OK", &app.log_path)?;
                     crate::config::accept_disclaimer()?;
@@ -323,15 +351,13 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
     }
 }
 
-
 // ── menu actions ───────────────────────────────────────────────────────────
 
 /// Open the input dialog for the user to type a save-folder path.
 /// Validates the path exists and contains .sav files before accepting it.
 fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
-    let mut input_state = tui::InputDialogState::new(
-        "Enter the path to your Subnautica 2 SaveGames folder:",
-    );
+    let mut input_state =
+        tui::InputDialogState::new("Enter the path to your Subnautica 2 SaveGames folder:");
     let mut ok_selected = true;
 
     loop {
@@ -342,13 +368,17 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
         if crossterm::event::poll(std::time::Duration::from_millis(250))? {
             match crossterm::event::read()? {
                 Event::Key(key) => {
-                    if key.kind == KeyEventKind::Release { continue; }
+                    if key.kind == KeyEventKind::Release {
+                        continue;
+                    }
                     match key.code {
                         KeyCode::Enter => {
                             if ok_selected && !input_state.input.is_empty() {
                                 // Sanitize: strip control characters to prevent
                                 // config.ini injection and log forgery.
-                                let sanitized: String = input_state.input.chars()
+                                let sanitized: String = input_state
+                                    .input
+                                    .chars()
                                     .filter(|c| !c.is_control())
                                     .collect();
                                 let candidate = discovery::validate_custom_path(&sanitized);
@@ -365,13 +395,16 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
                                     return Ok(());
                                 } else {
                                     // Invalid path — show error and let them retry
-                                    ok_dialog(terminal, app, "Invalid Path",
+                                    ok_dialog(
+                                        terminal,
+                                        app,
+                                        "Invalid Path",
                                         "The path you entered does not exist or\n\
                                          does not contain any .sav save files.\n\
                                          \n\
                                          Please enter the full path to your\n\
                                          SaveGames folder (e.g.\n\
-                                         /home/user/.../SaveGames)."
+                                         /home/user/.../SaveGames).",
                                     )?;
                                     input_state.reset();
                                     ok_selected = true;
@@ -421,10 +454,8 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
 fn action_set_backup_location<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let default = dirs::home_dir()
         .map(|h| h.join("NotAlterra"))
-        .unwrap_or_else(|| crate::config::exe_dir());
-    let mut input_state = tui::InputDialogState::new(
-        "Enter the path for storing backup archives:",
-    );
+        .unwrap_or_else(crate::config::exe_dir);
+    let mut input_state = tui::InputDialogState::new("Enter the path for storing backup archives:");
     input_state.input = default.to_string_lossy().to_string();
     input_state.cursor = input_state.input.len();
     let mut ok_selected = true;
@@ -437,16 +468,23 @@ fn action_set_backup_location<B: Backend>(terminal: &mut Terminal<B>, app: &mut 
         if crossterm::event::poll(std::time::Duration::from_millis(250))? {
             match crossterm::event::read()? {
                 Event::Key(key) => {
-                    if key.kind == KeyEventKind::Release { continue; }
+                    if key.kind == KeyEventKind::Release {
+                        continue;
+                    }
                     match key.code {
                         KeyCode::Enter => {
                             if ok_selected && !input_state.input.is_empty() {
-                                let sanitized: String = input_state.input.chars()
+                                let sanitized: String = input_state
+                                    .input
+                                    .chars()
                                     .filter(|c| !c.is_control())
                                     .collect();
                                 let path = std::path::PathBuf::from(&sanitized);
                                 crate::config::set_backup_root(path.clone());
-                                let save_str = app.save_folder.as_ref().map(|p| p.to_string_lossy().to_string());
+                                let save_str = app
+                                    .save_folder
+                                    .as_ref()
+                                    .map(|p| p.to_string_lossy().to_string());
                                 crate::config::save_app_config(
                                     save_str.as_deref(),
                                     Some(&sanitized),
@@ -525,37 +563,34 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
     // Build multi-column display with slot grouping.
     // First entry in each slot gets a numbered label matching the savegame slot.
     let mut labelled: std::collections::HashSet<String> = std::collections::HashSet::new();
-    let header = format!(" {:<8}  {:<24}  {}",
-        "Slot", "Description", "Date");
+    let header = format!(" {:<8}  {:<24}  {}", "Slot", "Description", "Date");
     let mut items: Vec<String> = vec![header, String::new()];
-    items.extend(bak_summaries
-        .iter()
-        .map(|s| {
-            let num = slot_number(&s.slot);
-            let first = labelled.insert(s.slot.clone());
-            let label_col = if first { format!("Slot {num}") } else { String::new() };
-            let name = s.display_name.as_deref().unwrap_or("(unnamed)");
-            let name_col = if name.len() > 24 {
-                format!("{}…", &name[..23])
-            } else {
-                name.to_string()
-            };
-            let date = s.mtime.as_deref().unwrap_or("?");
-            format!(
-                " {:<8}  {:<24}  {}",
-                label_col,
-                name_col,
-                date,
-            )
-        })
-        .collect::<Vec<String>>());
+    items.extend(
+        bak_summaries
+            .iter()
+            .map(|s| {
+                let num = slot_number(&s.slot);
+                let first = labelled.insert(s.slot.clone());
+                let label_col = if first {
+                    format!("Slot {num}")
+                } else {
+                    String::new()
+                };
+                let name = s.display_name.as_deref().unwrap_or("(unnamed)");
+                let name_col = if name.len() > 24 {
+                    format!("{}…", &name[..23])
+                } else {
+                    name.to_string()
+                };
+                let date = s.mtime.as_deref().unwrap_or("?");
+                format!(" {:<8}  {:<24}  {}", label_col, name_col, date,)
+            })
+            .collect::<Vec<String>>(),
+    );
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
 
     // Filenames for the info bar, and descriptions
-    let filenames: Vec<String> = bak_summaries
-        .iter()
-        .map(|s| s.filename.clone())
-        .collect();
+    let filenames: Vec<String> = bak_summaries.iter().map(|s| s.filename.clone()).collect();
     let descs: Vec<String> = bak_summaries
         .iter()
         .map(|_| "Restore this backup to its canonical .sav file".to_string())
@@ -570,7 +605,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
     fn ensure_meta(
         idx: usize,
         bak: &[ops::BakFileSummary],
-        cache: &mut Vec<Option<crate::gvas::FullMetadata>>,
+        cache: &mut [Option<crate::gvas::FullMetadata>],
     ) {
         if idx < cache.len() && cache[idx].is_none() {
             cache[idx] = crate::gvas::extract_full_metadata(&bak[idx].path).ok();
@@ -591,14 +626,43 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
         let pt = m.playtime_seconds.or(summary.playtime_seconds);
         let playtime = format_playtime(pt);
         let fields: Vec<(&str, String)> = vec![
-            ("Slot", m.slot_name.as_deref().unwrap_or(&summary.slot).to_string()),
-            ("Name", m.display_name.as_deref().unwrap_or("(unnamed)").to_string()),
+            (
+                "Slot",
+                m.slot_name.as_deref().unwrap_or(&summary.slot).to_string(),
+            ),
+            (
+                "Name",
+                m.display_name.as_deref().unwrap_or("(unnamed)").to_string(),
+            ),
             ("Playtime", playtime),
-            ("Game Type", m.game_mode.as_deref().unwrap_or("?").to_string()),
-            ("Mode", if m.is_online { "Multiplayer".into() } else { "Single Player".into() }),
-            ("Was Multi", if m.was_multiplayer { "Yes".into() } else { "No".into() }),
-            ("Branch", m.build_branch.as_deref().unwrap_or("?").to_string()),
-            ("Build", m.build_number.map_or("?".into(), |n| n.to_string())),
+            (
+                "Game Type",
+                m.game_mode.as_deref().unwrap_or("?").to_string(),
+            ),
+            (
+                "Mode",
+                if m.is_online {
+                    "Multiplayer".into()
+                } else {
+                    "Single Player".into()
+                },
+            ),
+            (
+                "Was Multi",
+                if m.was_multiplayer {
+                    "Yes".into()
+                } else {
+                    "No".into()
+                },
+            ),
+            (
+                "Branch",
+                m.build_branch.as_deref().unwrap_or("?").to_string(),
+            ),
+            (
+                "Build",
+                m.build_number.map_or("?".into(), |n| n.to_string()),
+            ),
         ];
         let max_label: usize = fields.iter().map(|(k, _)| k.len()).max().unwrap_or(6);
         fields
@@ -628,8 +692,6 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
         let meta = full_metas.get(sel_idx).and_then(|m| m.as_ref());
         let meta_lines = if let Some(m) = meta {
             build_meta_lines(Some(m), &bak_summaries[sel_idx])
-        } else if sel_idx < bak_summaries.len() {
-            Vec::new()
         } else {
             Vec::new()
         };
@@ -646,7 +708,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
             );
         })?;
         if let Some(key) = poll_key(250)? {
-                match key.code {
+            match key.code {
                 KeyCode::Up => {
                     let i = state.selected().unwrap_or(0);
                     state.select(Some(i.saturating_sub(1)));
@@ -657,7 +719,9 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 }
                 KeyCode::Enter => {
                     let sel = state.selected().unwrap_or(2);
-                    if sel < 2 { continue; } // header + blank
+                    if sel < 2 {
+                        continue;
+                    } // header + blank
                     let idx = sel.saturating_sub(2);
                     let chosen = &bak_summaries[idx];
                     let target = derive_target_sav(&chosen.filename);
@@ -676,15 +740,27 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                             let disp = meta.and_then(|m| m.display_name);
                             (sz, mt, online, disp)
                         })
-                    } else { None };
+                    } else {
+                        None
+                    };
 
                     // Mode change warning
                     let mode_entry = target_meta.as_ref().and_then(|(_, _, live, _)| {
                         if *live != chosen.is_online {
-                            let from = if *live { "Multiplayer" } else { "Single Player" };
-                            let to = if chosen.is_online { "Multiplayer" } else { "Single Player" };
+                            let from = if *live {
+                                "Multiplayer"
+                            } else {
+                                "Single Player"
+                            };
+                            let to = if chosen.is_online {
+                                "Multiplayer"
+                            } else {
+                                "Single Player"
+                            };
                             Some(("⚠ Mode change", format!("{from} → {to}")))
-                        } else { None }
+                        } else {
+                            None
+                        }
                     });
                     // Name change warning
                     let name_entry = target_meta.as_ref().and_then(|(_, _, _, live_name)| {
@@ -698,15 +774,30 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                     });
 
                     // Build details
-                    let src_line = format!("{}  {}  {}", chosen.filename, format_size(chosen.size), chosen.mtime.as_deref().unwrap_or("?"));
+                    let src_line = format!(
+                        "{}  {}  {}",
+                        chosen.filename,
+                        format_size(chosen.size),
+                        chosen.mtime.as_deref().unwrap_or("?")
+                    );
                     let mut details = vec![
                         ("Slot", chosen.slot.as_str()),
-                        ("Name", chosen.display_name.as_deref().unwrap_or("(unnamed)")),
+                        (
+                            "Name",
+                            chosen.display_name.as_deref().unwrap_or("(unnamed)"),
+                        ),
                         ("Backup", src_line.as_str()),
                     ];
                     let tgt_line: String;
                     if let Some((sz, mt, _, _)) = &target_meta {
-                        tgt_line = format!("{}  {}  {}", target, format_size(*sz), mt.map(|d| d.format("%Y-%b-%d %H:%M").to_string()).as_deref().unwrap_or("?"));
+                        tgt_line = format!(
+                            "{}  {}  {}",
+                            target,
+                            format_size(*sz),
+                            mt.map(|d| d.format("%Y-%b-%d %H:%M").to_string())
+                                .as_deref()
+                                .unwrap_or("?")
+                        );
                         details.push(("Replace", tgt_line.as_str()));
                     } else {
                         details.push(("Create", target.as_str()));
@@ -778,7 +869,11 @@ fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
     match ops::create_full_backup(&save_folder) {
         Ok(result) => {
             app.set_spinner(false);
-            let verified = if result.verified { "verified" } else { "unverified" };
+            let verified = if result.verified {
+                "verified"
+            } else {
+                "unverified"
+            };
             let msg = format!(
                 "{} files, {} — backup {}",
                 result.files_copied,
@@ -791,7 +886,12 @@ fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
         Err(e) => {
             app.set_spinner(false);
             let msg = format!("Backup failed: {e}");
-            guard::log_action("MANUAL_BAK", &guard::sanitize_path(&save_folder.display().to_string()), &format!("FAILED: {e}"), &app.log_path)?;
+            guard::log_action(
+                "MANUAL_BAK",
+                &guard::sanitize_path(&save_folder.display().to_string()),
+                &format!("FAILED: {e}"),
+                &app.log_path,
+            )?;
             ok_dialog(terminal, app, "Backup Failed", &msg)?;
         }
     }
@@ -841,18 +941,47 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
                     if !has_existing_backup(app) {
                         restore_details.push(("⚠ No backup", "create a full backup first"));
                     }
-                    let accepted = confirm_modal(terminal, app, "Confirm Restore", &restore_details)?;
+                    let accepted =
+                        confirm_modal(terminal, app, "Confirm Restore", &restore_details)?;
 
                     if accepted {
-                        guard::log_action("AUTO_BAK", &format!("pre-restore → {}", guard::sanitize_path(&save_folder.display().to_string())), "OK", &app.log_path)?;
+                        guard::log_action(
+                            "AUTO_BAK",
+                            &format!(
+                                "pre-restore → {}",
+                                guard::sanitize_path(&save_folder.display().to_string())
+                            ),
+                            "OK",
+                            &app.log_path,
+                        )?;
                         match ops::restore_full_backup(chosen, &save_folder) {
                             Ok(n) => {
-                                app.set_status(&format!("{n} save files restored."), tui::StatusStyle::Success);
-                                guard::log_action("RESTORE", &format!("{} → {}", name, guard::sanitize_path(&save_folder.display().to_string())), "OK", &app.log_path)?;
+                                app.set_status(
+                                    &format!("{n} save files restored."),
+                                    tui::StatusStyle::Success,
+                                );
+                                guard::log_action(
+                                    "RESTORE",
+                                    &format!(
+                                        "{} → {}",
+                                        name,
+                                        guard::sanitize_path(&save_folder.display().to_string())
+                                    ),
+                                    "OK",
+                                    &app.log_path,
+                                )?;
                             }
                             Err(e) => {
-                                app.set_status(&format!("Restore failed: {e}"), tui::StatusStyle::Error);
-                                guard::log_action("RESTORE", &name, &format!("FAILED: {e}"), &app.log_path)?;
+                                app.set_status(
+                                    &format!("Restore failed: {e}"),
+                                    tui::StatusStyle::Error,
+                                );
+                                guard::log_action(
+                                    "RESTORE",
+                                    &name,
+                                    &format!("FAILED: {e}"),
+                                    &app.log_path,
+                                )?;
                             }
                         }
                     }
@@ -894,15 +1023,24 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
 
     loop {
         terminal.draw(|f| {
-            tui::draw_sub_menu(f, &app.tui_state, "Config (.ini) Management", &items, &descs, &mut state);
+            tui::draw_sub_menu(
+                f,
+                &app.tui_state,
+                "Config (.ini) Management",
+                &items,
+                &descs,
+                &mut state,
+            );
         })?;
         if let Some(key) = poll_key(250)? {
-                match key.code {
+            match key.code {
                 KeyCode::Up => {
                     let mut i = state.selected().unwrap_or(1);
                     loop {
                         i = i.saturating_sub(1);
-                        if !INI_SKIP.contains(&i) || i == 0 { break; }
+                        if !INI_SKIP.contains(&i) || i == 0 {
+                            break;
+                        }
                     }
                     state.select(Some(i));
                 }
@@ -910,7 +1048,9 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
                     let mut i = state.selected().unwrap_or(0);
                     loop {
                         i = (i + 1).min(ini_max);
-                        if !INI_SKIP.contains(&i) || i == ini_max { break; }
+                        if !INI_SKIP.contains(&i) || i == ini_max {
+                            break;
+                        }
                     }
                     state.select(Some(i));
                 }
@@ -926,7 +1066,7 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
                 }
                 KeyCode::Esc => break,
                 _ => {}
-                }
+            }
         }
     }
 
@@ -942,15 +1082,34 @@ fn ini_backup_action<B: Backend>(
 ) -> Result<()> {
     match ops::backup_ini_files(ini_path) {
         Ok(result) => {
-            let verified = if result.verified { "verified" } else { "unverified" };
+            let verified = if result.verified {
+                "verified"
+            } else {
+                "unverified"
+            };
             app.set_status(
-                &format!("Config backup created: {} files ({})", result.files_copied, verified),
+                &format!(
+                    "Config backup created: {} files ({})",
+                    result.files_copied, verified
+                ),
                 tui::StatusStyle::Success,
             );
-            guard::log_action("CONFIG_BAK", &guard::sanitize_path(&result.dest_path.display().to_string()), "OK", &app.log_path)?;
+            guard::log_action(
+                "CONFIG_BAK",
+                &guard::sanitize_path(&result.dest_path.display().to_string()),
+                "OK",
+                &app.log_path,
+            )?;
             refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
-            let verified = if result.verified { "verified" } else { "unverified" };
-            let msg = format!("{} .ini file(s) backed up ({verified}).", result.files_copied);
+            let verified = if result.verified {
+                "verified"
+            } else {
+                "unverified"
+            };
+            let msg = format!(
+                "{} .ini file(s) backed up ({verified}).",
+                result.files_copied
+            );
             ok_dialog(terminal, app, ".ini Backup Complete", &msg)?;
         }
         Err(e) => {
@@ -970,7 +1129,12 @@ fn ini_restore_action<B: Backend>(
 ) -> Result<()> {
     let backups = ops::list_ini_backups();
     if backups.is_empty() {
-        ok_dialog(terminal, app, "No .ini Backups", "No .ini backups found.\nUse 'Backup .ini files' first.")?;
+        ok_dialog(
+            terminal,
+            app,
+            "No .ini Backups",
+            "No .ini backups found.\nUse 'Backup .ini files' first.",
+        )?;
         return Ok(());
     }
 
@@ -1003,10 +1167,23 @@ fn ini_restore_action<B: Backend>(
                     let idx = state.selected().unwrap_or(0);
                     let chosen = &backups[idx];
 
-                    guard::log_action("AUTO_BAK", &format!("ini pre-restore → {}", guard::sanitize_path(&ini_path.display().to_string())), "OK", &app.log_path)?;
+                    guard::log_action(
+                        "AUTO_BAK",
+                        &format!(
+                            "ini pre-restore → {}",
+                            guard::sanitize_path(&ini_path.display().to_string())
+                        ),
+                        "OK",
+                        &app.log_path,
+                    )?;
                     match ops::restore_ini_files(chosen, ini_path) {
                         Ok(n) => {
-                            guard::log_action("CONFIG_RESTORE", &guard::sanitize_path(&chosen.display().to_string()), "OK", &app.log_path)?;
+                            guard::log_action(
+                                "CONFIG_RESTORE",
+                                &guard::sanitize_path(&chosen.display().to_string()),
+                                "OK",
+                                &app.log_path,
+                            )?;
                             let msg = format!("{n} .ini file(s) restored.");
                             ok_dialog(terminal, app, ".ini Restore Complete", &msg)?;
                         }
@@ -1034,22 +1211,29 @@ fn ini_delete_action<B: Backend>(
 ) -> Result<()> {
     let config_dir = crate::config::backups_config_dir();
     let has_backup = config_dir.exists()
-    && std::fs::read_dir(&config_dir)
-        .map(|entries| entries.flatten().any(|e| {
-            let file_name = e.file_name();
-            let name = file_name.to_string_lossy();
-            name.starts_with("ini_backup_")
-                && e.path().is_dir()
-                && std::fs::read_dir(e.path()).is_ok_and(|mut d| {
-                    d.any(|f| f.ok().is_some_and(|f| {
-                        f.file_name().to_string_lossy().ends_with(".ini")
-                    }))
+        && std::fs::read_dir(&config_dir)
+            .map(|entries| {
+                entries.flatten().any(|e| {
+                    let file_name = e.file_name();
+                    let name = file_name.to_string_lossy();
+                    name.starts_with("ini_backup_")
+                        && e.path().is_dir()
+                        && std::fs::read_dir(e.path()).is_ok_and(|mut d| {
+                            d.any(|f| {
+                                f.ok().is_some_and(|f| {
+                                    f.file_name().to_string_lossy().ends_with(".ini")
+                                })
+                            })
+                        })
                 })
-        }))
-        .unwrap_or(false);
+            })
+            .unwrap_or(false);
 
     if !has_backup {
-        ok_dialog(terminal, app, "No Backup Found",
+        ok_dialog(
+            terminal,
+            app,
+            "No Backup Found",
             "No .ini backup directory found.\n\
              \n\
              Run \"Backup .ini files\" first to create a snapshot\n\
@@ -1060,8 +1244,15 @@ fn ini_delete_action<B: Backend>(
 
     match ops::delete_ini_files(ini_path) {
         Ok(n) => {
-            let msg = format!("Deleted {n} .ini file(s).\nThe game will regenerate defaults on next launch.");
-            guard::log_action("CONFIG_DEL", &guard::sanitize_path(&ini_path.display().to_string()), "OK", &app.log_path)?;
+            let msg = format!(
+                "Deleted {n} .ini file(s).\nThe game will regenerate defaults on next launch."
+            );
+            guard::log_action(
+                "CONFIG_DEL",
+                &guard::sanitize_path(&ini_path.display().to_string()),
+                "OK",
+                &app.log_path,
+            )?;
             ok_dialog(terminal, app, ".ini Delete Complete", &msg)?;
         }
         Err(e) => {
@@ -1089,20 +1280,30 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
     files.sort_by_key(|e| e.file_name());
 
     let mut labelled = std::collections::HashSet::new();
-    let mut items: Vec<String> = files.iter().map(|e| {
-        let name = e.file_name().to_string_lossy().to_string();
-        let slot = crate::gvas::derive_slot_from_filename(&name).unwrap_or_else(|| "?".into());
-        let num = slot_number(&slot);
-        let first = labelled.insert(slot.clone());
-        let label = if first { format!("Slot {num}") } else { String::new() };
-        let sz = e.metadata().map(|m| m.len()).unwrap_or(0);
-        format!("  {:<8}  {:<28}  {:>7}", label, name, format_size(sz))
-    }).collect();
+    let mut items: Vec<String> = files
+        .iter()
+        .map(|e| {
+            let name = e.file_name().to_string_lossy().to_string();
+            let slot = crate::gvas::derive_slot_from_filename(&name).unwrap_or_else(|| "?".into());
+            let num = slot_number(&slot);
+            let first = labelled.insert(slot.clone());
+            let label = if first {
+                format!("Slot {num}")
+            } else {
+                String::new()
+            };
+            let sz = e.metadata().map(|m| m.len()).unwrap_or(0);
+            format!("  {:<8}  {:<28}  {:>7}", label, name, format_size(sz))
+        })
+        .collect();
     let header = format!("  {:<8}  {:<28}  {:>7}", "Slot", "Filename", "Size");
     items.insert(0, header);
     items.insert(1, String::new());
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
-    let filenames: Vec<String> = files.iter().map(|e| e.file_name().to_string_lossy().to_string()).collect();
+    let filenames: Vec<String> = files
+        .iter()
+        .map(|e| e.file_name().to_string_lossy().to_string())
+        .collect();
     let descs = vec!["Press Enter to view full GVAS metadata"; files.len()];
     let desc_refs: Vec<&str> = descs.to_vec();
     let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
@@ -1112,58 +1313,126 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
         state.select(Some(i));
         let selected_info = filenames.get(i.saturating_sub(2)).map(|s| s.as_str());
         terminal.draw(|f| {
-            tui::draw_picker_with_info(f, &app.tui_state, &item_refs, &desc_refs, &mut state, selected_info);
+            tui::draw_picker_with_info(
+                f,
+                &app.tui_state,
+                &item_refs,
+                &desc_refs,
+                &mut state,
+                selected_info,
+            );
         })?;
         if let Some(key) = poll_key(250)? {
-        match key.code {
-            KeyCode::Up => { let i = state.selected().unwrap_or(0); state.select(Some(i.saturating_sub(1))); }
-            KeyCode::Down => { let i = state.selected().unwrap_or(0); state.select(Some((i+1).min(items.len().saturating_sub(1)))); }
-            KeyCode::Enter => {
-                let sel = state.selected().unwrap_or(2);
-                if sel < 2 { continue; }
-                let idx = sel.saturating_sub(2);
-                let path = files[idx].path();
-                match crate::gvas::extract_full_metadata(&path) {
-                    Ok(meta) => {
-                        let dim = Style::default().fg(Color::DarkGray);
-                        let val = Style::default().fg(Color::White);
-                        let hl = Style::default().fg(Color::Cyan);
-                        let mut lines: Vec<Line> = vec![
-                            Line::from(Span::styled(filenames[idx].clone(), hl.add_modifier(Modifier::BOLD))),
-                            Line::from(""),
-                        ];
-                        let fields: Vec<(&str, &str, String)> = vec![
-                            ("SlotName", ":", meta.slot_name.as_deref().unwrap_or("?").into()),
-                            ("DisplayName", ":", meta.display_name.as_deref().unwrap_or("(unnamed)").into()),
-                            ("Game Type", ":", (if meta.is_online { "Multiplayer" } else { "Single Player" }).into()),
-                            ("Was Multi", ":", (if meta.was_multiplayer { "yes" } else { "no" }).into()),
-                            ("GameMode", ":", meta.game_mode.as_deref().unwrap_or("?").into()),
-                            ("Level", ":", meta.level_name.as_deref().unwrap_or("?").into()),
-                            ("Build", ":", meta.build_number.map_or("?".into(), |n| n.to_string())),
-                            ("Branch", ":", meta.build_branch.as_deref().unwrap_or("?").into()),
-                            ("Saves", ":", meta.saves_count.map_or("?".into(), |n| n.to_string())),
-                            ("Ver", ":", meta.latest_version.map_or("?".into(), |n| n.to_string())),
-                            ("DataVer", ":", meta.data_version.map_or("?".into(), |n| n.to_string())),
-                            ("Playtime", ":", format_playtime(meta.playtime_seconds)),
-                        ];
-                        let max_label: usize = fields.iter().map(|(k, _, _)| k.len()).max().unwrap_or(8);
-                        for (key, sep, value) in fields {
-                            let padded = format!("{:<max_label$}{sep} ", key);
-                            lines.push(Line::from(vec![
-                                Span::styled(padded, dim),
-                                Span::styled(value, val),
-                            ]));
-                        }
-                        ok_dialog_styled(terminal, app, "GVAS Metadata", &lines)?;
+            match key.code {
+                KeyCode::Up => {
+                    let i = state.selected().unwrap_or(0);
+                    state.select(Some(i.saturating_sub(1)));
+                }
+                KeyCode::Down => {
+                    let i = state.selected().unwrap_or(0);
+                    state.select(Some((i + 1).min(items.len().saturating_sub(1))));
+                }
+                KeyCode::Enter => {
+                    let sel = state.selected().unwrap_or(2);
+                    if sel < 2 {
+                        continue;
                     }
-                    Err(e) => {
-                        ok_dialog(terminal, app, "Parse Error", &format!("{e}"))?;
+                    let idx = sel.saturating_sub(2);
+                    let path = files[idx].path();
+                    match crate::gvas::extract_full_metadata(&path) {
+                        Ok(meta) => {
+                            let dim = Style::default().fg(Color::DarkGray);
+                            let val = Style::default().fg(Color::White);
+                            let hl = Style::default().fg(Color::Cyan);
+                            let mut lines: Vec<Line> = vec![
+                                Line::from(Span::styled(
+                                    filenames[idx].clone(),
+                                    hl.add_modifier(Modifier::BOLD),
+                                )),
+                                Line::from(""),
+                            ];
+                            let fields: Vec<(&str, &str, String)> = vec![
+                                (
+                                    "SlotName",
+                                    ":",
+                                    meta.slot_name.as_deref().unwrap_or("?").into(),
+                                ),
+                                (
+                                    "DisplayName",
+                                    ":",
+                                    meta.display_name.as_deref().unwrap_or("(unnamed)").into(),
+                                ),
+                                (
+                                    "Game Type",
+                                    ":",
+                                    (if meta.is_online {
+                                        "Multiplayer"
+                                    } else {
+                                        "Single Player"
+                                    })
+                                    .into(),
+                                ),
+                                (
+                                    "Was Multi",
+                                    ":",
+                                    (if meta.was_multiplayer { "yes" } else { "no" }).into(),
+                                ),
+                                (
+                                    "GameMode",
+                                    ":",
+                                    meta.game_mode.as_deref().unwrap_or("?").into(),
+                                ),
+                                (
+                                    "Level",
+                                    ":",
+                                    meta.level_name.as_deref().unwrap_or("?").into(),
+                                ),
+                                (
+                                    "Build",
+                                    ":",
+                                    meta.build_number.map_or("?".into(), |n| n.to_string()),
+                                ),
+                                (
+                                    "Branch",
+                                    ":",
+                                    meta.build_branch.as_deref().unwrap_or("?").into(),
+                                ),
+                                (
+                                    "Saves",
+                                    ":",
+                                    meta.saves_count.map_or("?".into(), |n| n.to_string()),
+                                ),
+                                (
+                                    "Ver",
+                                    ":",
+                                    meta.latest_version.map_or("?".into(), |n| n.to_string()),
+                                ),
+                                (
+                                    "DataVer",
+                                    ":",
+                                    meta.data_version.map_or("?".into(), |n| n.to_string()),
+                                ),
+                                ("Playtime", ":", format_playtime(meta.playtime_seconds)),
+                            ];
+                            let max_label: usize =
+                                fields.iter().map(|(k, _, _)| k.len()).max().unwrap_or(8);
+                            for (key, sep, value) in fields {
+                                let padded = format!("{:<max_label$}{sep} ", key);
+                                lines.push(Line::from(vec![
+                                    Span::styled(padded, dim),
+                                    Span::styled(value, val),
+                                ]));
+                            }
+                            ok_dialog_styled(terminal, app, "GVAS Metadata", &lines)?;
+                        }
+                        Err(e) => {
+                            ok_dialog(terminal, app, "Parse Error", &format!("{e}"))?;
+                        }
                     }
                 }
+                KeyCode::Esc => break,
+                _ => {}
             }
-            KeyCode::Esc => break,
-            _ => {}
-        }
         }
     }
     Ok(())
@@ -1192,9 +1461,7 @@ fn ensure_save_folder<B: Backend>(_terminal: &mut Terminal<B>, app: &mut App) ->
             return Ok(sf.clone());
         }
     }
-    anyhow::bail!(
-        "No save folder set. Use 'Set save folder' from the main menu first."
-    )
+    anyhow::bail!("No save folder set. Use 'Set save folder' from the main menu first.")
 }
 
 /// Derive the Config\Windows path from the save folder.
@@ -1219,7 +1486,12 @@ fn slot_number(slot: &str) -> String {
 /// Display a dialog with styled content lines (colors, bold).  Accepts
 /// `Line` slices — use for metadata displays, help text, or any content
 /// that needs inline formatting.  Press Enter or Space to dismiss.
-fn ok_dialog_styled<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, lines: &[Line]) -> Result<()> {
+fn ok_dialog_styled<B: Backend>(
+    terminal: &mut Terminal<B>,
+    app: &App,
+    title: &str,
+    lines: &[Line],
+) -> Result<()> {
     loop {
         terminal.draw(|f| tui::draw_ok_dialog_styled(f, &app.tui_state, title, lines))?;
         if let Some(key) = poll_key(250)? {
@@ -1233,7 +1505,12 @@ fn ok_dialog_styled<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &s
 /// Display a plain-text informational dialog with a single OK button.
 /// `msg` supports newlines for multi-line messages.  Press Enter or
 /// Space to dismiss.  For styled content, use `ok_dialog_styled`.
-fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg: &str) -> Result<()> {
+fn ok_dialog<B: Backend>(
+    terminal: &mut Terminal<B>,
+    app: &App,
+    title: &str,
+    msg: &str,
+) -> Result<()> {
     loop {
         terminal.draw(|f| tui::draw_ok_dialog(f, &app.tui_state, title, msg))?;
         if let Some(key) = poll_key(250)? {
@@ -1248,7 +1525,10 @@ fn ok_dialog<B: Backend>(terminal: &mut Terminal<B>, app: &App, title: &str, msg
 /// Used to gate destructive operations behind a backup requirement.
 fn has_existing_backup(_app: &App) -> bool {
     let root = crate::config::backups_saves_dir();
-    root.exists() && std::fs::read_dir(&root).is_ok_and(|mut d| d.any(|e| e.is_ok_and(|e| e.file_name().to_string_lossy().ends_with(".tar.gz"))))
+    root.exists()
+        && std::fs::read_dir(&root).is_ok_and(|mut d| {
+            d.any(|e| e.is_ok_and(|e| e.file_name().to_string_lossy().ends_with(".tar.gz")))
+        })
 }
 
 /// Gate: warn the user if no full backup exists yet.  Returns `false` if
@@ -1257,7 +1537,10 @@ fn require_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
     if has_existing_backup(app) {
         return Ok(true);
     }
-    app.set_status("No backup found — create a full backup before destructive actions.", tui::StatusStyle::Error);
+    app.set_status(
+        "No backup found — create a full backup before destructive actions.",
+        tui::StatusStyle::Error,
+    );
     wait_for_key(terminal, app)?;
     Ok(false)
 }
@@ -1288,15 +1571,15 @@ fn confirm_modal<B: Backend>(
             tui::draw_confirm_popup(f, &app.tui_state, title, details, selected_yes);
         })?;
         if let Some(key) = poll_key(250)? {
-        match key.code {
-            KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down => {
-                selected_yes = !selected_yes;
+            match key.code {
+                KeyCode::Left | KeyCode::Right | KeyCode::Up | KeyCode::Down => {
+                    selected_yes = !selected_yes;
+                }
+                KeyCode::Char('y') | KeyCode::Char('Y') => return Ok(true),
+                KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => return Ok(false),
+                KeyCode::Enter => return Ok(selected_yes),
+                _ => {}
             }
-            KeyCode::Char('y') | KeyCode::Char('Y') => return Ok(true),
-            KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => return Ok(false),
-            KeyCode::Enter => return Ok(selected_yes),
-            _ => {}
-        }
         }
     }
 }
@@ -1330,11 +1613,15 @@ fn wait_for_key<B: Backend>(terminal: &mut Terminal<B>, app: &App) -> Result<()>
                 "Press any key to return to menu…",
                 Style::default().fg(Color::DarkGray),
             );
-            let p = Paragraph::new(prompt_span)
-                .alignment(Alignment::Center);
+            let p = Paragraph::new(prompt_span).alignment(Alignment::Center);
             f.render_widget(p, centered_bottom(f.area()));
             // Whale at bottom
-            let bar = Rect { x: 0, y: f.area().height.saturating_sub(1), width: f.area().width, height: 1 };
+            let bar = Rect {
+                x: 0,
+                y: f.area().height.saturating_sub(1),
+                width: f.area().width,
+                height: 1,
+            };
             tui::draw_whale_separator(f, bar, &app.tui_state);
         })?;
         if let Event::Key(_) = event::read()? {

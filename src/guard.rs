@@ -117,12 +117,7 @@ const MAX_LOG_LINES: usize = 10_000;
 /// Format: `YYYY-MM-DD HH:MM:SS | ACTION   | detail | result`
 /// Auto-rotates if the log exceeds 10,000 lines — the oldest lines are
 /// discarded, keeping only the most recent 10,000.
-pub fn log_action(
-    action: &str,
-    detail: &str,
-    result: &str,
-    log_path: &Path,
-) -> Result<()> {
+pub fn log_action(action: &str, detail: &str, result: &str, log_path: &Path) -> Result<()> {
     let stamp = Local::now().format("%Y-%m-%d %H:%M:%S");
     let line = format!("{stamp} | {action:<8} | {detail} | {result}\n");
 

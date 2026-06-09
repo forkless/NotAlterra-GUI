@@ -1,5 +1,9 @@
 //! UE4/UE5 GVAS save-file binary parser.
 //!
+//! The GVAS serialization format is defined by the public Unreal Engine 5
+//! source code — the SaveGame system and its binary layout are part of the
+//! engine's open API.
+//!
 //! Ported from `legacy/extract_save_name.py`.  Extracts `SlotName` and
 //! `DisplayName` properties via manual binary walking, plus corruption
 //! detection by cross-referencing metadata against the canonical filename
@@ -182,17 +186,42 @@ fn extract_bool_property(data: &[u8], prop_name: &str) -> Option<bool> {
     let mut offset = 0usize;
     let mut attempts = 0u32;
     while offset < data.len().saturating_sub(20) && attempts < 100 {
-        let found = data[offset..].windows(target.len()).position(|w| w == target);
-        let found = match found { Some(p) => offset + p, None => return None };
-        if found < 4 { offset = found + 1; attempts += 1; continue; }
+        let found = data[offset..]
+            .windows(target.len())
+            .position(|w| w == target);
+        let found = match found {
+            Some(p) => offset + p,
+            None => return None,
+        };
+        if found < 4 {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         let name_len_field = read_u32(data, found - 4);
-        if name_len_field != Some(target.len() + 1) { offset = found + 1; attempts += 1; continue; }
-        if found + target.len() >= data.len() || data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
+        if name_len_field != Some(target.len() + 1) {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
+        if found + target.len() >= data.len() || data[found + target.len()] != 0 {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         let after_name = found + target.len() + 1;
         let (next_name, next_offset) = read_fname(data, after_name);
-        if next_name.as_deref() != Some("BoolProperty") { offset = found + 1; attempts += 1; continue; }
+        if next_name.as_deref() != Some("BoolProperty") {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         let val_offset = next_offset + 9;
-        if val_offset >= data.len() { offset = found + 1; attempts += 1; continue; }
+        if val_offset >= data.len() {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         return Some(data[val_offset] != 0);
     }
     None
@@ -203,8 +232,10 @@ fn scan_double_near(data: &[u8], marker: &[u8]) -> Option<f64> {
     let pos = data.windows(marker.len()).position(|w| w == marker)?;
     let _end = (pos + 60).min(data.len());
     for off in 8..50 {
-        if pos + off + 8 > data.len() { break; }
-        let val = f64::from_le_bytes(data[pos+off..pos+off+8].try_into().ok()?);
+        if pos + off + 8 > data.len() {
+            break;
+        }
+        let val = f64::from_le_bytes(data[pos + off..pos + off + 8].try_into().ok()?);
         if val > 60.0 && val < 10_000_000.0 {
             return Some(val);
         }
@@ -218,17 +249,44 @@ fn extract_double_property(data: &[u8], prop_name: &str) -> Option<f64> {
     let mut offset = 0usize;
     let mut attempts = 0u32;
     while offset < data.len().saturating_sub(30) && attempts < 100 {
-        let found = data[offset..].windows(target.len()).position(|w| w == target);
-        let found = match found { Some(p) => offset + p, None => return None };
-        if found < 4 { offset = found + 1; attempts += 1; continue; }
+        let found = data[offset..]
+            .windows(target.len())
+            .position(|w| w == target);
+        let found = match found {
+            Some(p) => offset + p,
+            None => return None,
+        };
+        if found < 4 {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         let expected: usize = target.len() + 1;
-        if read_u32(data, found - 4) != Some(expected) { offset = found + 1; attempts += 1; continue; }
-        if found + target.len() >= data.len() || data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
+        if read_u32(data, found - 4) != Some(expected) {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
+        if found + target.len() >= data.len() || data[found + target.len()] != 0 {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         let (next_name, next_offset) = read_fname(data, found + target.len() + 1);
-        if next_name.as_deref() != Some("DoubleProperty") { offset = found + 1; attempts += 1; continue; }
+        if next_name.as_deref() != Some("DoubleProperty") {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         let val_offset = next_offset + 9;
-        if val_offset + 8 > data.len() { offset = found + 1; attempts += 1; continue; }
-        return Some(f64::from_le_bytes(data[val_offset..val_offset+8].try_into().ok()?));
+        if val_offset + 8 > data.len() {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
+        return Some(f64::from_le_bytes(
+            data[val_offset..val_offset + 8].try_into().ok()?,
+        ));
     }
     None
 }
@@ -239,15 +297,40 @@ fn extract_int_property(data: &[u8], prop_name: &str) -> Option<u32> {
     let mut offset = 0usize;
     let mut attempts = 0u32;
     while offset < data.len().saturating_sub(20) && attempts < 100 {
-        let found = data[offset..].windows(target.len()).position(|w| w == target);
-        let found = match found { Some(p) => offset + p, None => return None };
-        if found < 4 { offset = found + 1; attempts += 1; continue; }
-        if read_u32(data, found - 4) != Some(target.len() + 1) { offset = found + 1; attempts += 1; continue; }
-        if found + target.len() >= data.len() || data[found + target.len()] != 0 { offset = found + 1; attempts += 1; continue; }
+        let found = data[offset..]
+            .windows(target.len())
+            .position(|w| w == target);
+        let found = match found {
+            Some(p) => offset + p,
+            None => return None,
+        };
+        if found < 4 {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
+        if read_u32(data, found - 4) != Some(target.len() + 1) {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
+        if found + target.len() >= data.len() || data[found + target.len()] != 0 {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         let (next_name, next_offset) = read_fname(data, found + target.len() + 1);
-        if next_name.as_deref() != Some("IntProperty") { offset = found + 1; attempts += 1; continue; }
+        if next_name.as_deref() != Some("IntProperty") {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         let val_offset = next_offset + 9;
-        if val_offset + 4 > data.len() { offset = found + 1; attempts += 1; continue; }
+        if val_offset + 4 > data.len() {
+            offset = found + 1;
+            attempts += 1;
+            continue;
+        }
         return read_u32(data, val_offset).map(|v| v as u32);
     }
     None
@@ -274,8 +357,7 @@ pub struct FullMetadata {
 
 /// Parse a `.sav` or `.bak` file and return all known GVAS metadata.
 pub fn extract_full_metadata(path: &Path) -> Result<FullMetadata> {
-    let data = fs::read(path)
-        .with_context(|| format!("failed to read {}", path.display()))?;
+    let data = fs::read(path).with_context(|| format!("failed to read {}", path.display()))?;
     Ok(FullMetadata {
         slot_name: extract_str_property(&data, "SlotName").ok(),
         display_name: extract_str_property(&data, "DisplayName").ok(),
@@ -318,11 +400,17 @@ pub fn extract_metadata_from_bytes(data: &[u8]) -> Result<SaveMetadata> {
     let mut errors = Vec::new();
     let slot_name = match extract_str_property(data, "SlotName") {
         Ok(v) => Some(v),
-        Err(e) => { errors.push(e); None }
+        Err(e) => {
+            errors.push(e);
+            None
+        }
     };
     let display_name = match extract_str_property(data, "DisplayName") {
         Ok(v) => Some(v),
-        Err(e) => { errors.push(e); None }
+        Err(e) => {
+            errors.push(e);
+            None
+        }
     };
     Ok(SaveMetadata {
         slot_name,
@@ -334,8 +422,7 @@ pub fn extract_metadata_from_bytes(data: &[u8]) -> Result<SaveMetadata> {
 }
 
 pub fn extract_metadata(path: &Path) -> Result<SaveMetadata> {
-    let data = fs::read(path)
-        .with_context(|| format!("failed to read {}", path.display()))?;
+    let data = fs::read(path).with_context(|| format!("failed to read {}", path.display()))?;
 
     let mut errors = Vec::new();
     let slot_name = match extract_str_property(&data, "SlotName") {
@@ -431,10 +518,7 @@ mod tests {
     #[test]
     fn test_corruption_check() {
         // Canonical live file
-        assert_eq!(
-            corruption_check("savegame_0.sav", Some("savegame_0")),
-            None
-        );
+        assert_eq!(corruption_check("savegame_0.sav", Some("savegame_0")), None);
         // Versioned .sav is non-canonical
         assert_eq!(
             corruption_check("savegame_0_9.sav", Some("savegame_0")),
@@ -456,7 +540,9 @@ mod tests {
     fn dump_all_samples() {
         use chrono::TimeZone;
         let dir = std::path::Path::new("samples");
-        let Ok(entries) = std::fs::read_dir(dir) else { return };
+        let Ok(entries) = std::fs::read_dir(dir) else {
+            return;
+        };
         let mut files: Vec<_> = entries
             .filter_map(|e| e.ok())
             .filter(|e| {
@@ -474,27 +560,54 @@ mod tests {
             let mb = b.metadata().ok().and_then(|m| m.modified().ok());
             sa.cmp(&sb).then_with(|| mb.cmp(&ma))
         });
-        println!("\n{:<8} {:<26} {:<6} {:>7}  {:<19}  {:<28}", "", "Display Name", "Type", "Size", "Date", "File");
+        println!(
+            "\n{:<8} {:<26} {:<6} {:>7}  {:<19}  {:<28}",
+            "", "Display Name", "Type", "Size", "Date", "File"
+        );
         println!("{}", "-".repeat(115));
         let mut seen = std::collections::HashSet::new();
         for entry in &files {
             let path = entry.path();
             let name = entry.file_name().to_string_lossy().to_string();
             let size = entry.metadata().map(|m| m.len()).unwrap_or(0);
-            let mtime = entry.metadata().ok().and_then(|m| m.modified().ok())
-                .and_then(|t| { let s = t.duration_since(std::time::UNIX_EPOCH).ok()?.as_secs(); chrono::Local.timestamp_opt(s as i64,0).single() })
+            let mtime = entry
+                .metadata()
+                .ok()
+                .and_then(|m| m.modified().ok())
+                .and_then(|t| {
+                    let s = t.duration_since(std::time::UNIX_EPOCH).ok()?.as_secs();
+                    chrono::Local.timestamp_opt(s as i64, 0).single()
+                })
                 .map(|dt| dt.format("%Y-%b-%d %H:%M").to_string());
             let meta = extract_metadata(&path).ok();
-            let slot = meta.as_ref().and_then(|m| m.slot_name.clone())
+            let slot = meta
+                .as_ref()
+                .and_then(|m| m.slot_name.clone())
                 .unwrap_or_else(|| derive_slot_from_filename(&name).unwrap_or_else(|| "?".into()));
-            let display = meta.as_ref().and_then(|m| m.display_name.clone()).unwrap_or_else(|| "(unnamed)".into());
+            let display = meta
+                .as_ref()
+                .and_then(|m| m.display_name.clone())
+                .unwrap_or_else(|| "(unnamed)".into());
             let online = meta.map(|m| m.is_online).unwrap_or(false);
             let num = slot.strip_prefix("savegame_").unwrap_or(&slot);
             let first = seen.insert(slot.clone());
-            let label = if first { format!("Slot {num}") } else { String::new() };
+            let label = if first {
+                format!("Slot {num}")
+            } else {
+                String::new()
+            };
             let typ = if online { "Online" } else { "Local" };
-            let sz = if size < 1024 { format!("{size} B") } else if size < 1_048_576 { format!("{:.0} KB", size as f64 / 1024.0) } else { format!("{:.1} MB", size as f64 / 1_048_576.0) };
-            println!("{label:<8} {display:<26} {typ:<6} {sz:>7}  {:<19}  {name:<28}", mtime.as_deref().unwrap_or("?"));
+            let sz = if size < 1024 {
+                format!("{size} B")
+            } else if size < 1_048_576 {
+                format!("{:.0} KB", size as f64 / 1024.0)
+            } else {
+                format!("{:.1} MB", size as f64 / 1_048_576.0)
+            };
+            println!(
+                "{label:<8} {display:<26} {typ:<6} {sz:>7}  {:<19}  {name:<28}",
+                mtime.as_deref().unwrap_or("?")
+            );
         }
         println!();
     }
@@ -503,7 +616,9 @@ mod tests {
     /// Test helper — dump full GVAS metadata for a sample file.
     fn print_full_meta() {
         let p = Path::new("samples/savegame_1.sav");
-        if !p.exists() { return; }
+        if !p.exists() {
+            return;
+        }
         let m = extract_full_metadata(p).unwrap();
         println!("slot: {:?}", m.slot_name);
         println!("display: {:?}", m.display_name);

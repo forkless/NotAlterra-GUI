@@ -19,10 +19,19 @@ pub struct DiscoveredFolder {
 /// The same patterns work on both platforms because UE5 keeps the same
 /// directory layout regardless of OS.
 const KNOWN_PATTERNS: &[(&str, &str)] = &[
-    ("Steam (LocalLow)", "AppData/LocalLow/Unknown Worlds/Subnautica2"),
-    ("Steam (LocalLow, alt)", "AppData/LocalLow/Unknown Worlds/Subnautica 2"),
+    (
+        "Steam (LocalLow)",
+        "AppData/LocalLow/Unknown Worlds/Subnautica2",
+    ),
+    (
+        "Steam (LocalLow, alt)",
+        "AppData/LocalLow/Unknown Worlds/Subnautica 2",
+    ),
     ("AppData Local", "AppData/Local/Subnautica2/Saved/SaveGames"),
-    ("AppData Local (alt)", "AppData/Local/Subnautica 2/Saved/SaveGames"),
+    (
+        "AppData Local (alt)",
+        "AppData/Local/Subnautica 2/Saved/SaveGames",
+    ),
     ("Xbox / Game Pass", "AppData/Local/Packages"), // partial — needs wildcard below
     ("Saved Games", "Saved Games/Subnautica2"),
     ("Saved Games (alt)", "Saved Games/Subnautica 2"),
@@ -91,13 +100,16 @@ pub fn discover_save_folders() -> Vec<DiscoveredFolder> {
     if let Some(home) = dirs::home_dir() {
         for (label, rel) in KNOWN_PATTERNS {
             let candidate = home.join(rel);
-            if candidate.exists() && candidate.is_dir()
-                && has_save_files(&candidate) && seen.insert(candidate.clone()) {
-                    found.push(DiscoveredFolder {
-                        label: label.to_string(),
-                        path: candidate,
-                    });
-                }
+            if candidate.exists()
+                && candidate.is_dir()
+                && has_save_files(&candidate)
+                && seen.insert(candidate.clone())
+            {
+                found.push(DiscoveredFolder {
+                    label: label.to_string(),
+                    path: candidate,
+                });
+            }
         }
     }
 
@@ -140,11 +152,9 @@ fn has_save_files(dir: &Path) -> bool {
     let check = |ext: &str| -> bool {
         fs::read_dir(dir)
             .map(|entries| {
-                entries.flatten().any(|e| {
-                    e.file_name()
-                        .to_string_lossy()
-                        .ends_with(ext)
-                })
+                entries
+                    .flatten()
+                    .any(|e| e.file_name().to_string_lossy().ends_with(ext))
             })
             .unwrap_or(false)
     };
@@ -167,7 +177,10 @@ fn scan_other_users(
                 let user_path = user_dir.path();
                 for (label, rel) in KNOWN_PATTERNS {
                     let candidate = user_path.join(rel);
-                    if candidate.exists() && has_save_files(&candidate) && seen.insert(candidate.clone()) {
+                    if candidate.exists()
+                        && has_save_files(&candidate)
+                        && seen.insert(candidate.clone())
+                    {
                         found.push(DiscoveredFolder {
                             label: label.to_string(),
                             path: candidate,
@@ -195,7 +208,10 @@ fn scan_other_users(
             let user_path = user_dir.path();
             for (label, rel) in KNOWN_PATTERNS {
                 let candidate = user_path.join(rel);
-                if candidate.exists() && has_save_files(&candidate) && seen.insert(candidate.clone()) {
+                if candidate.exists()
+                    && has_save_files(&candidate)
+                    && seen.insert(candidate.clone())
+                {
                     found.push(DiscoveredFolder {
                         label: label.to_string(),
                         path: candidate,
@@ -217,7 +233,10 @@ fn scan_other_users(
                     let pfx = app_entry.path().join("pfx/drive_c/users/steamuser");
                     for (label, rel) in KNOWN_PATTERNS {
                         let candidate = pfx.join(rel);
-                        if candidate.exists() && has_save_files(&candidate) && seen.insert(candidate.clone()) {
+                        if candidate.exists()
+                            && has_save_files(&candidate)
+                            && seen.insert(candidate.clone())
+                        {
                             found.push(DiscoveredFolder {
                                 label: format!("Steam Deck — {label}"),
                                 path: candidate,
@@ -260,11 +279,7 @@ fn scan_common_install_dirs(
     found: &mut Vec<DiscoveredFolder>,
     seen: &mut std::collections::HashSet<PathBuf>,
 ) {
-    let roots: &[&str] = &[
-        "/opt",
-        "/usr/local/games",
-        "/usr/share/games",
-    ];
+    let roots: &[&str] = &["/opt", "/usr/local/games", "/usr/share/games"];
     for rt in roots {
         let p = Path::new(rt);
         if !p.exists() {
@@ -295,7 +310,10 @@ fn walk_for_subnautica(
 
     while let Some(dir) = queue.pop_front() {
         // Limit depth: don't recurse more than 5 levels from root
-        let depth = dir.components().count().saturating_sub(root.components().count());
+        let depth = dir
+            .components()
+            .count()
+            .saturating_sub(root.components().count());
         if depth > 5 {
             continue;
         }
@@ -307,15 +325,17 @@ fn walk_for_subnautica(
 
         for entry in entries.flatten() {
             let path = entry.path();
-            let name = path.file_name().map(|n| n.to_string_lossy().to_lowercase()).unwrap_or_default();
+            let name = path
+                .file_name()
+                .map(|n| n.to_string_lossy().to_lowercase())
+                .unwrap_or_default();
 
-            if name.contains("subnautica")
-                && has_save_files(&path) && seen.insert(path.clone()) {
-                    found.push(DiscoveredFolder {
-                        label: label.to_string(),
-                        path: path.clone(),
-                    });
-                }
+            if name.contains("subnautica") && has_save_files(&path) && seen.insert(path.clone()) {
+                found.push(DiscoveredFolder {
+                    label: label.to_string(),
+                    path: path.clone(),
+                });
+            }
 
             if path.is_dir() {
                 queue.push_back(path);
