@@ -6,7 +6,7 @@ extract, and run.
 
 ---
 
-Builds:  Linux (amd64)  •  Windows x64
+Builds:  Linux (amd64)  •  Windows (x64)
 
 For a full history of changes across all versions, see
 [`CHANGELOG.md`](https://github.com/forkless/NotAlterra/blob/master/CHANGELOG.md).
