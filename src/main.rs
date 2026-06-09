@@ -1217,7 +1217,7 @@ fn ini_restore_action<B: Backend>(
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
     let ini_descs: Vec<&str> = std::iter::once("")
         .chain(std::iter::once(""))
-        .chain(std::iter::repeat("Restore .ini files from this backup").take(backups.len()))
+        .chain(std::iter::repeat_n("Restore .ini files from this backup", backups.len()))
         .collect::<Vec<_>>();
     let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
 
