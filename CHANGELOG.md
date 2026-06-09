@@ -11,23 +11,6 @@ All notable changes to NotAlterra are documented in this file.
 - **INI restore picker header** — pinned header with "INI Backup" / "Size" columns
 - **Header pinned on restore pickers** — column header + blank spacer stay fixed
 - **Spacer row** between list content and status bar on all screens
-
-### Changed
-- **Layout alignment** — restore backup and INI restore headers aligned with data
-- **Column widths** — Backup column widened to 38 chars for longer labels
-- **Size column** — right-aligned, header centered above values
-- **Main menu** — entries shifted 1 position left
-- **INI submenu** — entries aligned with main menu, header cyan + 3 right
-- **Highlight color** — all picker highlight color changed to yellow
-- **Backup creation** — no intermediate spinner page; info popup + summary dialog
-- **INI restore picker** — now uses `pinned_header`, matching restore backup style
-
-### Fixed
-- **Header/data misalignment** — total widths matched so `{:>8}` fields align
-
-## [v0.4.1] — 2026-06-09
-
-### Added
 - **Split-layout backup picker** — pip (`►`) highlight replaces background bar,
   right pane shows live GVAS metadata for the selected backup (loads on
   highlight, cached per file)
@@ -45,6 +28,14 @@ All notable changes to NotAlterra are documented in this file.
   security researchers
 
 ### Changed
+- **Layout alignment** — restore backup and INI restore headers aligned with data
+- **Column widths** — Backup column widened to 38 chars for longer labels
+- **Size column** — right-aligned, header centered above values
+- **Main menu** — entries shifted 1 position left
+- **INI submenu** — entries aligned with main menu, header cyan + 3 right
+- **Highlight color** — all picker highlight color changed to yellow
+- **Backup creation** — no intermediate spinner page; info popup + summary dialog
+- **INI restore picker** — now uses `pinned_header`, matching restore backup style
 - **File picker layout** — horizontal 60/40 split: file list on left,
   metadata preview on right. Slot, Description, Date columns only
 - **Main menu pip highlight** — `►` replaces full-row cyan background
@@ -75,6 +66,9 @@ All notable changes to NotAlterra are documented in this file.
   corrupted archives
 - **Consistent warning spacing** — all `⚠` messages use double-space
   formatting
+
+### Fixed
+- **Header/data misalignment** — total widths matched so `{:>8}` fields align
 
 ### Removed
 - **"Inspect save files" menu entry** — metadata is now visible inline in
