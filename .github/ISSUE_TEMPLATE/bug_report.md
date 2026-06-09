@@ -25,7 +25,9 @@ What happened and what did you expect to happen?
 - Subnautica 2 install: (Steam, Xbox, Epic, custom)
 
 **Logs**
-If available, attach `transaction.log` (located next to the binary).
+If available, attach `transaction.log` (located in `logs/` under
+`%LOCALAPPDATA%\NotAlterra\` on Windows or `~/.local/share/NotAlterra/`
+on Linux).
 
 **Privacy**
 Do not paste save file contents, personal names, or full file paths. The
