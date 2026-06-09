@@ -337,7 +337,7 @@ pub fn draw_picker_with_info(
     let chunks = standard_layout(f.area(), items.len());
     draw_header(f, chunks[0], app);
 
-    let prompt = "↑/↓ navigate  Enter select  Esc cancel";
+    let prompt = "↑/↓ navigate  Enter select  i inspect  Esc cancel";
     draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, selected_info);
     draw_status_bar(f, chunks[3], app);
 }
