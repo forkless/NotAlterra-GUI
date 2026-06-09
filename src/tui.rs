@@ -34,6 +34,9 @@ pub struct AppState {
     pub backup_count: usize,
     /// Whether a .ini backup exists
     pub has_ini_backup: bool,
+    /// Context-specific path shown on the right side of the header bar.
+    /// When `None`, falls back to `save_path`.
+    pub context_path: Option<String>,
     /// Version string for the header
     pub version: String,
     /// Last operation result (for the status bar)
@@ -63,6 +66,7 @@ impl Default for AppState {
             live_save_count: 0,
             backup_count: 0,
             has_ini_backup: false,
+            context_path: None,
             version: String::new(),
             status_message: None,
             status_style: StatusStyle::Neutral,
@@ -594,17 +598,35 @@ fn draw_header(f: &mut Frame, area: Rect, app: &AppState) {
     ]);
     f.render_widget(Paragraph::new(title_line), chunks[0]);
 
-    let path_line = if let Some(ref path) = app.save_path {
-        let max_w = chunks[1].width.saturating_sub(2) as usize;
-        let display = truncate_path_tail(path, max_w);
-        Paragraph::new(Span::styled(display, Style::default().fg(Color::Gray)))
-            .alignment(Alignment::Right)
-    } else {
-        Paragraph::new(Span::styled(
-            "no save folder selected",
-            Style::default().fg(Color::DarkGray),
-        ))
-        .alignment(Alignment::Right)
+    // Header path priority:
+    //   1. context_path = Some("path")  → show that path
+    //   2. context_path = Some("")       → show nothing (blank/disclaimer/exit)
+    //   3. context_path = None           → fall back to save_path
+    let max_w = chunks[1].width.saturating_sub(2) as usize;
+    let path_line = match &app.context_path {
+        Some(p) if p.is_empty() => {
+            // Show nothing — blank line, disclaimer, or exit
+            Paragraph::new(Span::raw(""))
+        }
+        Some(p) => {
+            let display = truncate_path_tail(p, max_w);
+            Paragraph::new(Span::styled(display, Style::default().fg(Color::Gray)))
+                .alignment(Alignment::Right)
+        }
+        None => {
+            // Fall back to save_path
+            if let Some(ref save) = app.save_path {
+                let display = truncate_path_tail(save, max_w);
+                Paragraph::new(Span::styled(display, Style::default().fg(Color::Gray)))
+                    .alignment(Alignment::Right)
+            } else {
+                Paragraph::new(Span::styled(
+                    "no save folder selected",
+                    Style::default().fg(Color::DarkGray),
+                ))
+                .alignment(Alignment::Right)
+            }
+        }
     };
     f.render_widget(path_line, chunks[1]);
     f.render_widget(header_block, area);

@@ -143,6 +143,9 @@ fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
     tui_state.live_save_count = live;
     tui_state.backup_count = bak;
     tui_state.has_ini_backup = ini;
+    tui_state.context_path = Some(
+        crate::config::get_backup_root().display().to_string(),
+    );
 }
 
 // ── main loop ──────────────────────────────────────────────────────────────
@@ -239,6 +242,20 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
     let mut menu_state = ListState::default().with_selected(Some(0));
 
     loop {
+        // Main menu: show path based on highlighted item
+        {
+            let sel = menu_state.selected().unwrap_or(0);
+            let br = crate::config::get_backup_root().to_string_lossy().to_string();
+            let ini_path_str = app.save_folder.as_ref().and_then(|sf| {
+                discovery::derive_ini_path(sf).map(|p| p.to_string_lossy().to_string())
+            });
+            app.tui_state.context_path = match sel {
+                0 | 1 => None,                        // save path (fallback)
+                3..=5 => Some(br),                // backup root
+                7 => ini_path_str,                     // ini Config\Windows path
+                _ => Some(String::new()),             // blank / disclaimer / exit → no path
+            };
+        }
         terminal.draw(|f| {
             let cols = f.area().width;
             let rows = f.area().height;
@@ -696,6 +713,8 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
             Vec::new()
         };
 
+        // Recover picker: browsing .bak files in the live save folder → show save path
+        app.tui_state.context_path = None;
         terminal.draw(|f| {
             tui::draw_picker_split(
                 f,
@@ -911,7 +930,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
         .iter()
         .map(|p| {
             let name = p.file_name().unwrap().to_string_lossy();
-            format!("  {name}")
+            format!("  {}", format_backup_label(&name))
         })
         .collect();
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
@@ -919,6 +938,10 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
     let mut state = ListState::default().with_selected(Some(0));
 
     loop {
+        // Restore picker: show backup root in header
+        app.tui_state.context_path = Some(
+            crate::config::get_backup_root().to_string_lossy().to_string(),
+        );
         terminal.draw(|f| {
             tui::draw_picker(f, &app.tui_state, &item_refs, &descs, &mut state);
         })?;
@@ -1021,7 +1044,20 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
     const INI_SKIP: &[usize] = &[3];
     let ini_max = 4usize;
 
+    let ini_path_str = app.save_folder.as_ref().and_then(|sf| {
+        discovery::derive_ini_path(sf).map(|p| p.to_string_lossy().to_string())
+    });
     loop {
+        // Ini submenu: show path based on highlighted item
+        {
+            let sel = state.selected().unwrap_or(0);
+            let br = crate::config::get_backup_root().to_string_lossy().to_string();
+            app.tui_state.context_path = match sel {
+                0 | 1 => Some(br),                    // backup root (backup/restore)
+                2 => ini_path_str.clone(),              // Config\Windows path (delete)
+                _ => Some(String::new()),             // blank / back → nothing
+            };
+        }
         terminal.draw(|f| {
             tui::draw_sub_menu(
                 f,
@@ -1142,7 +1178,7 @@ fn ini_restore_action<B: Backend>(
         .iter()
         .map(|p| {
             let name = p.file_name().unwrap().to_string_lossy();
-            format!("  {name}")
+            format!("  {}", format_backup_label(&name))
         })
         .collect();
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
@@ -1150,6 +1186,10 @@ fn ini_restore_action<B: Backend>(
     let mut state = ListState::default().with_selected(Some(0));
 
     loop {
+        // Restore picker: show backup root in header
+        app.tui_state.context_path = Some(
+            crate::config::get_backup_root().to_string_lossy().to_string(),
+        );
         terminal.draw(|f| {
             tui::draw_picker(f, &app.tui_state, &item_refs, &descs, &mut state);
         })?;
@@ -1582,6 +1622,40 @@ fn confirm_modal<B: Backend>(
             }
         }
     }
+}
+
+/// Format a backup archive filename into a human-readable label.
+/// `snapshot_2026-06-09_125430_001.tar.gz` → `Full Backup — 2026-Jun-09 12:54`
+fn format_backup_label(filename: &str) -> String {
+    let stripped = filename.strip_suffix(".tar.gz").unwrap_or(filename);
+    let (prefix, rest) = match stripped.split_once('_') {
+        Some((p, r)) => (p, r),
+        None => return filename.to_string(),
+    };
+    let label = match prefix {
+        "snapshot" => "Full Backup",
+        "pre" if stripped.contains("pre_restore") => "Pre-restore",
+        "ini" => "INI Backup",
+        "migrated" => "Migrated",
+        _ => prefix,
+    };
+    // rest looks like: "2026-06-09_125430_001" or "notalterra_copy_..."
+    // Try to parse the timestamp portion (first YYYY-MM-DD_HHMMSS segment)
+    let date_str = if let Some(pos) = rest.find(|c: char| c.is_ascii_digit()) {
+        let slice = &rest[pos..];
+        if slice.len() >= 17 {
+            let date_part = &slice[..10];   // 2026-06-09
+            let time_part = &slice[11..17]; // 125430
+            let h = &time_part[..2];
+            let m = &time_part[2..4];
+            format!("{date_part} {h}:{m}")
+        } else {
+            rest.to_string()
+        }
+    } else {
+        rest.to_string()
+    };
+    format!("{label} — {date_str}")
 }
 
 /// Create a rectangle centered in the parent area by percentage.

@@ -41,6 +41,11 @@ All notable changes to NotAlterra are documented in this file.
 - **Context-aware header path** — the right side of the title bar shows
   the relevant file location for the current menu or submenu item (save
   folder, backup root, or ini Config\Windows path)
+- **Human-readable backup labels** — archive filenames are now displayed
+  as `Full Backup — <date>` and `Pre-restore — <date>` in the restore
+  picker instead of raw `.tar.gz` filenames
+- **Backup Types section** in README — explains Full Backup vs
+  Pre-restore in plain language so users understand the safety flow
 
 ### Removed
 - **"Inspect save files" menu entry** — metadata is now visible inline in

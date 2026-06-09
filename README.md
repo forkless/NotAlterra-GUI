@@ -158,6 +158,27 @@ in the main menu. The path is persisted in `app.ini`.
   path (typical Proton locations are shown under "Where Files Live" above).
 
 
+## Backup Types
+
+NotAlterra creates two kinds of save backups. The label in the restore
+picker tells you which is which.
+
+| Label | How it's created |
+|---|---|
+| `Full Backup — <date>` | Manually via **Create full backup** in the main menu. |
+| `Pre-restore — <date>` | Automatically when you use **Restore full backup**. |
+
+When you use **Restore full backup**, NotAlterra automatically takes a
+safety snapshot of your current saves **before** it does anything. This is
+called a **Pre-restore** backup.
+
+If the restore doesn't go as expected, your old saves haven't disappeared —
+they're right there in the restore picker labeled `Pre-restore — <date>`.
+You can restore from that snapshot just like any other backup.
+
+Pre-restore snapshots are never deleted automatically. Once you're happy
+with the restore, you can delete them manually from the file system.
+
 ## Safety
 
 - Runs in your user context — no admin privileges required
