@@ -176,6 +176,26 @@ fn extract_tar_gz(archive_path: &Path, dest: &Path) -> Result<usize> {
     Ok(count)
 }
 
+/// Quick integrity check: verify the file is non-empty and starts with gzip
+/// magic bytes (`1f 8b`). Returns `true` if the archive looks valid.
+pub fn check_tar_gz_integrity(path: &Path) -> bool {
+    let meta = match std::fs::metadata(path) {
+        Ok(m) => m,
+        Err(_) => return false,
+    };
+    if meta.len() < 20 {
+        return false; // too small to be a valid archive
+    }
+    let mut buf = [0u8; 2];
+    use std::io::Read;
+    if let Ok(mut f) = std::fs::File::open(path) {
+        if f.read_exact(&mut buf).is_ok() {
+            return buf == [0x1f, 0x8b]; // gzip magic
+        }
+    }
+    false
+}
+
 /// List tar.gz files in a directory, sorted by mtime descending.
 fn list_tar_gz(dir: &Path) -> Vec<PathBuf> {
     if !dir.exists() {
@@ -624,5 +644,52 @@ mod tests {
         assert_eq!(c1, 1, "first migration");
         let c2 = migrate_backups_from(old_root.clone()).unwrap();
         assert_eq!(c2, 1, "second migration (should not duplicate)");
+    }
+
+    // ── integrity check ────────────────────────────────────────────
+
+    #[test]
+    fn integrity_check_valid_gzip() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("test.tar.gz");
+        // Write a minimal valid gzip file (20 bytes of gzip stream)
+        let valid_gzip = [
+            0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+        ];
+        fs::write(&path, &valid_gzip).unwrap();
+        assert!(check_tar_gz_integrity(&path));
+    }
+
+    #[test]
+    fn integrity_check_empty_file() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("empty.tar.gz");
+        fs::write(&path, b"").unwrap();
+        assert!(!check_tar_gz_integrity(&path));
+    }
+
+    #[test]
+    fn integrity_check_non_gzip() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("not_gzip.tar.gz");
+        fs::write(&path, b"this is not a gzip file").unwrap();
+        assert!(!check_tar_gz_integrity(&path));
+    }
+
+    #[test]
+    fn integrity_check_too_small() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("tiny.tar.gz");
+        // Gzip magic bytes present but file is too small (3 bytes)
+        fs::write(&path, &[0x1f, 0x8b, 0x08]).unwrap();
+        assert!(!check_tar_gz_integrity(&path));
+    }
+
+    #[test]
+    fn integrity_check_nonexistent_file() {
+        let path = std::path::Path::new("/nonexistent/path.tar.gz");
+        assert!(!check_tar_gz_integrity(&path));
     }
 }
