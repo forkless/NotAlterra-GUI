@@ -918,6 +918,7 @@ fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
             ok_dialog(terminal, app, "Backup Failed", &msg)?;
         }
     }
+    refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
     Ok(())
 }
 
