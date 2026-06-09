@@ -373,8 +373,13 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
 /// Open the input dialog for the user to type a save-folder path.
 /// Validates the path exists and contains .sav files before accepting it.
 fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    let default = app.save_folder.as_ref().map(|p| p.to_string_lossy().to_string());
     let mut input_state =
         tui::InputDialogState::new("Enter the path to your Subnautica 2 SaveGames folder:");
+    if let Some(d) = default {
+        input_state.input = d;
+        input_state.cursor = input_state.input.len();
+    }
     let mut ok_selected = true;
 
     loop {

@@ -819,10 +819,17 @@ fn draw_select_list_with_info(
     // If pinned_header is set, items[0] (header) and items[1] (blank spacer)
     // render as fixed rows above the scrollable list. items[2..] form the list.
     let (list_start_y, list_items_slice): (u16, &[&str]) = if pinned_header && !items.is_empty() {
-        let header_style = Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD);
+        let header_style = Style::default()
+            .fg(Color::Cyan)
+            .add_modifier(Modifier::BOLD);
         f.render_widget(
             Paragraph::new(Span::styled(items[0], header_style)),
-            Rect { x: area.x, y: area.y, width: area.width, height: 1 },
+            Rect {
+                x: area.x,
+                y: area.y,
+                width: area.width,
+                height: 1,
+            },
         );
         // Leave items[1] (blank spacer) as visual gap — rendered as empty row
         (area.y + 2, &items[2..])
@@ -839,7 +846,11 @@ fn draw_select_list_with_info(
     // Offset: when pinned_header is true, the list widget only sees
     // items[2..], but state.selected() is absolute to the full items array.
     // Adjust the state so the list widget highlights the correct entry.
-    let header_offset = if pinned_header && !items.is_empty() { 2u16 } else { 0u16 };
+    let header_offset = if pinned_header && !items.is_empty() {
+        2u16
+    } else {
+        0u16
+    };
     let orig_selected = state.selected();
     if header_offset > 0 {
         if let Some(s) = orig_selected {
