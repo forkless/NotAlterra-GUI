@@ -38,6 +38,9 @@ All notable changes to NotAlterra are documented in this file.
   descriptions updated
 - **Local builds** — compiled with `cargo build` for both Linux and Windows
   targets
+- **Context-aware header path** — the right side of the title bar shows
+  the relevant file location for the current menu or submenu item (save
+  folder, backup root, or ini Config\Windows path)
 
 ### Removed
 - **"Inspect save files" menu entry** — metadata is now visible inline in

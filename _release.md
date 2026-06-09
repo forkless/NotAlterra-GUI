@@ -13,6 +13,7 @@ extract, and run.
 • `►` pip highlight replaces background bar on all menus
 • Blank separator lines for visual grouping in menus
 • "Set Subnautica 2 location" and "Set backup location" menu entries
+• Context-aware header path — title bar shows the relevant file location for the current menu/screen
 
 **Configuration**
 • Persistent `app.ini` — save folder and backup location survive sessions
