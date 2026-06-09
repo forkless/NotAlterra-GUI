@@ -95,6 +95,11 @@ impl App {
         })
     }
 
+    /// Returns the backup root directory alongside the binary.
+    fn _backup_root(&self) -> PathBuf {
+        exe_dir().join("NotAlterra_Backups")
+    }
+
     /// Set the status bar message with optional style.
     fn set_status(&mut self, msg: &str, style: tui::StatusStyle) {
         self.tui_state.status_message = Some(msg.to_string());
@@ -486,49 +491,6 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 KeyCode::Down => {
                     let i = state.selected().unwrap_or(0);
                     state.select(Some((i + 1).min(items.len().saturating_sub(1))));
-                }
-                KeyCode::Char('i') => {
-                    let sel = state.selected().unwrap_or(2).max(2);
-                    if sel < 2 { continue; }
-                    let idx = sel.saturating_sub(2);
-                    let path = save_folder.join(&bak_summaries[idx].filename);
-                    match crate::gvas::extract_full_metadata(&path) {
-                        Ok(meta) => {
-                            let dim = Style::default().fg(Color::DarkGray);
-                            let val = Style::default().fg(Color::White);
-                            let hl = Style::default().fg(Color::Cyan);
-                            let mut lines: Vec<Line> = vec![
-                                Line::from(Span::styled(bak_summaries[idx].filename.clone(), hl.add_modifier(Modifier::BOLD))),
-                                Line::from(""),
-                            ];
-                            let fields: Vec<(&str, &str, String)> = vec![
-                                ("SlotName", ":", meta.slot_name.as_deref().unwrap_or("?").into()),
-                                ("DisplayName", ":", meta.display_name.as_deref().unwrap_or("(unnamed)").into()),
-                                ("Game Type", ":", (if meta.is_online { "Multiplayer" } else { "Single Player" }).into()),
-                                ("Was Multi", ":", (if meta.was_multiplayer { "yes" } else { "no" }).into()),
-                                ("GameMode", ":", meta.game_mode.as_deref().unwrap_or("?").into()),
-                                ("Level", ":", meta.level_name.as_deref().unwrap_or("?").into()),
-                                ("Build", ":", meta.build_number.map_or("?".into(), |n| n.to_string())),
-                                ("Branch", ":", meta.build_branch.as_deref().unwrap_or("?").into()),
-                                ("Saves", ":", meta.saves_count.map_or("?".into(), |n| n.to_string())),
-                                ("Ver", ":", meta.latest_version.map_or("?".into(), |n| n.to_string())),
-                                ("DataVer", ":", meta.data_version.map_or("?".into(), |n| n.to_string())),
-                                ("Playtime", ":", format_playtime(meta.playtime_seconds)),
-                            ];
-                            let max_label: usize = fields.iter().map(|(k, _, _)| k.len()).max().unwrap_or(8);
-                            for (key, sep, value) in fields {
-                                let padded = format!("{:<max_label$}{sep} ", key);
-                                lines.push(Line::from(vec![
-                                    Span::styled(padded, dim),
-                                    Span::styled(value, val),
-                                ]));
-                            }
-                            ok_dialog_styled(terminal, app, "GVAS Metadata", &lines)?;
-                        }
-                        Err(e) => {
-                            ok_dialog(terminal, app, "Parse Error", &format!("{e}"))?;
-                        }
-                    }
                 }
                 KeyCode::Enter => {
                     let sel = state.selected().unwrap_or(2);
