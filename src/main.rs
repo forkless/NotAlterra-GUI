@@ -971,7 +971,8 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
                     state.select(Some((i + 1).min(backups.len().saturating_sub(1))));
                 }
                 KeyCode::Enter => {
-                    let idx = state.selected().unwrap_or(0);
+                    let idx = state.selected().unwrap_or(2).max(2).saturating_sub(2);
+                    if idx >= backups.len() { continue; }
                     let chosen = &backups[idx];
                     let name = chosen.file_name().unwrap().to_string_lossy().to_string();
 

@@ -836,6 +836,17 @@ fn draw_select_list_with_info(
         ..area
     };
 
+    // Offset: when pinned_header is true, the list widget only sees
+    // items[2..], but state.selected() is absolute to the full items array.
+    // Adjust the state so the list widget highlights the correct entry.
+    let header_offset = if pinned_header && !items.is_empty() { 2u16 } else { 0u16 };
+    let orig_selected = state.selected();
+    if header_offset > 0 {
+        if let Some(s) = orig_selected {
+            state.select(Some(s.saturating_sub(header_offset as usize)));
+        }
+    }
+
     let list_items: Vec<ListItem> = list_items_slice
         .iter()
         .map(|item| ListItem::new(Span::raw(*item)).style(Style::default()))
@@ -852,10 +863,15 @@ fn draw_select_list_with_info(
 
     f.render_stateful_widget(list, list_area, state);
 
-    // Description line for the highlighted item
+    // Restore state to absolute indexing for the caller
+    if header_offset > 0 {
+        let s = state.selected().unwrap_or(0);
+        state.select(Some(s + header_offset as usize));
+    }
+
+    // Description line — use original (absolute) selection index
     let base_y = area.y + area.height.saturating_sub(1);
-    let desc_idx = state
-        .selected()
+    let desc_idx = orig_selected
         .unwrap_or(0)
         .min(descs.len().saturating_sub(1));
     let desc = descs.get(desc_idx).copied().unwrap_or("");
