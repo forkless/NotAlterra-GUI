@@ -933,8 +933,21 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
             format!("  {}", format_backup_label(&name))
         })
         .collect();
+    let descs: Vec<String> = backups
+        .iter()
+        .map(|p| {
+            let name = p.file_name().unwrap().to_string_lossy().to_string();
+            if name.contains("pre_restore") {
+                "Pre-restore snapshot — safety copy made before a restore".into()
+            } else if name.contains("migrated") {
+                "Migrated from old backup format — treated as a full backup".into()
+            } else {
+                "Restore save folder from this full backup".into()
+            }
+        })
+        .collect();
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
-    let descs: Vec<&str> = vec!["Restore this backup into the save folder"; backups.len()];
+    let desc_refs: Vec<&str> = descs.iter().map(|s| s.as_str()).collect();
     let mut state = ListState::default().with_selected(Some(0));
 
     loop {
@@ -943,7 +956,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
             crate::config::get_backup_root().to_string_lossy().to_string(),
         );
         terminal.draw(|f| {
-            tui::draw_picker(f, &app.tui_state, &item_refs, &descs, &mut state);
+            tui::draw_picker(f, &app.tui_state, &item_refs, &desc_refs, &mut state);
         })?;
         if let Some(key) = poll_key(250)? {
             match key.code {
@@ -1182,7 +1195,7 @@ fn ini_restore_action<B: Backend>(
         })
         .collect();
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
-    let descs: Vec<&str> = vec!["Restore this .ini backup"; backups.len()];
+    let ini_descs: Vec<&str> = vec!["Restore .ini files from this backup"; backups.len()];
     let mut state = ListState::default().with_selected(Some(0));
 
     loop {
@@ -1191,7 +1204,7 @@ fn ini_restore_action<B: Backend>(
             crate::config::get_backup_root().to_string_lossy().to_string(),
         );
         terminal.draw(|f| {
-            tui::draw_picker(f, &app.tui_state, &item_refs, &descs, &mut state);
+            tui::draw_picker(f, &app.tui_state, &item_refs, &ini_descs, &mut state);
         })?;
         if let Some(key) = poll_key(250)? {
             match key.code {
