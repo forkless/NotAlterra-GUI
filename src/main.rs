@@ -143,9 +143,7 @@ fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
     tui_state.live_save_count = live;
     tui_state.backup_count = bak;
     tui_state.has_ini_backup = ini;
-    tui_state.context_path = Some(
-        crate::config::get_backup_root().display().to_string(),
-    );
+    tui_state.context_path = Some(crate::config::get_backup_root().display().to_string());
 }
 
 // ── main loop ──────────────────────────────────────────────────────────────
@@ -245,15 +243,17 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
         // Main menu: show path based on highlighted item
         {
             let sel = menu_state.selected().unwrap_or(0);
-            let br = crate::config::get_backup_root().to_string_lossy().to_string();
+            let br = crate::config::get_backup_root()
+                .to_string_lossy()
+                .to_string();
             let ini_path_str = app.save_folder.as_ref().and_then(|sf| {
                 discovery::derive_ini_path(sf).map(|p| p.to_string_lossy().to_string())
             });
             app.tui_state.context_path = match sel {
-                0 | 1 => None,                        // save path (fallback)
-                3..=5 => Some(br),                // backup root
-                7 => ini_path_str,                     // ini Config\Windows path
-                _ => Some(String::new()),             // blank / disclaimer / exit → no path
+                0 | 1 => None,            // save path (fallback)
+                3..=5 => Some(br),        // backup root
+                7 => ini_path_str,        // ini Config\Windows path
+                _ => Some(String::new()), // blank / disclaimer / exit → no path
             };
         }
         terminal.draw(|f| {
@@ -924,14 +924,18 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
 
     let header = format!("    {:<38}      {:>8}", "Backup", "Size");
     let mut items: Vec<String> = vec![header, String::new()];
-    items.extend(backups
-        .iter()
-        .map(|p| {
-            let name = p.file_name().unwrap().to_string_lossy();
-            let size = std::fs::metadata(p).map(|m| format_size(m.len())).unwrap_or("?".into());
-            format!("  {:<42}  {:>8}", format_backup_label(&name), size)
-        })
-        .collect::<Vec<String>>());
+    items.extend(
+        backups
+            .iter()
+            .map(|p| {
+                let name = p.file_name().unwrap().to_string_lossy();
+                let size = std::fs::metadata(p)
+                    .map(|m| format_size(m.len()))
+                    .unwrap_or("?".into());
+                format!("  {:<42}  {:>8}", format_backup_label(&name), size)
+            })
+            .collect::<Vec<String>>(),
+    );
     // Prepend empty description entries for header + blank
     let descs: Vec<String> = std::iter::once(String::new())
         .chain(std::iter::once(String::new()))
@@ -955,7 +959,9 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
     loop {
         // Restore picker: show backup root in header
         app.tui_state.context_path = Some(
-            crate::config::get_backup_root().to_string_lossy().to_string(),
+            crate::config::get_backup_root()
+                .to_string_lossy()
+                .to_string(),
         );
         terminal.draw(|f| {
             tui::draw_picker(f, &app.tui_state, &item_refs, &desc_refs, &mut state, true);
@@ -968,21 +974,26 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
                 }
                 KeyCode::Down => {
                     let i = state.selected().unwrap_or(0);
-                    state.select(Some((i + 1).min(backups.len().saturating_sub(1))));
+                    state.select(Some((i + 1).min(items.len().saturating_sub(1))));
                 }
                 KeyCode::Enter => {
                     let idx = state.selected().unwrap_or(2).max(2).saturating_sub(2);
-                    if idx >= backups.len() { continue; }
+                    if idx >= backups.len() {
+                        continue;
+                    }
                     let chosen = &backups[idx];
                     let name = chosen.file_name().unwrap().to_string_lossy().to_string();
 
                     // Block restore on corrupt archives
                     if !ops::check_tar_gz_integrity(chosen) {
-                        ok_dialog(terminal, app, "Corrupt Backup",
+                        ok_dialog(
+                            terminal,
+                            app,
+                            "Corrupt Backup",
                             "This backup archive appears to be corrupt or\n\
                              incomplete and cannot be restored.\n\
                              \n\
-                             Create a new full backup to replace it."
+                             Create a new full backup to replace it.",
                         )?;
                         continue;
                     }
@@ -1071,18 +1082,21 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
     const INI_SKIP: &[usize] = &[3];
     let ini_max = 4usize;
 
-    let ini_path_str = app.save_folder.as_ref().and_then(|sf| {
-        discovery::derive_ini_path(sf).map(|p| p.to_string_lossy().to_string())
-    });
+    let ini_path_str = app
+        .save_folder
+        .as_ref()
+        .and_then(|sf| discovery::derive_ini_path(sf).map(|p| p.to_string_lossy().to_string()));
     loop {
         // Ini submenu: show path based on highlighted item
         {
             let sel = state.selected().unwrap_or(0);
-            let br = crate::config::get_backup_root().to_string_lossy().to_string();
+            let br = crate::config::get_backup_root()
+                .to_string_lossy()
+                .to_string();
             app.tui_state.context_path = match sel {
-                0 | 1 => Some(br),                    // backup root (backup/restore)
-                2 => ini_path_str.clone(),              // Config\Windows path (delete)
-                _ => Some(String::new()),             // blank / back → nothing
+                0 | 1 => Some(br),         // backup root (backup/restore)
+                2 => ini_path_str.clone(), // Config\Windows path (delete)
+                _ => Some(String::new()),  // blank / back → nothing
             };
         }
         terminal.draw(|f| {
@@ -1212,20 +1226,27 @@ fn ini_restore_action<B: Backend>(
     let mut items: Vec<String> = vec![header, String::new()];
     items.extend(backups.iter().map(|p| {
         let name = p.file_name().unwrap().to_string_lossy();
-        let size = std::fs::metadata(p).map(|m| format_size(m.len())).unwrap_or("?".into());
+        let size = std::fs::metadata(p)
+            .map(|m| format_size(m.len()))
+            .unwrap_or("?".into());
         format!("  {:<42}  {:>8}", format_backup_label(&name), size)
     }));
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
     let ini_descs: Vec<&str> = std::iter::once("")
         .chain(std::iter::once(""))
-        .chain(std::iter::repeat_n("Restore .ini files from this backup", backups.len()))
+        .chain(std::iter::repeat_n(
+            "Restore .ini files from this backup",
+            backups.len(),
+        ))
         .collect::<Vec<_>>();
     let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
 
     loop {
         // Restore picker: show backup root in header
         app.tui_state.context_path = Some(
-            crate::config::get_backup_root().to_string_lossy().to_string(),
+            crate::config::get_backup_root()
+                .to_string_lossy()
+                .to_string(),
         );
         terminal.draw(|f| {
             tui::draw_picker(f, &app.tui_state, &item_refs, &ini_descs, &mut state, true);
@@ -1238,7 +1259,7 @@ fn ini_restore_action<B: Backend>(
                 }
                 KeyCode::Down => {
                     let i = state.selected().unwrap_or(0);
-                    state.select(Some((i + 1).min(backups.len().saturating_sub(1))));
+                    state.select(Some((i + 1).min(items.len().saturating_sub(1))));
                 }
                 KeyCode::Enter => {
                     let idx = state.selected().unwrap_or(0);
@@ -1693,7 +1714,7 @@ fn format_backup_label(filename: &str) -> String {
     let date_str = if let Some(pos) = rest.find(|c: char| c.is_ascii_digit()) {
         let slice = &rest[pos..];
         if slice.len() >= 17 {
-            let date_part = &slice[..10];   // 2026-06-09
+            let date_part = &slice[..10]; // 2026-06-09
             let time_part = &slice[11..17]; // 125430
             let h = &time_part[..2];
             let m = &time_part[2..4];
