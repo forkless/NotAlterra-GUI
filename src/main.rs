@@ -556,6 +556,7 @@ fn action_set_backup_location<B: Backend>(terminal: &mut Terminal<B>, app: &mut 
 
 /// Recover a .sav from its .bak backup with a rollback safety net.
 fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
     let save_folder = ensure_save_folder(terminal, app)?;
 
     // Show spinner while parsing metadata
@@ -875,6 +876,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
 
 /// Create a full backup of all savegame files into a timestamped folder.
 fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
     let save_folder = ensure_save_folder(terminal, app)?;
 
     info_dialog(
@@ -921,6 +923,7 @@ fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
 
 /// Restore a previously created full backup, overwriting the save folder.
 fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
     let save_folder = ensure_save_folder(terminal, app)?;
     let backups = ops::list_full_backups();
     if backups.is_empty() {
