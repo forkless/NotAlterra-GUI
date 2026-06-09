@@ -46,6 +46,14 @@ All notable changes to NotAlterra are documented in this file.
   picker instead of raw `.tar.gz` filenames
 - **Backup Types section** in README — explains Full Backup vs
   Pre-restore in plain language so users understand the safety flow
+- **Archive integrity check** — `check_tar_gz_integrity()` verifies gzip
+  magic bytes before restore; corrupt files show a warning description
+  and Enter is blocked
+- **Context-aware restore descriptions** — restore picker shows
+  different descriptions for full backup, pre-restore, migrated, and
+  corrupted archives
+- **Consistent warning spacing** — all `⚠` messages use double-space
+  formatting
 
 ### Removed
 - **"Inspect save files" menu entry** — metadata is now visible inline in
