@@ -776,7 +776,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                             } else {
                                 "Single Player"
                             };
-                            Some(("⚠ Mode change", format!("{from} → {to}")))
+                            Some(("⚠  Mode change", format!("{from} → {to}")))
                         } else {
                             None
                         }
@@ -786,7 +786,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                         let bak_name = chosen.display_name.as_deref().unwrap_or("(unnamed)");
                         match live_name {
                             Some(live) if live != bak_name => {
-                                Some(("⚠ Name change", format!("{live} → {bak_name}")))
+                                Some(("⚠  Name change", format!("{live} → {bak_name}")))
                             }
                             _ => None,
                         }
@@ -828,7 +828,7 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                         details.push((&**k, &**v));
                     }
                     if !has_existing_backup(app) {
-                        details.push(("⚠ No backup", "create a full backup first"));
+                        details.push(("⚠  No backup", "create a full backup first"));
                     }
                     let accepted = confirm_modal(terminal, app, "Confirm Recovery", &details)?;
 
@@ -937,7 +937,9 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
         .iter()
         .map(|p| {
             let name = p.file_name().unwrap().to_string_lossy().to_string();
-            if name.contains("pre_restore") {
+            if !ops::check_tar_gz_integrity(p) {
+                "⚠  Corrupted — file does not appear to be a valid backup archive".into()
+            } else if name.contains("pre_restore") {
                 "Pre-restore snapshot — safety copy made before a restore".into()
             } else if name.contains("migrated") {
                 "Migrated from old backup format — treated as a full backup".into()
@@ -972,6 +974,17 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
                     let idx = state.selected().unwrap_or(0);
                     let chosen = &backups[idx];
                     let name = chosen.file_name().unwrap().to_string_lossy().to_string();
+
+                    // Block restore on corrupt archives
+                    if !ops::check_tar_gz_integrity(chosen) {
+                        ok_dialog(terminal, app, "Corrupt Backup",
+                            "This backup archive appears to be corrupt or\n\
+                             incomplete and cannot be restored.\n\
+                             \n\
+                             Create a new full backup to replace it."
+                        )?;
+                        continue;
+                    }
 
                     let mut restore_details = vec![("Backup", name.as_str())];
                     if !has_existing_backup(app) {
