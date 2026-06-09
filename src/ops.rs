@@ -519,7 +519,7 @@ mod tests {
     }
 
     #[test]
-    fn migrate_old_backups_basic() {
+    fn test_migrate_old_backups_basic() {
         let tmp = tempfile::tempdir().unwrap();
         let old_root = tmp.path().join("NotAlterra_Backups");
         fs::create_dir_all(&old_root).unwrap();
@@ -551,7 +551,7 @@ mod tests {
     }
 
     #[test]
-    fn migrate_old_backups_empty_dir() {
+    fn test_migrate_old_backups_empty_dir() {
         let tmp = tempfile::tempdir().unwrap();
         let old_root = tmp.path().join("NotAlterra_Backups");
         fs::create_dir_all(&old_root).unwrap();
@@ -561,7 +561,7 @@ mod tests {
     }
 
     #[test]
-    fn migrate_old_backups_nonexistent_dir() {
+    fn test_migrate_old_backups_nonexistent_dir() {
         let tmp = tempfile::tempdir().unwrap();
         let old_root = tmp.path().join("NotAlterra_Backups");
         // Directory doesn't exist
@@ -570,7 +570,7 @@ mod tests {
     }
 
     #[test]
-    fn migrate_old_backups_file_integrity() {
+    fn test_migrate_old_backups_file_integrity() {
         let tmp = tempfile::tempdir().unwrap();
         let old_root = tmp.path().join("NotAlterra_Backups");
         fs::create_dir_all(&old_root).unwrap();
@@ -616,7 +616,7 @@ mod tests {
     }
 
     #[test]
-    fn migrate_old_backups_skips_non_save_dirs() {
+    fn test_migrate_old_backups_skips_non_save_dirs() {
         let tmp = tempfile::tempdir().unwrap();
         let old_root = tmp.path().join("NotAlterra_Backups");
         fs::create_dir_all(&old_root).unwrap();
@@ -633,7 +633,7 @@ mod tests {
     }
 
     #[test]
-    fn migrate_old_backups_dedup_filename() {
+    fn test_migrate_old_backups_dedup_filename() {
         let tmp = tempfile::tempdir().unwrap();
         let old_root = tmp.path().join("NotAlterra_Backups");
         fs::create_dir_all(&old_root).unwrap();
@@ -649,7 +649,7 @@ mod tests {
     // ── integrity check ────────────────────────────────────────────
 
     #[test]
-    fn integrity_check_valid_gzip() {
+    fn test_integrity_check_valid_gzip() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("test.tar.gz");
         // Write a minimal valid gzip file (20 bytes of gzip stream)
@@ -663,7 +663,7 @@ mod tests {
     }
 
     #[test]
-    fn integrity_check_empty_file() {
+    fn test_integrity_check_empty_file() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("empty.tar.gz");
         fs::write(&path, b"").unwrap();
@@ -671,7 +671,7 @@ mod tests {
     }
 
     #[test]
-    fn integrity_check_non_gzip() {
+    fn test_integrity_check_non_gzip() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("not_gzip.tar.gz");
         fs::write(&path, b"this is not a gzip file").unwrap();
@@ -679,7 +679,7 @@ mod tests {
     }
 
     #[test]
-    fn integrity_check_too_small() {
+    fn test_integrity_check_too_small() {
         let dir = tempfile::tempdir().unwrap();
         let path = dir.path().join("tiny.tar.gz");
         // Gzip magic bytes present but file is too small (3 bytes)
@@ -688,7 +688,7 @@ mod tests {
     }
 
     #[test]
-    fn integrity_check_nonexistent_file() {
+    fn test_integrity_check_nonexistent_file() {
         let path = std::path::Path::new("/nonexistent/path.tar.gz");
         assert!(!check_tar_gz_integrity(&path));
     }
