@@ -139,9 +139,10 @@ fn exe_dir() -> PathBuf {
 /// any backup/restore operation.
 fn refresh_stats(tui_state: &mut tui::AppState, save_folder: Option<&Path>) {
     tui_state.save_path = save_folder.map(|p| p.display().to_string());
-    let (live, bak, ini) = ops::folder_stats(save_folder);
-    tui_state.live_save_count = live;
-    tui_state.backup_count = bak;
+    let (_live, _bak, ini) = ops::folder_stats(save_folder);
+    // "Saves" = .bak recovery files (the restore points in the save folder)
+    tui_state.live_save_count = _bak;
+    tui_state.backup_count = ops::list_full_backups().len();
     tui_state.has_ini_backup = ini;
     tui_state.context_path = Some(crate::config::get_backup_root().display().to_string());
 }

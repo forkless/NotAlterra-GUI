@@ -6,23 +6,14 @@ extract, and run.
 
 ---
 
-### v0.4.2 — Pinned headers & layout polish
+### v0.4.3 — Dashboard & backup integrity fixes
 
-**UI**
-• Restore backup picker: pinned column headers, wider Backup column, right-aligned Size
-• INI restore picker: matching pinned header with "INI Backup" / "Size" columns  
-• All picker highlight colour changed to yellow for better visibility
-• Main menu entries shifted 1 left; INI submenu entries aligned with main menu
-• Spacer row between list content and status bar on all screens
-• Non-blocking info dialog for backup-in-progress (no button, auto-replaced)
-
-**Layout**
-• Backup column widened from 30→38 chars; header/data total widths matched
-• Size header right-aligned above file-size values in both restore pickers
-• INI submenu header changed to cyan, shifted 3 right
-
-**Backup flow**
-• No intermediate spinner page — info popup followed by summary dialog
+**Fixed**
+• Dashboard counts now correct: "Saves" shows `.bak` recovery file count, "Backups" shows `.tar.gz` archive count
+• Backup archives now preserve source file modification times — restored files keep their original dates instead of showing 1970-01-01 on Windows
+• Restore backup picker navigation no longer stops before migrated entries
+• Save folder input dialog pre-fills with the currently set path
+• SLSA provenance attestation re-enabled (`upload-assets: true`)
 
 ---
 

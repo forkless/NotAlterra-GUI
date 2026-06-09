@@ -138,6 +138,15 @@ fn create_tar_gz(
             .with_context(|| format!("failed to set path '{name}' in tar header"))?;
         header.set_size(data.len() as u64);
         header.set_mode(0o644); // owner read/write, group/other read
+        // Preserve the source file's mtime so the extracted file keeps its
+        // original date. Without this, the mtime defaults to epoch (1970).
+        if let Ok(src_meta) = fs::metadata(&src_path) {
+            if let Ok(mtime) = src_meta.modified() {
+                if let Ok(dur) = mtime.duration_since(std::time::UNIX_EPOCH) {
+                    header.set_mtime(dur.as_secs());
+                }
+            }
+        }
         header.set_cksum();
         tar_builder
             .append(&header, &data[..])
@@ -358,8 +367,12 @@ pub fn list_bak_files_with_meta(save_folder: &Path) -> Vec<BakFileSummary> {
         let filename = entry.file_name().to_string_lossy().to_string();
         let meta = fs::metadata(&path).ok();
         let size = meta.as_ref().map(|m| m.len()).unwrap_or(0);
-        let mtime = meta.as_ref().and_then(|m| m.modified().ok()).and_then(|t| {
+        let mtime = meta.as_ref().and_then(|m| {
+            // Try modified time first; fall back to creation time (Windows)
+            let t = m.modified().or_else(|_| m.created()).ok()?;
             let secs = t.duration_since(std::time::UNIX_EPOCH).ok()?.as_secs();
+            // Reject epoch (Jan 1 1970) — indicates filesystem couldn't provide a real time
+            if secs == 0 { return None; }
             Local
                 .timestamp_opt(secs as i64, 0)
                 .single()
