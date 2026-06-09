@@ -871,19 +871,15 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
 fn action_create_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
     let save_folder = ensure_save_folder(terminal, app)?;
 
+    info_dialog(
+        terminal,
+        app,
+        "Creating Backup",
+        "NotAlterra is backing up your save files.",
+    )?;
+
     app.set_status("Creating backup…", tui::StatusStyle::Info);
     app.set_spinner(true);
-    terminal.draw(|f| {
-        tui::draw_text_screen(
-            f,
-            &app.tui_state,
-            &[Line::from(Span::styled(
-                "Creating full backup…",
-                Style::default().add_modifier(Modifier::BOLD),
-            ))],
-            "Copying save folder contents…",
-        );
-    })?;
 
     match ops::create_full_backup(&save_folder) {
         Ok(result) => {
@@ -926,16 +922,20 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
         return Ok(());
     }
 
-    let items: Vec<String> = backups
+    let header = format!("    {:<38}      {:>8}", "Backup", "Size");
+    let mut items: Vec<String> = vec![header, String::new()];
+    items.extend(backups
         .iter()
         .map(|p| {
             let name = p.file_name().unwrap().to_string_lossy();
-            format!("  {}", format_backup_label(&name))
+            let size = std::fs::metadata(p).map(|m| format_size(m.len())).unwrap_or("?".into());
+            format!("  {:<42}  {:>8}", format_backup_label(&name), size)
         })
-        .collect();
-    let descs: Vec<String> = backups
-        .iter()
-        .map(|p| {
+        .collect::<Vec<String>>());
+    // Prepend empty description entries for header + blank
+    let descs: Vec<String> = std::iter::once(String::new())
+        .chain(std::iter::once(String::new()))
+        .chain(backups.iter().map(|p| {
             let name = p.file_name().unwrap().to_string_lossy().to_string();
             if !ops::check_tar_gz_integrity(p) {
                 "⚠  Corrupted — file does not appear to be a valid backup archive".into()
@@ -946,11 +946,11 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
             } else {
                 "Restore save folder from this full backup".into()
             }
-        })
+        }))
         .collect();
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
     let desc_refs: Vec<&str> = descs.iter().map(|s| s.as_str()).collect();
-    let mut state = ListState::default().with_selected(Some(0));
+    let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
 
     loop {
         // Restore picker: show backup root in header
@@ -958,7 +958,7 @@ fn action_restore_backup<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) 
             crate::config::get_backup_root().to_string_lossy().to_string(),
         );
         terminal.draw(|f| {
-            tui::draw_picker(f, &app.tui_state, &item_refs, &desc_refs, &mut state);
+            tui::draw_picker(f, &app.tui_state, &item_refs, &desc_refs, &mut state, true);
         })?;
         if let Some(key) = poll_key(250)? {
             match key.code {
@@ -1053,11 +1053,11 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
     let ini_path = get_ini_path(terminal, app)?;
 
     let items: Vec<&str> = vec![
-        "Backup .ini files",
-        "Restore .ini files from backup",
-        "Delete .ini files (requires backup)",
+        " Backup .ini files",
+        " Restore .ini files from backup",
+        " Delete .ini files (requires backup)",
         "",
-        "Back",
+        " Back",
     ];
     let descs: Vec<&str> = vec![
         "Copy all .ini files from Config/Windows to NotAlterra_Backups",
@@ -1142,6 +1142,13 @@ fn ini_backup_action<B: Backend>(
     app: &mut App,
     ini_path: &Path,
 ) -> Result<()> {
+    info_dialog(
+        terminal,
+        app,
+        "Creating .ini Backup",
+        "NotAlterra is backing up your\nUE5 Config (.ini) files.",
+    )?;
+
     match ops::backup_ini_files(ini_path) {
         Ok(result) => {
             let verified = if result.verified {
@@ -1200,16 +1207,19 @@ fn ini_restore_action<B: Backend>(
         return Ok(());
     }
 
-    let items: Vec<String> = backups
-        .iter()
-        .map(|p| {
-            let name = p.file_name().unwrap().to_string_lossy();
-            format!("  {}", format_backup_label(&name))
-        })
-        .collect();
+    let header = format!("    {:<38}      {:>8}", "INI Backup", "Size");
+    let mut items: Vec<String> = vec![header, String::new()];
+    items.extend(backups.iter().map(|p| {
+        let name = p.file_name().unwrap().to_string_lossy();
+        let size = std::fs::metadata(p).map(|m| format_size(m.len())).unwrap_or("?".into());
+        format!("  {:<42}  {:>8}", format_backup_label(&name), size)
+    }));
     let item_refs: Vec<&str> = items.iter().map(|s| s.as_str()).collect();
-    let ini_descs: Vec<&str> = vec!["Restore .ini files from this backup"; backups.len()];
-    let mut state = ListState::default().with_selected(Some(0));
+    let ini_descs: Vec<&str> = std::iter::once("")
+        .chain(std::iter::once(""))
+        .chain(std::iter::repeat("Restore .ini files from this backup").take(backups.len()))
+        .collect::<Vec<_>>();
+    let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
 
     loop {
         // Restore picker: show backup root in header
@@ -1217,7 +1227,7 @@ fn ini_restore_action<B: Backend>(
             crate::config::get_backup_root().to_string_lossy().to_string(),
         );
         terminal.draw(|f| {
-            tui::draw_picker(f, &app.tui_state, &item_refs, &ini_descs, &mut state);
+            tui::draw_picker(f, &app.tui_state, &item_refs, &ini_descs, &mut state, true);
         })?;
         if let Some(key) = poll_key(250)? {
             match key.code {
@@ -1386,6 +1396,7 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
                 &desc_refs,
                 &mut state,
                 selected_info,
+                false,
             );
         })?;
         if let Some(key) = poll_key(250)? {
@@ -1566,6 +1577,19 @@ fn ok_dialog_styled<B: Backend>(
             }
         }
     }
+}
+
+/// Display a non-interactive info dialog — no buttons, renders once.
+/// The dialog stays on screen until the next `terminal.draw()` call
+/// replaces it.  Use for brief status messages before a blocking operation.
+fn info_dialog<B: Backend>(
+    terminal: &mut Terminal<B>,
+    app: &App,
+    title: &str,
+    msg: &str,
+) -> Result<()> {
+    terminal.draw(|f| tui::draw_info_dialog(f, &app.tui_state, title, msg))?;
+    Ok(())
 }
 
 /// Display a plain-text informational dialog with a single OK button.

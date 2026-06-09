@@ -82,17 +82,17 @@ impl Default for AppState {
 /// Draw the main menu.
 pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState) {
     let items: Vec<&str> = vec![
-        "  Set Subnautica 2 location",
-        "  Recover save file",
+        " Set Subnautica 2 location",
+        " Recover save file",
         "",
-        "  Set backup location",
-        "  Create full backup",
-        "  Restore full backup",
+        " Set backup location",
+        " Create full backup",
+        " Restore full backup",
         "",
-        "  Manage UE5 Config (.ini) files",
+        " Manage UE5 Config (.ini) files",
         "",
-        "  View disclaimer",
-        "  Exit",
+        " View disclaimer",
+        " Exit",
     ];
     let descs: Vec<&str> = vec![
         "Enter your Subnautica 2 save folder path (paste supported)",
@@ -115,7 +115,7 @@ pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState) {
     let prompt = "↑/↓ navigate  Enter select";
     draw_select_list(f, chunks[2], &items, &descs, prompt, state);
 
-    draw_status_bar(f, chunks[3], app);
+    draw_status_bar(f, chunks[4], app);
 }
 
 /// Draw the disclaimer popup with full warning text.
@@ -394,6 +394,61 @@ pub fn draw_ok_dialog(f: &mut Frame, app: &AppState, title: &str, message: &str)
     draw_whale_separator(f, bar, app);
 }
 
+/// Render a non-interactive info dialog — no buttons, renders once, caller
+/// is expected to return to the event loop (the dialog stays visible until
+/// the next `terminal.draw()` replaces it).
+pub fn draw_info_dialog(f: &mut Frame, app: &AppState, title: &str, message: &str) {
+    let content_w = message
+        .lines()
+        .map(|l| l.len())
+        .max()
+        .unwrap_or(20)
+        .max(title.len()) as u16
+        + 10;
+    let popup_w = content_w.max(50).min(f.area().width.saturating_sub(4));
+    let popup_h = (message.lines().count() as u16 + 6).min(f.area().height.saturating_sub(4));
+    let area = centered_rect_size(popup_w, popup_h, f.area());
+    f.render_widget(Clear, area);
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_type(BorderType::Plain)
+        .border_style(Style::default().fg(Color::Cyan));
+    f.render_widget(block, area);
+    let inner = inner(area, 2, 1);
+    f.render_widget(
+        Paragraph::new(Span::styled(
+            title,
+            Style::default()
+                .fg(Color::Cyan)
+                .add_modifier(Modifier::BOLD),
+        ))
+        .alignment(Alignment::Center),
+        Rect { height: 1, ..inner },
+    );
+    let msg_h = message.lines().count() as u16;
+    f.render_widget(
+        Paragraph::new(message.to_string())
+            .style(Style::default().fg(Color::Gray))
+            .alignment(Alignment::Left),
+        Rect {
+            x: inner.x + 2,
+            y: inner.y + 2,
+            width: inner.width.saturating_sub(4),
+            height: msg_h,
+        },
+    );
+    // No button — this is informational only
+
+    // Whale
+    let bar = Rect {
+        x: 0,
+        y: f.area().height.saturating_sub(1),
+        width: f.area().width,
+        height: 1,
+    };
+    draw_whale_separator(f, bar, app);
+}
+
 /// Render a dialog with styled content lines.  Supports inline formatting
 /// (colors, bold) via [`Line`] slices.  Use for metadata displays, help
 /// text, or any content that needs per-span styling.
@@ -498,9 +553,9 @@ pub fn draw_sub_menu(
     draw_header(f, chunks[0], app);
 
     let title_p = Paragraph::new(Span::styled(
-        title,
+        format!("   {title}"),
         Style::default()
-            .fg(Color::Yellow)
+            .fg(Color::Cyan)
             .add_modifier(Modifier::BOLD),
     ));
     f.render_widget(title_p, chunks[1]);
@@ -513,7 +568,7 @@ pub fn draw_sub_menu(
         "↑/↓ navigate  Enter select  Esc back",
         state,
     );
-    draw_status_bar(f, chunks[3], app);
+    draw_status_bar(f, chunks[4], app);
 }
 
 /// Draw a full-screen text display with a "press any key" prompt at the
@@ -527,22 +582,25 @@ pub fn draw_text_screen(f: &mut Frame, app: &AppState, lines: &[Line], prompt: &
 
     let prompt_p = Paragraph::new(Span::styled(prompt, Style::default().fg(Color::DarkGray)))
         .alignment(Alignment::Center);
-    f.render_widget(prompt_p, chunks[3]);
+    f.render_widget(prompt_p, chunks[4]);
 }
 
 /// Draw a file/folder picker list.
+/// `pinned_header` renders items[0] as a fixed header above the scrollable list.
 pub fn draw_picker(
     f: &mut Frame,
     app: &AppState,
     items: &[&str],
     descs: &[&str],
     state: &mut ListState,
+    pinned_header: bool,
 ) {
-    draw_picker_with_info(f, app, items, descs, state, None);
+    draw_picker_with_info(f, app, items, descs, state, None, pinned_header);
 }
 
 /// Draw a file/folder picker list with an extra selected-item info line
 /// (e.g. showing the full filename of the highlighted .bak file).
+/// `pinned_header` renders items[0] as a fixed header above the scrollable list.
 pub fn draw_picker_with_info(
     f: &mut Frame,
     app: &AppState,
@@ -550,13 +608,14 @@ pub fn draw_picker_with_info(
     descs: &[&str],
     state: &mut ListState,
     selected_info: Option<&str>,
+    pinned_header: bool,
 ) {
     let chunks = standard_layout(f.area(), items.len());
     draw_header(f, chunks[0], app);
 
     let prompt = "↑/↓ navigate | Enter select | Esc cancel";
-    draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, selected_info);
-    draw_status_bar(f, chunks[3], app);
+    draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, selected_info, pinned_header);
+    draw_status_bar(f, chunks[4], app);
 }
 
 // ── internal drawing helpers ───────────────────────────────────────────────
@@ -568,6 +627,7 @@ fn standard_layout(area: Rect, _menu_items: usize) -> Vec<Rect> {
             Constraint::Length(3), // header
             Constraint::Length(2), // dashboard
             Constraint::Min(1),    // menu (fills remaining)
+            Constraint::Length(1), // spacer
             Constraint::Length(1), // status bar
         ])
         .split(area)
@@ -701,7 +761,7 @@ fn draw_select_list(
     let list = List::new(list_items)
         .highlight_style(
             Style::default()
-                .fg(Color::White)
+                .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD),
         )
         .highlight_symbol("► ")
@@ -756,14 +816,31 @@ fn draw_select_list_with_info(
     prompt: &str,
     state: &mut ListState,
     selected_info: Option<&str>,
+    pinned_header: bool,
 ) {
     let extra = if selected_info.is_some() { 1u16 } else { 0u16 };
+
+    // If pinned_header is set, items[0] (header) and items[1] (blank spacer)
+    // render as fixed rows above the scrollable list. items[2..] form the list.
+    let (list_start_y, list_items_slice): (u16, &[&str]) = if pinned_header && !items.is_empty() {
+        let header_style = Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD);
+        f.render_widget(
+            Paragraph::new(Span::styled(items[0], header_style)),
+            Rect { x: area.x, y: area.y, width: area.width, height: 1 },
+        );
+        // Leave items[1] (blank spacer) as visual gap — rendered as empty row
+        (area.y + 2, &items[2..])
+    } else {
+        (area.y, items)
+    };
+
     let list_area = Rect {
-        height: area.height.saturating_sub(1 + extra),
+        y: list_start_y,
+        height: area.height.saturating_sub(2 + extra + (list_start_y - area.y)),
         ..area
     };
 
-    let list_items: Vec<ListItem> = items
+    let list_items: Vec<ListItem> = list_items_slice
         .iter()
         .map(|item| ListItem::new(Span::raw(*item)).style(Style::default()))
         .collect();
@@ -771,11 +848,10 @@ fn draw_select_list_with_info(
     let list = List::new(list_items)
         .highlight_style(
             Style::default()
-                .bg(Color::Cyan)
-                .fg(Color::Black)
+                .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD),
         )
-        .highlight_symbol(" ")
+        .highlight_symbol("► ")
         .repeat_highlight_symbol(true);
 
     f.render_stateful_widget(list, list_area, state);
@@ -869,7 +945,7 @@ fn draw_select_list_pip(f: &mut Frame, area: Rect, items: &[&str], state: &mut L
     let list = List::new(list_items)
         .highlight_style(
             Style::default()
-                .fg(Color::White)
+                .fg(Color::Yellow)
                 .add_modifier(Modifier::BOLD),
         )
         .highlight_symbol("► ")
@@ -1003,7 +1079,7 @@ pub fn draw_picker_split(
         );
     }
 
-    draw_status_bar(f, chunks[3], app);
+    draw_status_bar(f, chunks[4], app);
 }
 
 /// Render the status bar at the bottom of the screen.
