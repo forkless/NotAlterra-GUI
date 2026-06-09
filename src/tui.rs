@@ -595,7 +595,7 @@ pub fn draw_picker(
     state: &mut ListState,
     pinned_header: bool,
 ) {
-    draw_picker_with_info(f, app, items, descs, state, None, pinned_header);
+    draw_picker_with_info(f, app, items, descs, state, pinned_header);
 }
 
 /// Draw a file/folder picker list with an extra selected-item info line
@@ -607,14 +607,13 @@ pub fn draw_picker_with_info(
     items: &[&str],
     descs: &[&str],
     state: &mut ListState,
-    selected_info: Option<&str>,
     pinned_header: bool,
 ) {
     let chunks = standard_layout(f.area(), items.len());
     draw_header(f, chunks[0], app);
 
     let prompt = "↑/↓ navigate | Enter select | Esc cancel";
-    draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, selected_info, pinned_header);
+    draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, pinned_header);
     draw_status_bar(f, chunks[4], app);
 }
 
@@ -807,7 +806,7 @@ fn draw_select_list(
     }
 }
 
-/// Render a picker list with an extra selected-item info line.
+/// Render a picker list with description and prompt.
 fn draw_select_list_with_info(
     f: &mut Frame,
     area: Rect,
@@ -815,11 +814,8 @@ fn draw_select_list_with_info(
     descs: &[&str],
     prompt: &str,
     state: &mut ListState,
-    selected_info: Option<&str>,
     pinned_header: bool,
 ) {
-    let extra = if selected_info.is_some() { 1u16 } else { 0u16 };
-
     // If pinned_header is set, items[0] (header) and items[1] (blank spacer)
     // render as fixed rows above the scrollable list. items[2..] form the list.
     let (list_start_y, list_items_slice): (u16, &[&str]) = if pinned_header && !items.is_empty() {
@@ -836,7 +832,7 @@ fn draw_select_list_with_info(
 
     let list_area = Rect {
         y: list_start_y,
-        height: area.height.saturating_sub(2 + extra + (list_start_y - area.y)),
+        height: area.height.saturating_sub(2 + (list_start_y - area.y)),
         ..area
     };
 
@@ -857,7 +853,7 @@ fn draw_select_list_with_info(
     f.render_stateful_widget(list, list_area, state);
 
     // Description line for the highlighted item
-    let base_y = area.y + area.height.saturating_sub(1 + extra);
+    let base_y = area.y + area.height.saturating_sub(1);
     let desc_idx = state
         .selected()
         .unwrap_or(0)
@@ -878,24 +874,6 @@ fn draw_select_list_with_info(
         },
     );
 
-    // Selected-item info line (e.g. filename)
-    if let Some(info) = selected_info {
-        let info_line = Paragraph::new(Span::styled(
-            format!("  → {info}"),
-            Style::default().fg(Color::White),
-        ));
-        f.render_widget(
-            info_line,
-            Rect {
-                x: area.x,
-                y: base_y + 1,
-                width: area.width,
-                height: 1,
-            },
-        );
-    }
-
-    // Prompt at bottom-right
     let prompt_len = prompt.len() as u16;
     if area.width > prompt_len + 2 {
         let prompt_p = Paragraph::new(Span::styled(prompt, Style::default().fg(Color::DarkGray)))

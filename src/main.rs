@@ -1387,7 +1387,6 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
     loop {
         let i = state.selected().unwrap_or(2).max(2);
         state.select(Some(i));
-        let selected_info = filenames.get(i.saturating_sub(2)).map(|s| s.as_str());
         terminal.draw(|f| {
             tui::draw_picker_with_info(
                 f,
@@ -1395,7 +1394,6 @@ fn action_inspect_saves<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -
                 &item_refs,
                 &desc_refs,
                 &mut state,
-                selected_info,
                 false,
             );
         })?;
