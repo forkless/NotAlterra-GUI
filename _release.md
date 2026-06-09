@@ -6,10 +6,13 @@ extract, and run.
 
 ### What's new in v0.4.1
 
-• Log migration — existing `transaction.log` is moved into `logs/` on first launch
-• Backup directory structure scaffolded at startup (`backups/saves/`, `backups/config/`, `logs/`)
-• `ensure_dir()` helper for consistent directory creation
-• All migration paths integrated into startup (config.ini, backups, log)
+• Persistent `app.ini` config — save folder and backup location survive sessions
+• Split-layout backup picker with inline GVAS metadata preview
+• `►` pip highlight replaces background bar on all menus
+• Set backup location menu entry (defaults to `~/NotAlterra/`)
+• Security disclosure pipeline: SECURITY.md safe harbor, CVE template, bug report template, PR template
+• Config moved to platform-standard directory (`AppData/Local` on Windows)
+• UE5 ini backups stored in `backups/ue5/` under the backup root
 
 ### What's new in v0.4.0
 

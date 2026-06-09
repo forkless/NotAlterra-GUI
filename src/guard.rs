@@ -24,18 +24,6 @@ pub fn game_running() -> bool {
     // Close Subnautica 2 manually before using NotAlterra.
     false
 }
-#[allow(dead_code)]
-/// Check if Subnautica 2 is running via tasklist (Windows). Dormant.
-fn _game_running_windows() -> bool {
-    let out = std::process::Command::new("tasklist")
-        .args(["/FI", "IMAGENAME eq Subnautica2.exe", "/NH"])
-        .output();
-    match out {
-        Ok(o) => String::from_utf8_lossy(&o.stdout).contains("Subnautica2.exe"),
-        Err(_) => false,
-    }
-}
-
 /// Check if Subnautica 2 is currently running (Linux).
 ///
 /// Always returns `false` — process detection via `pgrep` is disabled to
@@ -100,10 +88,13 @@ pub fn migrate_old_log() -> bool {
     true
 }
 
-/// Path to `transaction.log` inside the `logs/` directory.  All timestamped
-/// actions are appended here for audit trail purposes.
+/// Path to `transaction.log` inside the `logs/` directory under the
+/// platform config root.  All timestamped actions are appended here for
+/// audit trail purposes.
 pub fn log_path() -> PathBuf {
-    let p = exe_dir().join("logs").join("transaction.log");
+    let p = dirs::data_local_dir()
+        .map(|d| d.join("NotAlterra").join("logs").join("transaction.log"))
+        .unwrap_or_else(|| exe_dir().join("logs").join("transaction.log"));
     if let Some(parent) = p.parent() {
         std::fs::create_dir_all(parent).ok();
     }

@@ -78,22 +78,28 @@ impl Default for AppState {
 /// Draw the main menu.
 pub fn draw_main_menu(f: &mut Frame, state: &mut ListState, app: &AppState) {
     let items: Vec<&str> = vec![
-        "  Set save folder",
+        "  Set Subnautica 2 location",
         "  Recover save file",
+        "",
+        "  Set backup location",
         "  Create full backup",
         "  Restore full backup",
-        "  Inspect save files",
+        "",
         "  Manage UE5 Config (.ini) files",
+        "",
         "  View disclaimer",
         "  Exit",
     ];
     let descs: Vec<&str> = vec![
-        "Enter your save folder path manually",
+        "Enter your Subnautica 2 save folder path (paste supported)",
         "Restore a save file from a backup",
+        "",
+        "Choose where backup archives are stored (default: next to the binary)",
         "Copy the savegame files to NotAlterra_Backups",
         "Restore a full backup from NotAlterra_Backups",
-        "View detailed GVAS metadata for each save file",
+        "",
         "Backup, restore, or delete .ini files in Config/Windows",
+        "",
         "Re-read the disclaimer and terms of use",
         "Close NotAlterra",
     ];
@@ -337,7 +343,7 @@ pub fn draw_picker_with_info(
     let chunks = standard_layout(f.area(), items.len());
     draw_header(f, chunks[0], app);
 
-    let prompt = "↑/↓ navigate  Enter select  Esc cancel";
+    let prompt = "↑/↓ navigate | Enter select | Esc cancel";
     draw_select_list_with_info(f, chunks[2], items, descs, prompt, state, selected_info);
     draw_status_bar(f, chunks[3], app);
 }
@@ -447,11 +453,10 @@ fn draw_select_list(
     let list = List::new(list_items)
         .highlight_style(
             Style::default()
-                .bg(Color::Cyan)
-                .fg(Color::Black)
+                .fg(Color::White)
                 .add_modifier(Modifier::BOLD),
         )
-        .highlight_symbol(" ")
+        .highlight_symbol("► ")
         .repeat_highlight_symbol(true);
 
     f.render_stateful_widget(list, list_area, state);
@@ -584,6 +589,157 @@ fn draw_select_list_with_info(
             },
         );
     }
+}
+
+// ── pip-list renderer (for split-layout file picker) ─────────────────────
+
+/// Render a compact pip-list without description line or prompt.
+/// The pip (►) replaces the full-row background highlight.
+fn draw_select_list_pip(
+    f: &mut Frame,
+    area: Rect,
+    items: &[&str],
+    state: &mut ListState,
+) {
+    if area.height < 2 || area.width < 10 { return; }
+
+    let dim_val = Style::default().fg(Color::Rgb(160, 160, 160));
+
+    let list_items: Vec<ListItem> = items
+        .iter()
+        .enumerate()
+        .map(|(i, item)| {
+            let style = if i == 0 {
+                // Header row — match right pane header color
+                Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD)
+            } else if i >= 2 {
+                // Data rows — match right pane value color
+                dim_val
+            } else {
+                Style::default()
+            };
+            ListItem::new(Span::raw(*item)).style(style)
+        })
+        .collect();
+
+    let list = List::new(list_items)
+        .highlight_style(
+            Style::default()
+                .fg(Color::White)
+                .add_modifier(Modifier::BOLD),
+        )
+        .highlight_symbol("► ")
+        .repeat_highlight_symbol(true);
+
+    f.render_stateful_widget(list, area, state);
+}
+
+// ── right-pane metadata panel ────────────────────────────────────────────
+
+/// Render the right-hand metadata pane in the split file picker.
+/// Shows the filename header, a dim separator, then the provided content lines.
+/// When `meta_lines` is empty, shows a placeholder message.
+fn draw_right_pane(
+    f: &mut Frame,
+    area: Rect,
+    filename: &str,
+    meta_lines: &[Line],
+) {
+    if area.height < 3 || area.width < 10 { return; }
+
+    let dim = Style::default().fg(Color::Rgb(160, 160, 160));
+
+    // Filename header
+    let mut y = area.y;
+    let fname = if filename.len() as u16 > area.width.saturating_sub(2) {
+        format!("{}…", &filename[..area.width.saturating_sub(3).max(1) as usize])
+    } else {
+        filename.to_string()
+    };
+    f.render_widget(
+        Paragraph::new(Span::styled(&fname, Style::default().fg(Color::Cyan).add_modifier(Modifier::BOLD))),
+        Rect { x: area.x + 1, y, width: area.width.saturating_sub(2), height: 1 },
+    );
+    y += 2;
+
+    if meta_lines.is_empty() {
+        // Placeholder
+        let msg = if filename.is_empty() {
+            Span::styled("select a file", dim)
+        } else {
+            Span::styled("select to load metadata", dim)
+        };
+        f.render_widget(
+            Paragraph::new(msg),
+            Rect { x: area.x + 1, y, width: area.width.saturating_sub(2), height: 1 },
+        );
+        return;
+    }
+
+    // Content lines
+    let max_lines = area.height.saturating_sub(2) as usize;
+    for (i, line) in meta_lines.iter().enumerate().take(max_lines) {
+        f.render_widget(
+            Paragraph::new(line.clone()),
+            Rect { x: area.x + 1, y: y + i as u16, width: area.width.saturating_sub(2), height: 1 },
+        );
+    }
+}
+
+// ── split-layout picker entry point ──────────────────────────────────────
+
+/// Draw the file picker with a horizontal split: pip-style file list on the
+/// left, live metadata preview on the right.  Used by the .bak recover flow.
+pub fn draw_picker_split(
+    f: &mut Frame,
+    app: &AppState,
+    items: &[&str],
+    _descs: &[&str],
+    state: &mut ListState,
+    selected_info: Option<&str>,
+    meta_lines: &[Line],
+) {
+    let chunks = standard_layout(f.area(), items.len());
+    draw_header(f, chunks[0], app);
+
+    let menu_area = chunks[2];
+    let prompt = "↑/↓ navigate | Enter select | Esc cancel";
+
+    // Reserve bottom row of menu area for the prompt
+    let prompt_y = menu_area.y + menu_area.height.saturating_sub(1);
+    let content_area = Rect {
+        height: menu_area.height.saturating_sub(1),
+        ..menu_area
+    };
+
+    // Split content into left (60%) and right (40%)
+    let halves = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([Constraint::Percentage(60), Constraint::Percentage(40)])
+        .split(content_area);
+
+    // Left: pip list (full height of content area)
+    draw_select_list_pip(f, halves[0], items, state);
+
+    // Right: metadata pane
+    draw_right_pane(f, halves[1], selected_info.unwrap_or(""), meta_lines);
+
+    // Prompt at bottom-right of the full menu area
+    let prompt_len = prompt.len() as u16;
+    if menu_area.width > prompt_len + 2 {
+        f.render_widget(
+            Paragraph::new(Span::styled(prompt, Style::default().fg(Color::DarkGray)))
+                .alignment(Alignment::Right),
+            Rect {
+                x: menu_area.x,
+                y: prompt_y,
+                width: menu_area.width.saturating_sub(2),
+                height: 1,
+            },
+        );
+    }
+
+    draw_status_bar(f, chunks[3], app);
 }
 
 /// Render the status bar at the bottom of the screen.

@@ -4,6 +4,58 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.4.1] — 2026-06-09
+
+### Added
+- **Split-layout backup picker** — pip (`►`) highlight replaces background bar,
+  right pane shows live GVAS metadata for the selected backup (loads on
+  highlight, cached per file)
+- **Persistent config** (`app.ini`) — save-folder and backup-root paths now
+  survive sessions, stored under `data_local_dir/NotAlterra/config/`
+- **Set backup location** menu entry — choose where save and UE5 backup
+  archives are stored; defaults to `~/NotAlterra`
+- **Blank separator lines** in menus — visual grouping, auto-skipped on
+  navigation
+- **`docs/CVE_TEMPLATE.md`** — structured vulnerability disclosure template
+- **`docs/BUG_REPORT_TEMPLATE.md`** — user-facing bug report reference with
+  privacy warnings
+- **`.github/PULL_REQUEST_TEMPLATE.md`** — PR checklist matching CI gates
+- **Safe harbor clause** in `SECURITY.md` — legal protection for good-faith
+  security researchers
+
+### Changed
+- **File picker layout** — horizontal 60/40 split: file list on left,
+  metadata preview on right. Slot, Description, Date columns only
+- **Main menu pip highlight** — `►` replaces full-row cyan background
+  (legacy highlight code retained for other pickers)
+- **Config directory** — `app.ini` and sentinel moved from `exe_dir/` to
+  `data_local_dir/NotAlterra/config/` (platform-standard)
+- **Logs directory** — `transaction.log` moved from `exe_dir/logs/` to
+  `data_local_dir/NotAlterra/logs/`
+- **UE5 ini backups** — stored in `backups/ue5/` under the backup root
+  instead of `backups/config/`
+- **Menu labels** — "Set save folder" renamed to "Set Subnautica 2 location",
+  descriptions updated
+- **Local builds** — compiled with `cargo build` for both Linux and Windows
+  targets
+
+### Removed
+- **"Inspect save files" menu entry** — metadata is now visible inline in
+  the backup picker right pane. `action_inspect_saves()` code retained.
+- **`i` key handler** in backup picker — redundant with live metadata pane
+- **Outdated privacy claims** — docs no longer state "no data stored" or
+  "session-only"; now accurately describe `app.ini` persistence
+
+### Security
+- **GitHub Private Vulnerability Reporting** as primary disclosure channel,
+  email as fallback
+- **Safe harbor** — explicit no-litigation commitment for good-faith
+  reporters following the disclosure policy
+- **CVSS v4 scoring** documented in Dependabot advisory for `lru`
+  transitive dependency (low severity, not actionable)
+- All paths in `app.ini` documented as potentially containing the system
+  username — plain text, never transmitted
+
 ## [v0.4.0] — 2026-06-03
 
 ### Added

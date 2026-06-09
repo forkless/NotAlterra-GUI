@@ -95,11 +95,6 @@ impl App {
         })
     }
 
-    /// Returns the backup root directory alongside the binary.
-    fn _backup_root(&self) -> PathBuf {
-        exe_dir().join("NotAlterra_Backups")
-    }
-
     /// Set the status bar message with optional style.
     fn set_status(&mut self, msg: &str, style: tui::StatusStyle) {
         self.tui_state.status_message = Some(msg.to_string());
@@ -196,6 +191,22 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
         }
     }
 
+    // Load persistent app config — may override quick_discover
+    let app_cfg = crate::config::load_app_config();
+    if let Some(sf) = app_cfg.save_folder {
+        let p = PathBuf::from(&sf);
+        if p.exists() {
+            app.save_folder = Some(p);
+            refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
+        }
+    }
+    if let Some(br) = app_cfg.backup_root {
+        let p = PathBuf::from(&br);
+        if p.exists() {
+            crate::config::set_backup_root(p);
+        }
+    }
+
     // Disclaimer flow
     if !crate::config::disclaimer_accepted() {
         match run_disclaimer(terminal, &mut app)? {
@@ -218,34 +229,43 @@ fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<()> {
             tui::draw_main_menu(f, &mut menu_state, &app.tui_state);
         })?;
 
-        let max_idx = 7usize;
+        const SKIP: &[usize] = &[2, 6, 8];
+        let max_idx = 10usize;
         if event::poll(std::time::Duration::from_millis(250))? {
             if let Event::Key(key) = event::read()? {
                 if key.kind == KeyEventKind::Release { continue; }
             match key.code {
                 KeyCode::Up => {
-                    let i = menu_state.selected().unwrap_or(0);
-                    menu_state.select(Some(i.saturating_sub(1)));
+                    let mut i = menu_state.selected().unwrap_or(1);
+                    loop {
+                        i = i.saturating_sub(1);
+                        if !SKIP.contains(&i) || i == 0 { break; }
+                    }
+                    menu_state.select(Some(i));
                 }
                 KeyCode::Down => {
-                    let i = menu_state.selected().unwrap_or(0);
-                    menu_state.select(Some((i + 1).min(max_idx)));
+                    let mut i = menu_state.selected().unwrap_or(0);
+                    loop {
+                        i = (i + 1).min(max_idx);
+                        if !SKIP.contains(&i) || i == max_idx { break; }
+                    }
+                    menu_state.select(Some(i));
                 }
                 KeyCode::Enter => {
                     let idx = menu_state.selected().unwrap_or(0);
                     match idx {
                         0 => action_set_save_folder(terminal, &mut app)?,
                         1 => action_recover_bak(terminal, &mut app)?,
-                        2 => action_create_backup(terminal, &mut app)?,
-                        3 => action_restore_backup(terminal, &mut app)?,
-                        4 => action_inspect_saves(terminal, &mut app)?,
-                        5 => run_ini_submenu(terminal, &mut app)?,
-                        6 => {
+                        3 => action_set_backup_location(terminal, &mut app)?,
+                        4 => action_create_backup(terminal, &mut app)?,
+                        5 => action_restore_backup(terminal, &mut app)?,
+                        7 => run_ini_submenu(terminal, &mut app)?,
+                        9 => {
                             if let Some(false) = run_disclaimer(terminal, &mut app)? {
                                 return Ok(());
                             }
                         }
-                        7 => return Ok(()), // Exit
+                        10 => return Ok(()), // Exit
                         _ => {}
                     }
                     app.clear_status();
@@ -335,6 +355,10 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
                                 if let Some(path) = candidate {
                                     app.save_folder = Some(path.clone());
                                     refresh_stats(&mut app.tui_state, app.save_folder.as_deref());
+                                    crate::config::save_app_config(
+                                        Some(&sanitized),
+                                        Some(&crate::config::get_backup_root().to_string_lossy()),
+                                    );
                                     let msg = format!("Save folder set to {}", path.display());
                                     app.set_status(&msg, tui::StatusStyle::Success);
                                     input_state.confirmed = true;
@@ -355,6 +379,83 @@ fn action_set_save_folder<B: Backend>(terminal: &mut Terminal<B>, app: &mut App)
                                 }
                             }
                             // Cancel was selected
+                            input_state.cancelled = true;
+                            return Ok(());
+                        }
+                        KeyCode::Char(c) if ok_selected => {
+                            input_state.insert(c);
+                        }
+                        KeyCode::Backspace if ok_selected => {
+                            input_state.backspace();
+                        }
+                        KeyCode::Delete if ok_selected => {
+                            input_state.delete();
+                        }
+                        KeyCode::Left if ok_selected => {
+                            input_state.cursor_left();
+                        }
+                        KeyCode::Right if ok_selected => {
+                            input_state.cursor_right();
+                        }
+                        KeyCode::Tab => {
+                            ok_selected = !ok_selected;
+                        }
+                        KeyCode::Esc => {
+                            input_state.cancelled = true;
+                            return Ok(());
+                        }
+                        _ => {}
+                    }
+                }
+                Event::Paste(s) if ok_selected => {
+                    input_state.insert_str(&s);
+                }
+                _ => {}
+            }
+        }
+    }
+}
+
+/// Open the input dialog for the user to set a custom backup location.
+/// Pre-fills with the default `home_dir/NotAlterra` path for easy editing.
+fn action_set_backup_location<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<()> {
+    let default = dirs::home_dir()
+        .map(|h| h.join("NotAlterra"))
+        .unwrap_or_else(|| crate::config::exe_dir());
+    let mut input_state = tui::InputDialogState::new(
+        "Enter the path for storing backup archives:",
+    );
+    input_state.input = default.to_string_lossy().to_string();
+    input_state.cursor = input_state.input.len();
+    let mut ok_selected = true;
+
+    loop {
+        terminal.draw(|f| {
+            tui::draw_input_dialog(f, &app.tui_state, &input_state, ok_selected);
+        })?;
+
+        if crossterm::event::poll(std::time::Duration::from_millis(250))? {
+            match crossterm::event::read()? {
+                Event::Key(key) => {
+                    if key.kind == KeyEventKind::Release { continue; }
+                    match key.code {
+                        KeyCode::Enter => {
+                            if ok_selected && !input_state.input.is_empty() {
+                                let sanitized: String = input_state.input.chars()
+                                    .filter(|c| !c.is_control())
+                                    .collect();
+                                let path = std::path::PathBuf::from(&sanitized);
+                                crate::config::set_backup_root(path.clone());
+                                let save_str = app.save_folder.as_ref().map(|p| p.to_string_lossy().to_string());
+                                crate::config::save_app_config(
+                                    save_str.as_deref(),
+                                    Some(&sanitized),
+                                );
+                                let msg = format!("Backup location set to {}", path.display());
+                                app.set_status(&msg, tui::StatusStyle::Success);
+                                input_state.confirmed = true;
+                                return Ok(());
+                            }
                             input_state.cancelled = true;
                             return Ok(());
                         }
@@ -424,8 +525,8 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
     // Build multi-column display with slot grouping.
     // First entry in each slot gets a numbered label matching the savegame slot.
     let mut labelled: std::collections::HashSet<String> = std::collections::HashSet::new();
-    let header = format!(" {:<8}  {:<16}  {:<14}  {:<8}  {:>6}  {}",
-        "Slot", "Description", "Game Type", "Playtime", "Size", "Date");
+    let header = format!(" {:<8}  {:<24}  {}",
+        "Slot", "Description", "Date");
     let mut items: Vec<String> = vec![header, String::new()];
     items.extend(bak_summaries
         .iter()
@@ -440,15 +541,10 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
                 name.to_string()
             };
             let date = s.mtime.as_deref().unwrap_or("?");
-            let save_type = if s.is_online { "Multiplayer" } else { "Single Player" };
-            let playtime = format_playtime(s.playtime_seconds);
             format!(
-                " {:<8}  {:<16}  {:<14}  {:<8}  {:>6}  {}",
+                " {:<8}  {:<24}  {}",
                 label_col,
                 name_col,
-                save_type,
-                playtime,
-                format_size(s.size),
                 date,
             )
         })
@@ -467,19 +563,86 @@ fn action_recover_bak<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> 
     let desc_refs: Vec<&str> = descs.iter().map(|s| s.as_str()).collect();
     let mut state = ListState::default().with_selected(Some(2)); // skip header + blank
 
+    // Lazily-loaded full metadata cache — loaded on first highlight
+    let mut full_metas: Vec<Option<crate::gvas::FullMetadata>> = vec![None; bak_summaries.len()];
+
+    /// Load metadata for index `idx` if not already cached.
+    fn ensure_meta(
+        idx: usize,
+        bak: &[ops::BakFileSummary],
+        cache: &mut Vec<Option<crate::gvas::FullMetadata>>,
+    ) {
+        if idx < cache.len() && cache[idx].is_none() {
+            cache[idx] = crate::gvas::extract_full_metadata(&bak[idx].path).ok();
+        }
+    }
+
+    /// Build right-pane display lines from cached metadata.
+    fn build_meta_lines<'a>(
+        meta: Option<&'a crate::gvas::FullMetadata>,
+        summary: &ops::BakFileSummary,
+    ) -> Vec<Line<'a>> {
+        let dim = Style::default().fg(Color::Rgb(160, 160, 160));
+
+        let Some(m) = meta else {
+            return Vec::new();
+        };
+
+        let pt = m.playtime_seconds.or(summary.playtime_seconds);
+        let playtime = format_playtime(pt);
+        let fields: Vec<(&str, String)> = vec![
+            ("Slot", m.slot_name.as_deref().unwrap_or(&summary.slot).to_string()),
+            ("Name", m.display_name.as_deref().unwrap_or("(unnamed)").to_string()),
+            ("Playtime", playtime),
+            ("Game Type", m.game_mode.as_deref().unwrap_or("?").to_string()),
+            ("Mode", if m.is_online { "Multiplayer".into() } else { "Single Player".into() }),
+            ("Was Multi", if m.was_multiplayer { "Yes".into() } else { "No".into() }),
+            ("Branch", m.build_branch.as_deref().unwrap_or("?").to_string()),
+            ("Build", m.build_number.map_or("?".into(), |n| n.to_string())),
+        ];
+        let max_label: usize = fields.iter().map(|(k, _)| k.len()).max().unwrap_or(6);
+        fields
+            .into_iter()
+            .map(|(k, v)| {
+                let padded_label = format!("{:<max_label$}", k);
+                Line::from(vec![
+                    Span::styled(padded_label, Style::default().fg(Color::White)),
+                    Span::raw("  "),
+                    Span::styled(v, dim),
+                ])
+            })
+            .collect()
+    }
+
     loop {
         let i = state.selected().unwrap_or(2).max(2);
         state.select(Some(i));
-        let selected_info = filenames.get(i.saturating_sub(2)).map(|s| s.as_str());
+        let sel_idx = i.saturating_sub(2);
+        let selected_info = filenames.get(sel_idx).map(|s| s.as_str());
+        let meta_header = selected_info.map(|f| format!("Details for {}", f));
+
+        // Lazy-load metadata on highlight
+        if sel_idx < bak_summaries.len() {
+            ensure_meta(sel_idx, &bak_summaries, &mut full_metas);
+        }
+        let meta = full_metas.get(sel_idx).and_then(|m| m.as_ref());
+        let meta_lines = if let Some(m) = meta {
+            build_meta_lines(Some(m), &bak_summaries[sel_idx])
+        } else if sel_idx < bak_summaries.len() {
+            Vec::new()
+        } else {
+            Vec::new()
+        };
 
         terminal.draw(|f| {
-            tui::draw_picker_with_info(
+            tui::draw_picker_split(
                 f,
                 &app.tui_state,
                 &item_refs,
                 &desc_refs,
                 &mut state,
-                selected_info,
+                meta_header.as_deref(),
+                &meta_lines,
             );
         })?;
         if let Some(key) = poll_key(250)? {
@@ -715,15 +878,19 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
         "Backup .ini files",
         "Restore .ini files from backup",
         "Delete .ini files (requires backup)",
+        "",
         "Back",
     ];
     let descs: Vec<&str> = vec![
         "Copy all .ini files from Config/Windows to NotAlterra_Backups",
         "Restore .ini files from a previous backup",
         "Remove .ini files — game regenerates defaults (backup required first)",
+        "",
         "Return to main menu",
     ];
     let mut state = ListState::default().with_selected(Some(0));
+    const INI_SKIP: &[usize] = &[3];
+    let ini_max = 4usize;
 
     loop {
         terminal.draw(|f| {
@@ -732,12 +899,20 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
         if let Some(key) = poll_key(250)? {
                 match key.code {
                 KeyCode::Up => {
-                    let i = state.selected().unwrap_or(0);
-                    state.select(Some(i.saturating_sub(1)));
+                    let mut i = state.selected().unwrap_or(1);
+                    loop {
+                        i = i.saturating_sub(1);
+                        if !INI_SKIP.contains(&i) || i == 0 { break; }
+                    }
+                    state.select(Some(i));
                 }
                 KeyCode::Down => {
-                    let i = state.selected().unwrap_or(0);
-                    state.select(Some((i + 1).min(3)));
+                    let mut i = state.selected().unwrap_or(0);
+                    loop {
+                        i = (i + 1).min(ini_max);
+                        if !INI_SKIP.contains(&i) || i == ini_max { break; }
+                    }
+                    state.select(Some(i));
                 }
                 KeyCode::Enter => {
                     let idx = state.selected().unwrap_or(0);
@@ -745,7 +920,7 @@ fn run_ini_submenu<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Res
                         0 => ini_backup_action(terminal, app, &ini_path)?,
                         1 => ini_restore_action(terminal, app, &ini_path)?,
                         2 => ini_delete_action(terminal, app, &ini_path)?,
-                        3 => break,
+                        4 => break,
                         _ => {}
                     }
                 }

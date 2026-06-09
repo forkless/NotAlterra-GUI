@@ -88,10 +88,9 @@ path manually (paste is supported). The menu is keyboard-driven:
 2. **Recover save file** — pick a backup, preview metadata, overwrite the live save
 3. **Create full backup** — copies all `savegame_*` files to `NotAlterra_Backups`
 4. **Restore full backup** — overwrite the save folder from a previous backup
-5. **Inspect save files** — view all GVAS properties of any `.sav` / `.bak`
-6. **Manage UE5 Config (.ini) files** — backup, restore, or delete `.ini` files
-7. **View disclaimer**
-8. **Exit**
+5. **Manage UE5 Config (.ini) files** — backup, restore, or delete `.ini` files
+6. **View disclaimer**
+7. **Exit**
 
 
 ## Where Files Live
@@ -114,22 +113,42 @@ path manually (paste is supported). The menu is keyboard-driven:
     ...
 ```
 
-Use **Set save folder** from the menu to enter your save path (paste is
-supported). The path exists only in memory for the current session —
-re-enter it the next time you run the tool.
-
-Backups are stored in `NotAlterra_Backups\` alongside the binary.
-
+Use **Set Subnautica 2 location** from the menu to enter your save path
+(paste supported). The path is persisted to `app.ini` and restored on
+next launch.
 
 ## Session Persistence
 
-No configuration file is written to disk. The save folder path exists only
-in memory for the current session — set it each time via **Set save folder**
-from the main menu (paste is supported).
+Configuration is stored in the standard platform config directory:
 
-The disclaimer acceptance is tracked via a 0-byte sentinel file
-(`NotAlterra_LICENSE_ACCEPTED`) alongside the binary. Delete this file to
-re-prompt the disclaimer on next launch.
+| Platform | Config path |
+|---|---|
+| Windows | `%LOCALAPPDATA%\NotAlterra\config\app.ini` |
+| Linux | `~/.local/share/NotAlterra/config/app.ini` |
+
+The `app.ini` file stores your save-folder path, backup location, and
+disclaimer acceptance. It is auto-created when you first set any of
+these options. Delete `NOTALTERRA_LICENSE_ACCEPTED` in the same directory
+to re-prompt the disclaimer on next launch.
+
+> **Privacy note**: `app.ini` stores your save-folder and backup paths —
+> the minimum needed to avoid re-entering them each session. These paths
+> may reveal your system username (e.g. `C:\Users\jane\...`). The
+> information never leaves your machine — NotAlterra has no network
+> access and no telemetry. The file is plain text; you can inspect or
+> delete it at any time.
+
+Backup archives are stored in your user data directory by default:
+
+| Platform | Backup root |
+|---|---|
+| Windows | `C:\Users\<you>\NotAlterra\backups\saves\` |
+| Linux | `~/NotAlterra/backups/saves/` |
+
+UE5 Config `.ini` backups go into `backups/ue5/` under the same root.
+
+You can change the backup root at any time via **Set backup location**
+in the main menu. The path is persisted in `app.ini`.
 
 
 ## Platform Support
