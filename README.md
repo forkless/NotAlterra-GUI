@@ -164,18 +164,19 @@ in the main menu. The path is persisted in `app.ini`.
 NotAlterra creates two kinds of save backups. The label in the restore
 picker tells you which is which.
 
-| Label | How it's created |
-|---|---|
-| `Full Backup — <date>` | Manually via **Create full backup** in the main menu. |
-| `Pre-restore — <date>` | Automatically when you use **Restore full backup**. |
+| Label | How it's created | Purpose |
+|---|---|---|
+| `Full Backup — <date>` | **Manual** — via **Create full backup** in the main menu. | Your own snapshot of the save folder. Create one before trying something risky. |
+| `Pre-restore — <date>` | **Automatic** — created just before a **Restore full backup** operation. | Safety net — ensures your current saves are never lost when restoring an older backup. |
 
 When you use **Restore full backup**, NotAlterra automatically takes a
-safety snapshot of your current saves **before** it does anything. This is
-called a **Pre-restore** backup.
+safety snapshot of your current saves **before** it does anything. This
+**Pre-restore** backup is not a replacement for manual backups — it is an
+automated safety net in case the restore doesn't go as expected.
 
-If the restore doesn't go as expected, your old saves haven't disappeared —
-they're right there in the restore picker labeled `Pre-restore — <date>`.
-You can restore from that snapshot just like any other backup.
+If the restore goes wrong, your old saves are still there in the restore
+picker labeled `Pre-restore — <date>`. You can restore from that snapshot
+just like any other backup.
 
 Pre-restore snapshots are never deleted automatically. Once you're happy
 with the restore, you can delete them manually from the file system.
