@@ -64,5 +64,5 @@ Only the latest release receives security patches.
 
 | Version | Supported |
 |---|---|
-| Latest (v0.4.x) | Yes |
+| Latest | Yes |
 | Older | No |
