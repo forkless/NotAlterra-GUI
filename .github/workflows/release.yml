@@ -69,8 +69,10 @@ jobs:
       - name: Generate hashes
         id: hash
         run: |
+          set -e
           cd builds
-          echo "hashes=$(sha256sum * | base64 -w0)" >> "$GITHUB_OUTPUT"
+          hashes=$(sha256sum * | base64 -w0)
+          echo "hashes=$hashes" >> "$GITHUB_OUTPUT"
       - name: Upload binaries as artifacts
         uses: actions/upload-artifact@v4
         with:
