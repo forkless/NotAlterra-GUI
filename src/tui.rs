@@ -221,7 +221,7 @@ pub fn draw_disclaimer_popup(f: &mut Frame, app: &AppState, selected_yes: bool) 
     );
 }
 
-/// Draw a simple confirmation popup with [ Yes ] [ No ] buttons.
+/// Draw a simple confirmation popup with \[ Yes \] \[ No \] buttons.
 pub fn draw_confirm_popup(
     f: &mut Frame,
     app: &AppState,
@@ -586,7 +586,7 @@ pub fn draw_text_screen(f: &mut Frame, app: &AppState, lines: &[Line], prompt: &
 }
 
 /// Draw a file/folder picker list.
-/// `pinned_header` renders items[0] as a fixed header above the scrollable list.
+/// `pinned_header` renders items\[0\] as a fixed header above the scrollable list.
 pub fn draw_picker(
     f: &mut Frame,
     app: &AppState,
@@ -600,7 +600,7 @@ pub fn draw_picker(
 
 /// Draw a file/folder picker list with an extra selected-item info line
 /// (e.g. showing the full filename of the highlighted .bak file).
-/// `pinned_header` renders items[0] as a fixed header above the scrollable list.
+/// `pinned_header` renders items\[0\] as a fixed header above the scrollable list.
 pub fn draw_picker_with_info(
     f: &mut Frame,
     app: &AppState,
