@@ -85,20 +85,8 @@ jobs:
           name: release-binaries
           path: builds/
 
-  provenance:
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      id-token: write
-      contents: write
-      actions: read
-    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
-    with:
-      base64-subjects: "${{ needs.build.outputs.hashes }}"
-      upload-assets: false
-
   release:
-    needs: [build, provenance]
+    needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
@@ -111,19 +99,21 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: builds/
-      - name: Verify SLSA provenance
-        run: |
-          for file in builds/*/*.tar.gz builds/*/*.zip builds/*/*.cdx.json; do
-            [ -f "$file" ] || continue
-            slsa-verifier verify-artifact \
-              --provenance-path builds/*/*.intoto.jsonl \
-              --source-uri github.com/forkless/NotAlterra \
-              --source-tag "${{ github.ref_name }}" \
-              "$file"
-          done
       - name: Create draft release
         uses: softprops/action-gh-release@v2
         with:
           files: builds/*/*
           body_path: _release.md
           draft: true
+
+  provenance:
+    needs: [build, release]
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      id-token: write
+      contents: write
+      actions: read
+    uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v2.0.0
+    with:
+      base64-subjects: "${{ needs.build.outputs.hashes }}"
+      upload-assets: true
