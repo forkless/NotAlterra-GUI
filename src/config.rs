@@ -50,6 +50,15 @@ pub fn accept_disclaimer() -> std::io::Result<()> {
     Ok(())
 }
 
+/// Remove the disclaimer sentinel if it exists.
+pub fn reject_disclaimer() -> std::io::Result<()> {
+    let p = sentinel_path();
+    if p.exists() {
+        std::fs::remove_file(p)?;
+    }
+    Ok(())
+}
+
 /// Path to the stale `config.ini` from v0.3.0 and earlier.
 pub fn stale_config_path() -> PathBuf {
     exe_dir().join("config.ini")

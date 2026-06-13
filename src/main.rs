@@ -349,6 +349,7 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
                 }
                 KeyCode::Char('n') | KeyCode::Char('N') => {
                     guard::log_action("LICENSE", "declined", "OK", &app.log_path)?;
+                    crate::config::reject_disclaimer()?;
                     return Ok(Some(false));
                 }
                 KeyCode::Esc => {
@@ -360,6 +361,8 @@ fn run_disclaimer<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Resu
                     guard::log_action("LICENSE", detail, "OK", &app.log_path)?;
                     if accepted {
                         crate::config::accept_disclaimer()?;
+                    } else {
+                        crate::config::reject_disclaimer()?;
                     }
                     return Ok(Some(accepted));
                 }
