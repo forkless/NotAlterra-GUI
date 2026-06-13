@@ -68,6 +68,10 @@ jobs:
           tar -czf builds/notalterra-${GITHUB_REF_NAME}-linux-amd64.tar.gz notalterra
           cp target/x86_64-pc-windows-gnu/release/notalterra.exe NotAlterra.exe
           zip -q builds/notalterra-${GITHUB_REF_NAME}-windows-x64.zip NotAlterra.exe
+      - name: Generate SBOM
+        run: |
+          cargo cyclonedx --all --output-dir builds
+          mv builds/notalterra-*.cdx.json builds/notalterra-${GITHUB_REF_NAME}-sbom.cdx.json 2>/dev/null || true
       - name: Generate hashes
         id: hash
         run: |
