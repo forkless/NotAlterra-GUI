@@ -114,6 +114,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: builds/
+      - name: Rename duplicate SBOM
+        run: |
+          src=$(find builds -name "NotAlterra-build.cyclonedx.json" -type f 2>/dev/null | head -1)
+          if [ -n "$src" ]; then
+            mv "$src" "builds/NotAlterra-${GITHUB_REF_NAME}-sbom.cdx.json"
+          fi
       - name: Create draft release
         uses: softprops/action-gh-release@v2
         with:
