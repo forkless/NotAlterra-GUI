@@ -289,9 +289,6 @@ All notable changes to NotAlterra are documented in this file.
 - "Recover .sav file from .bak" renamed to "Recover save file" (less technical)
 - Dashboard stats now filter by `savegame_*` prefix, matching the file picker
 - Save/Backup labels pluralize based on count
-
-- Zero compiler warnings (`deny(unsafe_code)`, `allow(dead_code)` where intentional)
-- Example `dump_samples` compiles and runs
 - Improved game-running exit message — explains why save files are at risk
 
 ### Fixed
