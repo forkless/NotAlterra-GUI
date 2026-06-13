@@ -73,7 +73,9 @@ jobs:
         with:
           path: .
           format: cyclonedx-json
-          output-file: builds/notalterra-sbom.cdx.json
+          output-file: builds/notalterra-${{ github.ref_name }}-sbom.cdx.json
+      - name: Clean up extra SBOM
+        run: rm -f builds/NotAlterra-build.cyclonedx.json
       - name: Generate hashes
         id: hash
         run: |
