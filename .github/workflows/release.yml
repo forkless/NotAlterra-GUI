@@ -111,6 +111,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: builds/
+      - name: Verify SLSA provenance
+        run: |
+          for file in builds/*/*.tar.gz builds/*/*.zip builds/*/*.cdx.json; do
+            [ -f "$file" ] || continue
+            slsa-verifier verify-artifact \
+              --provenance-path builds/*/*.intoto.jsonl \
+              --source-uri github.com/forkless/NotAlterra \
+              --source-tag "${{ github.ref_name }}" \
+              "$file"
+          done
       - name: Create draft release
         uses: softprops/action-gh-release@v2
         with:
