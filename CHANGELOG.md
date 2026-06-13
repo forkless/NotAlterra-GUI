@@ -4,13 +4,14 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
-## [v0.4.3] — 2026-06-09
+## [v0.4.3] — 2026-06-14
 
 ### Fixed
 - **Dashboard counts** — "Saves" now shows `.bak` recovery file count, "Backups" shows `.tar.gz` archive count
 - **Backup mtime preservation** — tar archives now store source file modification times, preventing epoch dates on restored files
 - **Navigation bound** — restore backup picker no longer stops before migrated entries
 - **Save folder dialog** — pre-fills with the current path if one is already set
+- **Disclaimer sentinel not removed on decline** — rejecting the disclaimer now deletes the `NOTALTERRA_LICENSE_ACCEPTED` sentinel file, so the disclaimer reappears on the next launch. Previously, acceptance was irrevocable even through the "View disclaimer" menu item.
 
 ## [v0.4.2] — 2026-06-09
 
