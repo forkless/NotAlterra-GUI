@@ -1,6 +1,5 @@
 // NotAlterra — WinUI 3 Desktop application
-// Uses LoadLibrary/GetProcAddress for the bootstrap DLL
-// so we can show a friendly dialog if the runtime is missing.
+// No direct WindowsApp.lib import — C++/WinRT handles lazy resolution.
 
 #define _WIN32_WINNT 0x0A00
 #include <windows.h>
@@ -8,17 +7,8 @@
 #include <commctrl.h>
 #include <string>
 
-// Types normally from MddBootstrap.h
-typedef struct PACKAGE_VERSION {
-    USHORT Revision;
-    USHORT Build;
-    USHORT Minor;
-    USHORT Major;
-} PACKAGE_VERSION;
-
-typedef enum MddBootstrapInitializeOptions {
-    MddBootstrapInitializeOptions_None = 0,
-} MddBootstrapInitializeOptions;
+typedef struct PACKAGE_VERSION { USHORT Revision; USHORT Build; USHORT Minor; USHORT Major; } PACKAGE_VERSION;
+typedef enum MddBootstrapInitializeOptions { MddBootstrapInitializeOptions_None = 0 } MddBootstrapInitializeOptions;
 
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
@@ -55,67 +45,54 @@ struct App : ApplicationT<App> {
     }
 };
 
-// Function pointer types for the bootstrap API
-typedef HRESULT (WINAPI *MddInit2Fn)(UINT32, PCWSTR, PACKAGE_VERSION, MddBootstrapInitializeOptions);
+typedef HRESULT (WINAPI *MddInit2Fn)(UINT32, PCWSTR, PACKAGE_VERSION, int);
 typedef void (WINAPI *MddShutdownFn)();
 
-static MddInit2Fn g_MddInit2 = nullptr;
-static MddShutdownFn g_MddShutdown = nullptr;
-
 static bool load_bootstrap() {
-    // Look for the bootstrap DLL in the same directory as the .exe
-    wchar_t exePath[MAX_PATH];
-    GetModuleFileNameW(nullptr, exePath, MAX_PATH);
-    std::wstring dllPath(exePath);
-    auto pos = dllPath.rfind(L'\\');
-    dllPath = dllPath.substr(0, pos) + L"\\Microsoft.WindowsAppRuntime.Bootstrap.dll";
-
-    HMODULE hMod = LoadLibraryW(dllPath.c_str());
-    if (!hMod) return false;
-
-    g_MddInit2 = (MddInit2Fn)GetProcAddress(hMod, "MddBootstrapInitialize2");
-    g_MddShutdown = (MddShutdownFn)GetProcAddress(hMod, "MddBootstrapShutdown");
-    return (g_MddInit2 != nullptr && g_MddShutdown != nullptr);
+    wchar_t path[MAX_PATH];
+    GetModuleFileNameW(nullptr, path, MAX_PATH);
+    std::wstring dll(path);
+    auto pos = dll.rfind(L'\\');
+    dll = dll.substr(0, pos) + L"\\Microsoft.WindowsAppRuntime.Bootstrap.dll";
+    HMODULE h = LoadLibraryW(dll.c_str());
+    if (!h) return false;
+    auto init = (MddInit2Fn)GetProcAddress(h, "MddBootstrapInitialize2");
+    auto shutdown = (MddShutdownFn)GetProcAddress(h, "MddBootstrapShutdown");
+    if (!init || !shutdown) return false;
+    PACKAGE_VERSION v{}; v.Major = 1; v.Minor = 6;
+    if (FAILED(init(0x00010006, L"stable", v, 0))) return false;
+    return true;
 }
 
-static void show_download_prompt() {
-    TASKDIALOGCONFIG tdc = {};
-    tdc.cbSize = sizeof(tdc);
-    tdc.dwFlags = TDF_USE_HICON_MAIN | TDF_ALLOW_DIALOG_CANCELLATION;
-    tdc.hMainIcon = LoadIcon(nullptr, IDI_INFORMATION);
-    tdc.pszWindowTitle = L"NotAlterra";
-    tdc.pszMainInstruction = L"Windows App SDK runtime required";
-    tdc.pszContent = L"NotAlterra needs a free Microsoft component to run.\n\n"
-                     L"Click Download to get it, then install and run NotAlterra again.";
-    const int DL = 100;
-    TASKDIALOG_BUTTON btns[] = { { DL, L"Download runtime" }, { IDCANCEL, L"Exit" } };
-    tdc.cButtons = 2; tdc.pButtons = btns; tdc.nDefaultButton = DL;
-    int r = 0;
-    TaskDialogIndirect(&tdc, &r, nullptr, nullptr);
-    if (r == DL)
-        ShellExecuteW(nullptr, L"open",
-            L"https://aka.ms/windowsappsdk/1.6/WindowsAppRuntimeInstall-x64.exe",
-            nullptr, nullptr, SW_SHOWNORMAL);
+static void log_error(const char* msg) {
+    wchar_t path[MAX_PATH];
+    GetModuleFileNameW(nullptr, path, MAX_PATH);
+    std::wstring log(path);
+    auto pos = log.rfind(L'\\');
+    log = log.substr(0, pos) + L"\\notalterra.log";
+    HANDLE f = CreateFileW(log.c_str(), GENERIC_WRITE, FILE_SHARE_READ, nullptr,
+                           OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (f != INVALID_HANDLE_VALUE) {
+        SetFilePointer(f, 0, nullptr, FILE_END);
+        DWORD written;
+        WriteFile(f, msg, (DWORD)strlen(msg), &written, nullptr);
+        WriteFile(f, "\r\n", 2, &written, nullptr);
+        CloseHandle(f);
+    }
 }
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+    log_error("NotAlterra starting");
     if (!load_bootstrap()) {
-        show_download_prompt();
-        return 1;
-    }
-
-    PACKAGE_VERSION ver{};
-    ver.Major = 1;
-    ver.Minor = 6;
-
-    HRESULT hr = g_MddInit2(0x00010006, L"stable", ver,
-                            MddBootstrapInitializeOptions_None);
-    if (FAILED(hr)) {
-        show_download_prompt();
+        log_error("Bootstrap DLL failed to load");
+        MessageBoxW(nullptr,
+            L"NotAlterra requires the Windows App SDK runtime.\n\n"
+            L"Download and install it from:\n"
+            L"https://aka.ms/windowsappsdk/1.6/WindowsAppRuntimeInstall-x64.exe",
+            L"Runtime Required", MB_OK | MB_ICONINFORMATION);
         return 1;
     }
 
     Application::Start([](auto const&) { make<App>(); });
-    g_MddShutdown();
     return 0;
 }
