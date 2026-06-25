@@ -68,15 +68,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         return 1;
     }
 
-    PACKAGE_VERSION v{}; v.Major = 1; v.Minor = 6;
-    HRESULT hr = init(0x00010006, L"stable", v, 0);
-    if (FAILED(hr)) {
-        char buf[64];
-        sprintf_s(buf, "Bootstrap failed: 0x%08X", (unsigned)hr);
-        MessageBoxA(nullptr, buf, "NotAlterra", MB_OK);
-        return 1;
-    }
+    // Bootstrap optional — skip it and try direct WinRT activation
+    // The runtime packages are already installed on the system.
+    UNREFERENCED_PARAMETER(h);
+    UNREFERENCED_PARAMETER(init);
 
-    Application::Start([](auto const&) { make<App>(); });
+    try {
+        Application::Start([](auto const&) { make<App>(); });
+    } catch (winrt::hresult_error const& e) {
+        std::string m = "Start: " + winrt::to_string(e.message());
+        MessageBoxA(nullptr, m.c_str(), "NotAlterra", MB_OK);
+    }
     return 0;
 }
