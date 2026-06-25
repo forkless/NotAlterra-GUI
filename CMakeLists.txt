@@ -91,12 +91,17 @@ target_link_libraries(NotAlterra PRIVATE
     notalterra_backend
     "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/RuntimeObject.lib"
     user32
+    comctl32
 )
 
 set(ALL_BUILD_TARGETS notalterra_backend notalterra_tests dump_metadata NotAlterra)
 
 # Default target builds everything available
 add_custom_target(notalterra_all ALL DEPENDS ${ALL_BUILD_TARGETS})
+
+
+
+
 
 
 
