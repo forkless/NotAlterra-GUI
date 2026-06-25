@@ -75,22 +75,17 @@ target_include_directories(dump_metadata PRIVATE
 )
 
 # ── GUI target (WinUI 3) ─────────────────────────────────────────────────
-# C++/WinRT WinUI 3 desktop app. Requires Windows App SDK installed.
-# Generated headers in build/winrt/ from cppwinrt.exe.
-set(WINUI3_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/winrt")  # cppwinrt nests winrt/ subdir
-
+# C++/WinRT WinUI 3 desktop app. NuGet packages (CppWinRT, WindowsAppSDK)
+# are resolved by MSBuild via Directory.Build.props in the project root.
 add_executable(notalterra_gui WIN32
     src/ui/App.cpp
 )
 
 target_include_directories(notalterra_gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/cppwinrt"
-    ${WINUI3_INCLUDE}
+    ${CMAKE_CURRENT_BINARY_DIR}/winrt  # generated C++/WinRT headers
+    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/cppwinrt"  # SDK base
 )
-
-# WIN32_LEAN_AND_MEAN — defined in App.cpp via #define before includes
-# C++/WinRT headers include windows.h internally with their own settings
 
 target_link_libraries(notalterra_gui PRIVATE
     notalterra_backend
