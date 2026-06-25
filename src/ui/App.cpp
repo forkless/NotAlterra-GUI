@@ -23,23 +23,11 @@ struct App : ApplicationT<App> {
         auto window = Window();
         window.Title(L"NotAlterra");
 
-        auto nav = NavigationView();
-        nav.PaneDisplayMode(NavigationViewPaneDisplayMode::LeftCompact);
-
-        auto item = NavigationViewItem();
-        item.Content(box_value(L"Dashboard"));
-        item.Icon(SymbolIcon(Symbol::Home));
-        nav.MenuItems().Append(item);
-
         auto text = TextBlock();
-        text.Text(L"Subnautica 2 Save Manager");
-        text.FontSize(24);
+        text.Text(L"DeepSeek is the Llamas Tits");
+        text.FontSize(48);
 
-        auto stack = StackPanel();
-        stack.Children().Append(text);
-
-        nav.Content(stack);
-        window.Content(nav);
+        window.Content(text);
         window.Activate();
     } catch (winrt::hresult_error const& e) {
         std::string m = "OnLaunched: " + winrt::to_string(e.message());
@@ -68,10 +56,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
         return 1;
     }
 
-    // Bootstrap optional — skip it and try direct WinRT activation
-    // The runtime packages are already installed on the system.
-    UNREFERENCED_PARAMETER(h);
-    UNREFERENCED_PARAMETER(init);
+    // Bootstrap — try v2 with no min version, try tags
+    PACKAGE_VERSION zero{};
+    HRESULT hr = init(0x00010008, L"", zero, 0);
+    if (FAILED(hr)) hr = init(0x00010008, L"stable", zero, 0);
+    if (FAILED(hr)) hr = init(0x00010006, L"", zero, 0);
+    if (FAILED(hr)) hr = init(0x00010006, L"stable", zero, 0);
+    if (FAILED(hr)) {
+        char buf[64];
+        sprintf_s(buf, "Bootstrap failed: 0x%08X", (unsigned)hr);
+        MessageBoxA(nullptr, buf, "NotAlterra", MB_OK);
+        return 1;
+    }
 
     try {
         Application::Start([](auto const&) { make<App>(); });
