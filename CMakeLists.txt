@@ -74,25 +74,18 @@ target_include_directories(dump_metadata PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# ── GUI target (WinUI 3) ─────────────────────────────────────────────────
-# C++/WinRT WinUI 3 desktop app. NuGet packages (CppWinRT, WindowsAppSDK)
-# are resolved by MSBuild via Directory.Build.props in the project root.
+# ── GUI target (Win32, zero dependencies) ────────────────────────────
 add_executable(notalterra_gui WIN32
     src/ui/App.cpp
 )
 
 target_include_directories(notalterra_gui PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_BINARY_DIR}/winrt  # generated C++/WinRT headers
-    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/cppwinrt"  # SDK base
-    "C:/Users/petemar.UNIVERSE/AppData/Local/Temp/WinAppSDK/include"  # MddBootstrap.h
 )
 
 target_link_libraries(notalterra_gui PRIVATE
     notalterra_backend
-    "C:/Users/petemar.UNIVERSE/AppData/Local/Temp/WinAppSDK/lib/win10-x64/Microsoft.WindowsAppRuntime.lib"
-    "C:/Users/petemar.UNIVERSE/AppData/Local/Temp/WinAppSDK/lib/win10-x64/Microsoft.WindowsAppRuntime.Bootstrap.lib"
-    "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/WindowsApp.lib"
+    comctl32
     user32
 )
 
