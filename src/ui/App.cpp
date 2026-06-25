@@ -1,10 +1,11 @@
-// NotAlterra — WinUI 3 Desktop application (minimal compile test)
+// NotAlterra — WinUI 3 Desktop application
 
 #include <windows.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Microsoft.UI.Xaml.h>
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
+#include <MddBootstrap.h>
 
 using namespace winrt;
 using namespace Microsoft::UI::Xaml;
@@ -36,7 +37,18 @@ struct App : ApplicationT<App> {
     }
 };
 
+namespace MddBootstrap { using namespace ::Microsoft::Windows::ApplicationModel::DynamicDependency::Bootstrap; }
+
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
+    if (FAILED(MddBootstrap::InitializeNoThrow())) {
+        MessageBoxA(nullptr, "Windows App SDK runtime not found.\n"
+            "Install the WinAppSDK runtime from Visual Studio Build Tools.",
+            "NotAlterra", MB_OK | MB_ICONERROR);
+        return 1;
+    }
+
     Application::Start([](auto const&) { make<App>(); });
+
+    MddBootstrapShutdown();
     return 0;
 }
