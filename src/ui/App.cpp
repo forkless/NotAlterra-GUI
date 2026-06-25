@@ -63,32 +63,13 @@ static MddInit2Fn g_MddInit2 = nullptr;
 static MddShutdownFn g_MddShutdown = nullptr;
 
 static bool load_bootstrap() {
-    // Extract embedded DLL next to .exe first
+    // Look for the bootstrap DLL in the same directory as the .exe
     wchar_t exePath[MAX_PATH];
     GetModuleFileNameW(nullptr, exePath, MAX_PATH);
     std::wstring dllPath(exePath);
     auto pos = dllPath.rfind(L'\\');
     dllPath = dllPath.substr(0, pos) + L"\\Microsoft.WindowsAppRuntime.Bootstrap.dll";
 
-    if (GetFileAttributesW(dllPath.c_str()) == INVALID_FILE_ATTRIBUTES) {
-        HRSRC hRes = FindResourceW(nullptr, MAKEINTRESOURCEW(1), MAKEINTRESOURCEW(10));
-        if (hRes) {
-            HGLOBAL hData = LoadResource(nullptr, hRes);
-            if (hData) {
-                void* data = LockResource(hData);
-                DWORD size = SizeofResource(nullptr, hRes);
-                HANDLE hFile = CreateFileW(dllPath.c_str(), GENERIC_WRITE, 0, nullptr,
-                                           CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
-                if (hFile != INVALID_HANDLE_VALUE) {
-                    DWORD written;
-                    WriteFile(hFile, data, size, &written, nullptr);
-                    CloseHandle(hFile);
-                }
-            }
-        }
-    }
-
-    // Load the DLL
     HMODULE hMod = LoadLibraryW(dllPath.c_str());
     if (!hMod) return false;
 

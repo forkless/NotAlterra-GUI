@@ -79,7 +79,6 @@ target_include_directories(dump_metadata PRIVATE
 # are resolved by MSBuild via Directory.Build.props in the project root.
 add_executable(NotAlterra WIN32
     src/ui/App.cpp
-    bootstrap.rc
 )
 
 target_include_directories(NotAlterra PRIVATE
@@ -99,6 +98,7 @@ set(ALL_BUILD_TARGETS notalterra_backend notalterra_tests dump_metadata NotAlter
 
 # Default target builds everything available
 add_custom_target(notalterra_all ALL DEPENDS ${ALL_BUILD_TARGETS})
+
 
 
 
