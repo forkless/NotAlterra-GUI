@@ -1,0 +1,36 @@
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap rescap">
+
+  <Identity Name="NotAlterra" Publisher="CN=NotAlterra" Version="0.5.0.0" />
+
+  <Properties>
+    <DisplayName>NotAlterra</DisplayName>
+    <PublisherDisplayName>NotAlterra</PublisherDisplayName>
+    <Description>Subnautica 2 Save Manager</Description>
+    <Logo>Assets\icon.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.26100.0" />
+    <PackageDependency Name="Microsoft.WindowsAppRuntime.1.6" MinVersion="1.6.0.0" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-US" />
+  </Resources>
+
+  <Applications>
+    <Application Id="NotAlterra" Executable="NotAlterra.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="NotAlterra" Description="Subnautica 2 Save Manager"
+        Square150x150Logo="Assets\icon.png" Square44x44Logo="Assets\icon.png" BackgroundColor="transparent" />
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

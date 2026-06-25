@@ -74,22 +74,31 @@ target_include_directories(dump_metadata PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-# ── GUI target (Win32, zero dependencies) ────────────────────────────
-add_executable(notalterra_gui WIN32
+# ── GUI target (WinUI 3) ─────────────────────────────────────────────────
+# C++/WinRT WinUI 3 desktop app. NuGet packages (CppWinRT, WindowsAppSDK)
+# are resolved by MSBuild via Directory.Build.props in the project root.
+add_executable(NotAlterra WIN32
     src/ui/App.cpp
 )
 
-target_include_directories(notalterra_gui PRIVATE
+target_include_directories(NotAlterra PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_BINARY_DIR}/winrt  # generated C++/WinRT headers
+    "C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/cppwinrt"  # SDK base
+    "C:/Users/petemar.UNIVERSE/AppData/Local/Temp/WinAppSDK/include"  # MddBootstrap.h
 )
 
-target_link_libraries(notalterra_gui PRIVATE
+target_link_libraries(NotAlterra PRIVATE
     notalterra_backend
-    comctl32
+    "C:/Users/petemar.UNIVERSE/AppData/Local/Temp/WinAppSDK/lib/win10-x64/Microsoft.WindowsAppRuntime.lib"
+    "C:/Users/petemar.UNIVERSE/AppData/Local/Temp/WinAppSDK/lib/win10-x64/Microsoft.WindowsAppRuntime.Bootstrap.lib"
+    "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/WindowsApp.lib"
     user32
 )
 
-set(ALL_BUILD_TARGETS notalterra_backend notalterra_tests dump_metadata notalterra_gui)
+set(ALL_BUILD_TARGETS notalterra_backend notalterra_tests dump_metadata NotAlterra)
 
 # Default target builds everything available
-add_custom_target(notalterra ALL DEPENDS ${ALL_BUILD_TARGETS})
+add_custom_target(notalterra_all ALL DEPENDS ${ALL_BUILD_TARGETS})
+
+
