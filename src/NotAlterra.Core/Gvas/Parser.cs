@@ -180,8 +180,8 @@ public static class GvasParser
         var span = new ReadOnlySpan<byte>(data);
 
         // ── Corruption scan ──
-        string? corruption = data.Length < 500
-            ? "File is too small to be a valid save (under 500 bytes)"
+        string? corruption = data.Length < 100_000
+            ? "File is too small to be a valid save (under 100 KB)"
             : null;
         if (corruption == null && data.AsSpan(0, Math.Min(100, data.Length)).IndexOfAnyExcept((byte)0) < 0)
             corruption = "File appears to be blank or zeroed";

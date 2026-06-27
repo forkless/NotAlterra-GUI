@@ -175,7 +175,7 @@ public class GvasParserTests
     [Fact]
     public void ExtractFullMetadata_MissingHeader_DetectsCorruption()
     {
-        var data = new byte[600];
+        var data = new byte[200_000];
         data[0] = (byte)'X'; // not 'G'
         var path = WriteTempFile(data);
         try
@@ -183,6 +183,19 @@ public class GvasParserTests
             var meta = GvasParser.ExtractFullMetadata(path);
             Assert.NotNull(meta.CorruptionReason);
             Assert.Contains("header", meta.CorruptionReason, StringComparison.OrdinalIgnoreCase);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
+    public void ExtractFullMetadata_ZeroedLargeFile_DetectsBlank()
+    {
+        var path = WriteTempFile(new byte[200_000]); // above 100KB, all zeroed
+        try
+        {
+            var meta = GvasParser.ExtractFullMetadata(path);
+            Assert.NotNull(meta.CorruptionReason);
+            Assert.Contains("blank", meta.CorruptionReason, StringComparison.OrdinalIgnoreCase);
         }
         finally { File.Delete(path); }
     }
