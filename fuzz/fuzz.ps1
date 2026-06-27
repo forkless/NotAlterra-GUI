@@ -36,8 +36,9 @@ if (-not (Test-Path $Corpus)) {
 }
 
 Write-Host "=== Fuzzing target: $Target ===" -Foreground Cyan
-$fuzzArgs = @("run", "--project", $ProjectDir, "-c", "Release", "--no-build", "--", $Target, "--", "-runs=$Runs", $Corpus)
-dotnet $fuzzArgs 2>&1
+$exe = "$OutDir\NotAlterra.Fuzz.exe"
+if (-not (Test-Path $exe)) { throw "Binary not found: $exe" }
+& $exe $Target -- -runs=$Runs $Corpus 2>&1
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "=== ${Target}: ${Runs} runs, no crashes ===" -Foreground Green
