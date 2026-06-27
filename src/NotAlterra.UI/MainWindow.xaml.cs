@@ -21,7 +21,6 @@ public sealed partial class MainWindow : Window
     private IntPtr _oldWndProc;
     private WndProcDelegate? _wndProcRef;
     private int _minW = 1200, _minH = 800;
-
     private delegate IntPtr WndProcDelegate(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
     [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr")]
@@ -46,6 +45,28 @@ public sealed partial class MainWindow : Window
     private const int GWLP_WNDPROC = -4;
     private const uint WM_GETMINMAXINFO = 0x24;
 
+    /// Check if game is running and warn before destructive operations.
+    /// Returns true if safe to proceed, false if user should stop.
+    public static async Task<bool> CheckGameGuard(XamlRoot? xamlRoot)
+    {
+        if (!Guard.GameRunning()) return true;
+        var d = new ContentDialog
+        {
+            XamlRoot = xamlRoot,
+            Title = "Subnautica 2 is running",
+            Content = "Please close Subnautica 2 before making changes to save files to avoid corruption.",
+            PrimaryButtonText = "Retry",
+            SecondaryButtonText = "Close App",
+            DefaultButton = ContentDialogButton.Primary
+        };
+        while (true)
+        {
+            var r = await d.ShowAsync();
+            if (r == ContentDialogResult.Secondary) { Environment.Exit(0); return false; }
+            if (!Guard.GameRunning()) return true;
+        }
+    }
+
     public MainWindow()
     {
         InitializeComponent();
@@ -53,7 +74,6 @@ public sealed partial class MainWindow : Window
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.SetIcon("Assets/AppIcon.ico");
-        // Size from display
         var area = DisplayArea.Primary.WorkArea;
         _minW = (int)(area.Width * 0.65);
         _minH = (int)(area.Height * 0.75);
@@ -63,7 +83,6 @@ public sealed partial class MainWindow : Window
 
         ((FrameworkElement)Content).Loaded += async (_, _) =>
         {
-            // Subclass window after creation
             var hwnd = WindowNative.GetWindowHandle(this);
             _wndProcRef = WndProc;
             _oldWndProc = SetWindowLongPtr64(hwnd, GWLP_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProcRef));
@@ -86,7 +105,23 @@ public sealed partial class MainWindow : Window
             SetActive(HomeBtn);
             NavFrame.Navigate(typeof(HomePage));
 
-            while (Guard.GameRunning()) { var d = new ContentDialog { XamlRoot = Content.XamlRoot, Title = "Subnautica 2 is running", Content = "Please save and close Subnautica 2 before using this tool.", PrimaryButtonText = "Retry", CloseButtonText = "Continue anyway", DefaultButton = ContentDialogButton.Primary }; var r = await d.ShowAsync(); if (r == ContentDialogResult.None) { Guard.LogAction("GUARD", "Proceeded while game running", "WARN"); break; } }
+            // Launch-time game guard
+            while (Guard.GameRunning())
+            {
+                var d = new ContentDialog
+                {
+                    XamlRoot = Content.XamlRoot,
+                    Title = "Subnautica 2 is running",
+                    Content = "Please save and close Subnautica 2 before using this tool.",
+                    PrimaryButtonText = "Retry",
+                    SecondaryButtonText = "Close App",
+                    DefaultButton = ContentDialogButton.Primary
+                };
+                var r = await d.ShowAsync();
+                if (r == ContentDialogResult.Secondary) { Environment.Exit(0); return; }
+                if (!Guard.GameRunning()) break;
+            }
+
         };
     }
 
