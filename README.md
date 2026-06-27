@@ -74,7 +74,7 @@ Build output is at `src\NotAlterra.UI\bin\Debug\net9.0-windows10.0.26100.0\win-x
 
 Pre-compiled binaries will be available from the [releases page](https://github.com/forkless/NotAlterra/releases).
 
-> **Runtime dependencies:** The MSIX installer bundles the Windows App SDK runtime and will auto-acquire it on install. The .NET 9.0 runtime and VC++ redistributable are required — Windows will prompt to install them if missing. No additional SDKs or build tools needed.
+> **Runtime dependencies:** The MSIX installer handles everything — it bundles the Windows App SDK, and Windows will prompt to install .NET 9 and the VC++ redistributable if you don't have them. No manual setup needed.
 
 ## Where Files Live
 
