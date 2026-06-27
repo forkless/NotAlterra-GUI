@@ -27,7 +27,12 @@
                 This tool runs entirely offline.
             </TextBlock>
 
-            <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,16,0,0" FontSize="12">
+            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,16,0,0">
+                <FontIcon Glyph="&#xF16D;" FontFamily="ms-appx:///Assets/FontAwesomeBrands.ttf#Font Awesome 6 Brands" FontSize="14" Opacity="0.5"/>
+                <TextBlock Text="Sidebar video by @Pachon.In.Motion — Argentina" Opacity="0.5"/>
+            </StackPanel>
+
+            <TextBlock TextWrapping="Wrap" Opacity="0.4">
                 MIT License. See LICENSE.md for details.
             </TextBlock>
         </StackPanel>
