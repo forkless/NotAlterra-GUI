@@ -16,33 +16,13 @@
         </TitleBar>
         <NavigationView x:Name="NavView" Grid.Row="1" IsBackButtonVisible="Collapsed" IsPaneToggleButtonVisible="False" SelectionChanged="NavView_SelectionChanged">
             <NavigationView.PaneFooter>
-                <ScrollViewer VerticalScrollMode="Auto" VerticalScrollBarVisibility="Hidden" Foreground="White">
-                    <StackPanel Padding="12,8" Spacing="6">
-                        <ToggleSwitch x:Name="WaterRippleToggle" Header="Water FX" IsOn="False" Toggled="WaterRippleToggle_Toggled"/>
-
-                        <TextBlock Text="Strength" FontSize="11" Opacity="0.6" Margin="0,6,0,0"/>
-                        <Slider x:Name="StrengthSlider" Minimum="50" Maximum="150" Value="100"/>
-                        <TextBlock Text="Speed" FontSize="11" Opacity="0.6"/>
-                        <Slider x:Name="SpeedSlider" Minimum="50" Maximum="150" Value="100"/>
-                        <TextBlock Text="Opacity" FontSize="11" Opacity="0.6"/>
-                        <Slider x:Name="OpacitySlider" Minimum="50" Maximum="150" Value="100"/>
-                        <TextBlock Text="Width" FontSize="11" Opacity="0.6"/>
-                        <Slider x:Name="WidthSlider" Minimum="50" Maximum="150" Value="100"/>
-                        <ToggleSwitch x:Name="DebugToggle" Header="Show spot positions" IsOn="False" Toggled="DebugToggle_Toggled" Margin="0,6,0,0"/>
-                        <TextBlock Text="Font color" FontSize="11" Opacity="0.6" Margin="0,6,0,0"/>
-                        <ComboBox x:Name="FontColorCombo" SelectedIndex="0" SelectionChanged="FontColorCombo_SelectionChanged" HorizontalAlignment="Stretch">
-                            <ComboBoxItem>White</ComboBoxItem><ComboBoxItem>Black</ComboBoxItem><ComboBoxItem>Light Blue</ComboBoxItem>
-                            <ComboBoxItem>Teal</ComboBoxItem><ComboBoxItem>Green</ComboBoxItem><ComboBoxItem>Orange</ComboBoxItem>
-                            <ComboBoxItem>Red</ComboBoxItem><ComboBoxItem>Yellow</ComboBoxItem>
-                        </ComboBox>
-                    </StackPanel>
-                </ScrollViewer>
+                <StackPanel Padding="12,8"/>
             </NavigationView.PaneFooter>
+            <Frame x:Name="NavFrame"/>
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Home" IsSelected="True" Tag="home"><NavigationViewItem.Icon><FontIcon Glyph="&#xE80F;"/></NavigationViewItem.Icon></NavigationViewItem>
                 <NavigationViewItem Content="About" Tag="about"><NavigationViewItem.Icon><FontIcon Glyph="&#xEA3A;"/></NavigationViewItem.Icon></NavigationViewItem>
             </NavigationView.MenuItems>
-            <Frame x:Name="NavFrame"/>
         </NavigationView>
     </Grid>
 </Window>
