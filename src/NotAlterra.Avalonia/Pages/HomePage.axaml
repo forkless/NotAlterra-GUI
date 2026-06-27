@@ -1,0 +1,11 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="NotAlterra.Avalonia.Pages.HomePage">
+  <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+    <TextBlock Text="NotAlterra" FontSize="32" FontWeight="Bold"
+               Foreground="#FFE8A84C"/>
+    <TextBlock Text="Subnautica 2 Save Manager"
+               FontSize="16" Foreground="Gray"
+               HorizontalAlignment="Center"/>
+  </StackPanel>
+</UserControl>

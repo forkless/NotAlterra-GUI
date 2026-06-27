@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:pages="clr-namespace:NotAlterra.Avalonia.Pages"
+        x:Class="NotAlterra.Avalonia.MainWindow">
+  <Grid ColumnDefinitions="280, *">
+    <!-- Sidebar -->
+    <Border Background="#1A1A2E" Grid.Column="0">
+      <StackPanel Margin="12,24">
+        <TextBlock Text="NotAlterra" FontSize="20" FontWeight="Bold"
+                   Foreground="#FFE8A84C" Margin="0,0,0,24"/>
+
+        <Button Content="Home" Click="NavigateHome"
+                Background="Transparent" Foreground="White"
+                HorizontalContentAlignment="Left" Margin="0,0,0,8"/>
+        <Button Content="Save Manager" Click="NavigateSaves"
+                Background="Transparent" Foreground="White"
+                HorizontalContentAlignment="Left" Margin="0,0,0,8"/>
+        <Button Content="About" Click="NavigateAbout"
+                Background="Transparent" Foreground="White"
+                HorizontalContentAlignment="Left" Margin="0,0,0,8"/>
+        <Button Content="Settings" Click="NavigateSettings"
+                Background="Transparent" Foreground="White"
+                HorizontalContentAlignment="Left"/>
+      </StackPanel>
+    </Border>
+
+    <!-- Content area -->
+    <ContentControl x:Name="ContentArea" Grid.Column="1" Margin="24"/>
+  </Grid>
+</Window>
