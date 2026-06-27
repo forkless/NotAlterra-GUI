@@ -90,8 +90,33 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Build Release
-        run: dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o publish/
+      - name: Generate signing cert
+        shell: pwsh
+        run: |
+          $cert = New-SelfSignedCertificate -Type Custom `
+            -Subject "CN=NotAlterra CI" `
+            -KeyUsage DigitalSignature `
+            -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") `
+            -CertStoreLocation "Cert:\CurrentUser\My"
+          $thumb = $cert.Thumbprint
+          echo "CERT_THUMB=$thumb" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Build MSIX
+        shell: pwsh
+        run: |
+          dotnet publish src/NotAlterra.UI -c Release `
+            -f net9.0-windows10.0.26100.0 `
+            -p:WindowsPackageType=MSIX `
+            -p:AppxPackageSigningEnabled=true `
+            -p:PackageCertificateThumbprint=$env:CERT_THUMB
+
+      - name: Collect MSIX artifacts
+        shell: pwsh
+        run: |
+          $pkg = Get-ChildItem -Recurse "AppPackages\*.msixupload" | Select-Object -First 1
+          if ($pkg) { Copy-Item $pkg.FullName .\publish\ }
+          Get-ChildItem .\publish\
+        continue-on-error: true
 
       - name: Create draft release
         uses: softprops/action-gh-release@v2
@@ -100,5 +125,5 @@ jobs:
           body: |
             ## NotAlterra ${{ github.ref_name }}
 
-            See [CHANGELOG.md](CHANGELOG.md) for details.
+            Windows MSIX installer. See [CHANGELOG.md](CHANGELOG.md) for details.
           draft: true
