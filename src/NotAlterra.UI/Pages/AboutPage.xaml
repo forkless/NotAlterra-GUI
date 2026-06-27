@@ -17,9 +17,8 @@
                 This is an unofficial fan-made utility and is not affiliated with or endorsed by KRAFTON or Unknown Worlds Entertainment.
             </TextBlock>
 
-            <TextBlock TextWrapping="Wrap" Opacity="0.8">
-                Subnautica 2 and related artwork are trademarks of KRAFTON, Inc. Used under the
-                Subnautica 2 Asset Usage and Video Agreement for non-commercial purposes.
+            <TextBlock TextWrapping="Wrap" Opacity="0.8" Margin="0,8,0,0">
+                KRAFTON® is a registered trademark of KRAFTON, Inc., and Unknown Worlds Entertainment™ is a trademark of Unknown Worlds Entertainment, Inc.
             </TextBlock>
 
             <TextBlock TextWrapping="Wrap" Opacity="0.6" Margin="0,8,0,0">
@@ -27,13 +26,18 @@
                 This tool runs entirely offline.
             </TextBlock>
 
-            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,16,0,0">
-                <FontIcon Glyph="&#xF16D;" FontFamily="ms-appx:///Assets/FontAwesomeBrands.ttf#Font Awesome 6 Brands" FontSize="14" Opacity="0.5"/>
-                <TextBlock Text="Sidebar video by @Pachon.In.Motion — Argentina" Opacity="0.5"/>
+            <TextBlock Text="Copyright &amp; Attribution" FontWeight="SemiBold" Margin="0,16,0,0"/>
+            <StackPanel Spacing="4">
+                <TextBlock Text="Sidebar video by Pachon Curubeto" Opacity="0.5"/>
+                <StackPanel Orientation="Horizontal" Spacing="4" Opacity="0.5">
+                    <FontIcon Glyph="&#xF16D;" FontFamily="ms-appx:///Assets/FontAwesomeBrands.ttf#Font Awesome 6 Brands" FontSize="14" VerticalAlignment="Center" Margin="0,2,0,0"/>
+                    <HyperlinkButton Content="Pachon in Motion" NavigateUri="https://instagram.com/Pachon.In.Motion" FontSize="14" Padding="0" Opacity="0.9"/>
+                    <TextBlock Text="· Argentina"/>
+                </StackPanel>
             </StackPanel>
 
-            <TextBlock TextWrapping="Wrap" Opacity="0.4">
-                MIT License. See LICENSE.md for details.
+            <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,8,0,0">
+                NotAlterra © 2026 forkless.com — released under the MIT License
             </TextBlock>
         </StackPanel>
     </ScrollViewer>
