@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Shapes;
 using Microsoft.UI.Windowing;
 using NotAlterra_UI.Pages;
 using NotAlterra.Services;
@@ -12,6 +13,8 @@ namespace NotAlterra_UI;
 
 public sealed partial class MainWindow : Window
 {
+    private Button? _activeBtn;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -20,36 +23,57 @@ public sealed partial class MainWindow : Window
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.SetIcon("Assets/AppIcon.ico");
 
-        NavView.Loaded += (_, _) =>
+        ((FrameworkElement)Content).Loaded += async (_, _) =>
         {
-            var pane = F<Grid>(NavView, "PaneContentGrid");
-            if (pane == null) return;
-            var src = MediaSource.CreateFromUri(new Uri("ms-appx:///Assets/loop.webm"));
-            var player = new MediaPlayer { IsLoopingEnabled = true, AutoPlay = true, Source = src };
-            var mpe = new MediaPlayerElement { Stretch = Stretch.UniformToFill, AreTransportControlsEnabled = false };
-            mpe.SetMediaPlayer(player);
-            Grid.SetRow(mpe, 0);
-            Grid.SetRowSpan(mpe, 10);
-            Canvas.SetZIndex(mpe, -1);
-            pane.Children.Add(mpe);
+            // Set up sidebar video
+            SidebarVideo.SetMediaPlayer(new MediaPlayer
+            {
+                IsLoopingEnabled = true,
+                AutoPlay = true,
+                Source = MediaSource.CreateFromUri(new Uri("ms-appx:///Assets/loop.webm"))
+            });
 
-            // Hide selection highlight on menu items
-            var clear = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0));
-            foreach (var i in NavView.MenuItems)
-                if (i is NavigationViewItem nvi) { nvi.Resources["NavigationViewItemBackgroundSelected"] = clear; nvi.Resources["NavigationViewItemBackgroundSelectedPointerOver"] = clear; }
-            if (NavView.SettingsItem is NavigationViewItem svi) { svi.Resources["NavigationViewItemBackgroundSelected"] = clear; svi.Resources["NavigationViewItemBackgroundSelectedPointerOver"] = clear; }
-        };
+            // Sidebar breakpoints — only at threshold
+            bool _wide = true;
+            MainGrid.SizeChanged += (_, _) =>
+            {
+                bool now = MainGrid.ActualWidth >= 1000;
+                if (now == _wide) return;
+                _wide = now;
+                MainGrid.ColumnDefinitions[0].Width = new GridLength(now ? 360 : 280);
+            };
 
-        ((FrameworkElement)Content).Loaded += async (_, _) => { while (Guard.GameRunning()) { var d = new ContentDialog { XamlRoot = Content.XamlRoot, Title = "Subnautica 2 is running", Content = "Please save and close Subnautica 2 before using this tool.", PrimaryButtonText = "Retry", CloseButtonText = "Continue anyway", DefaultButton = ContentDialogButton.Primary }; var r = await d.ShowAsync(); if (r == ContentDialogResult.None) { Guard.LogAction("GUARD", "Proceeded while game running", "WARN"); break; } } };
+            // Default to Home
+            SetActive(HomeBtn);
+            NavFrame.Navigate(typeof(HomePage));
+
+            // Game guard
+            while (Guard.GameRunning()) { var d = new ContentDialog { XamlRoot = Content.XamlRoot, Title = "Subnautica 2 is running", Content = "Please save and close Subnautica 2 before using this tool.", PrimaryButtonText = "Retry", CloseButtonText = "Continue anyway", DefaultButton = ContentDialogButton.Primary }; var r = await d.ShowAsync(); if (r == ContentDialogResult.None) { Guard.LogAction("GUARD", "Proceeded while game running", "WARN"); break; } } };
     }
 
-    private static T? F<T>(DependencyObject p, string n) where T : DependencyObject
+    private void NavBtn_Click(object sender, RoutedEventArgs e)
     {
-        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(p); i++) { var c = VisualTreeHelper.GetChild(p, i); if (c is T t && c is FrameworkElement fe && fe.Name == n) return t; var f = F<T>(c, n); if (f != null) return f; }
-        return null;
+        if (sender is not Button btn || btn.Tag is not string tag) return;
+        SetActive(btn);
+        switch (tag)
+        {
+            case "home": NavFrame.Navigate(typeof(HomePage)); break;
+            case "about": NavFrame.Navigate(typeof(AboutPage)); break;
+            default: NavFrame.Navigate(typeof(SettingsPage)); break;
+        }
     }
 
-    private void TitleBar_PaneToggleRequested(TitleBar s, object a) => NavView.IsPaneOpen = !NavView.IsPaneOpen;
+    private void SetActive(Button btn)
+    {
+        if (_activeBtn != null)
+        {
+            if (_activeBtn.Content is Grid pg && pg.Children.Count > 0 && pg.Children[0] is Rectangle pr)
+                pr.Visibility = Visibility.Collapsed;
+        }
+        if (btn.Content is Grid g && g.Children.Count > 0 && g.Children[0] is Rectangle r)
+            r.Visibility = Visibility.Visible;
+        _activeBtn = btn;
+    }
+
     private void TitleBar_BackRequested(TitleBar s, object a) => NavFrame.GoBack();
-    private void NavView_SelectionChanged(NavigationView s, NavigationViewSelectionChangedEventArgs a) { if (a.IsSettingsSelected) NavFrame.Navigate(typeof(SettingsPage)); else if (a.SelectedItem is NavigationViewItem i) switch (i.Tag) { case "home": NavFrame.Navigate(typeof(HomePage)); break; case "about": NavFrame.Navigate(typeof(AboutPage)); break; } }
 }
