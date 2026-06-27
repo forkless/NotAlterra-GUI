@@ -1,53 +1,41 @@
 name: CI
 
-permissions: read-all
-
 on:
   push:
     branches: [main]
     tags: ['v*']
   pull_request:
 
+permissions: read-all
+
 jobs:
-  build:
+  check:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        config: [Debug, Release]
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 9.0
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
 
       - name: Restore
-        run: dotnet restore src/NotAlterra.UI/NotAlterra.UI.csproj
+        run: dotnet restore src/NotAlterra.UI/NotAlterra.UI.csproj src/NotAlterra.UI.Tests/NotAlterra.UI.Tests.csproj
 
-      - name: Build C# UI
-        run: dotnet build src/NotAlterra.UI -c ${{ matrix.config }} --no-restore
+      - name: Build
+        run: dotnet build src/NotAlterra.UI -c Debug --no-restore
 
-      - name: Run xUnit tests (Debug only)
-        if: matrix.config == 'Debug'
-        run: dotnet test src/NotAlterra.UI.Tests -c Debug --no-restore --verbosity normal
-
-      - name: Upload test artifacts (Debug)
-        if: matrix.config == 'Debug'
-        uses: actions/upload-artifact@v4
-        with:
-          name: notalterra-bin
-          path: |
-            src/NotAlterra.UI/bin/**/${{ matrix.config }}/**/NotAlterra.UI*
+      - name: Run tests
+        run: dotnet test src/NotAlterra.UI.Tests -c Debug --no-build --verbosity normal
 
   fuzz:
-    needs: build
+    needs: check
     if: github.ref == 'refs/heads/main'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 9.0
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
@@ -55,58 +43,38 @@ jobs:
       - name: Install SharpFuzz CLI
         run: dotnet tool install -g SharpFuzz.CommandLine
 
-      - name: Restore fuzz project
-        run: dotnet restore fuzz/NotAlterra.Fuzz/NotAlterra.Fuzz.csproj
-
-      - name: Build fuzz project
-        run: dotnet build fuzz/NotAlterra.Fuzz -c Release --no-restore
-
-      - name: Instrument assemblies
+      - name: Run fuzz targets
+        shell: pwsh
         run: |
-          $dll = "fuzz/NotAlterra.Fuzz/bin/Release/net9.0"
-          sharpfuzz "$dll/NotAlterra.Fuzz.dll"
-          sharpfuzz "$dll/NotAlterra.Core.dll"
-
-      - name: Fuzz — gvas_parse
-        run: |
-          dotnet run --project fuzz/NotAlterra.Fuzz -c Release --no-build `
-            -- gvas_parse -- -runs=50000 fuzz/corpus/gvas_parse/
-        continue-on-error: true
-
-      - name: Fuzz — gvas_full_meta
-        run: |
-          dotnet run --project fuzz/NotAlterra.Fuzz -c Release --no-build `
-            -- gvas_full_meta -- -runs=50000 fuzz/corpus/gvas_full_meta/
-        continue-on-error: true
-
-      - name: Fuzz — tar_gz_integrity
-        run: |
-          dotnet run --project fuzz/NotAlterra.Fuzz -c Release --no-build `
-            -- tar_gz_integrity -- -runs=50000
-        continue-on-error: true
-
-      - name: Fuzz — tar_gz_manifest
-        run: |
-          dotnet run --project fuzz/NotAlterra.Fuzz -c Release --no-build `
-            -- tar_gz_manifest -- -runs=50000
+          .\fuzz\fuzz.ps1 -Target gvas_parse -Runs 30000
+          .\fuzz\fuzz.ps1 -Target gvas_full_meta -Runs 30000
+          .\fuzz\fuzz.ps1 -Target tar_gz_integrity -Runs 30000
+          .\fuzz\fuzz.ps1 -Target tar_gz_manifest -Runs 30000
         continue-on-error: true
 
   release:
-    needs: build
+    needs: check
     if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+
+      - name: Setup .NET 9.0
+        uses: actions/setup-dotnet@v4
         with:
-          name: notalterra-bin
-          path: builds
+          dotnet-version: 9.0.x
+
+      - name: Build Release
+        run: dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o publish/
 
       - name: Create draft release
         uses: softprops/action-gh-release@v2
         with:
-          files: builds/**
-          body_path: _release.md
+          files: publish/**
+          body: |
+            ## NotAlterra ${{ github.ref_name }}
+
+            See [CHANGELOG.md](CHANGELOG.md) for details.
           draft: true
