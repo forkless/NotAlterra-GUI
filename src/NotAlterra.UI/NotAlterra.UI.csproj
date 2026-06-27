@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+    <InternalsVisibleTo>NotAlterra.UI.Tests</InternalsVisibleTo>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>NotAlterra_UI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -15,6 +16,10 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NotAlterra.Core\NotAlterra.Core.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\AppIcon.ico" />
@@ -42,6 +47,11 @@
 
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <ProjectCapability Include="Msix" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Gvas\**\*.cs" />
+    <Compile Remove="Services\**\*.cs" />
   </ItemGroup>
 
   <ItemGroup>
