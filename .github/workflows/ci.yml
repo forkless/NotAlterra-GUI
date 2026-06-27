@@ -28,10 +28,16 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Restore
-        run: dotnet restore src/NotAlterra.UI/NotAlterra.UI.csproj src/NotAlterra.UI.Tests/NotAlterra.UI.Tests.csproj
+        shell: pwsh
+        run: |
+          dotnet restore src/NotAlterra.UI/NotAlterra.UI.csproj
+          dotnet restore src/NotAlterra.UI.Tests/NotAlterra.UI.Tests.csproj
 
       - name: Build
-        run: dotnet build src/NotAlterra.UI/NotAlterra.UI.csproj src/NotAlterra.UI.Tests/NotAlterra.UI.Tests.csproj -c Debug --no-restore
+        shell: pwsh
+        run: |
+          dotnet build src/NotAlterra.UI/NotAlterra.UI.csproj -c Debug --no-restore
+          dotnet build src/NotAlterra.UI.Tests/NotAlterra.UI.Tests.csproj -c Debug --no-restore
 
       - name: Run tests
         run: dotnet test src/NotAlterra.UI.Tests -c Debug --no-build --verbosity normal
