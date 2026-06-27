@@ -12,7 +12,7 @@ public sealed partial class SaveManagerPage : Page
 
     private void OnSaveSlots(object sender, RoutedEventArgs e)
     {
-        Frame.Navigate(typeof(AboutPage));
+        Frame.Navigate(typeof(SaveSlotsPage));
     }
 
     private void OnBackups(object sender, RoutedEventArgs e)
