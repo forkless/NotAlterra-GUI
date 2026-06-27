@@ -13,6 +13,42 @@
             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="NotAlterra" />
             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Subnautica 2 Save Manager" />
 
+            <TextBlock TextWrapping="Wrap" Opacity="0.7" Margin="0,0,0,4">
+                Version <Run Text="{x:Bind AppVersion}"/> · <Run Text="{x:Bind BuildInfo}"/> · <Run Text="{x:Bind Arch}"/>
+            </TextBlock>
+
+            <!-- Stats card -->
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="16">
+                    <TextBlock Text="Technical Specifications" FontSize="18" FontWeight="SemiBold"/>
+                    <Grid ColumnDefinitions="160, *" RowSpacing="10" ColumnSpacing="12">
+                        <TextBlock Text="Parsing engine" Opacity="0.6"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind ParsingEngine}" TextWrapping="Wrap"/>
+
+                        <TextBlock Grid.Row="1" Text="Metadata properties" Opacity="0.6"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind SupportedProperties}"/>
+
+                        <TextBlock Grid.Row="2" Text="Test corpus" Opacity="0.6"/>
+                        <TextBlock Grid.Row="2" Grid.Column="1"><Run Text="{x:Bind TestFiles}"/> real .sav files</TextBlock>
+
+                        <TextBlock Grid.Row="3" Text="Test suite" Opacity="0.6"/>
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{x:Bind TestCoverage}" TextWrapping="Wrap"/>
+
+                        <TextBlock Grid.Row="4" Text="Fuzz testing" Opacity="0.6"/>
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{x:Bind FuzzStats}" TextWrapping="Wrap"/>
+
+                        <TextBlock Grid.Row="5" Text="Dependencies" Opacity="0.6"/>
+                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{x:Bind Dependencies}" TextWrapping="Wrap"/>
+
+                        <TextBlock Grid.Row="6" Text="Binary" Opacity="0.6"/>
+                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{x:Bind BinarySize}" TextWrapping="Wrap"/>
+
+                        <TextBlock Grid.Row="7" Text="Bus factor" Opacity="0.6"/>
+                        <TextBlock Grid.Row="7" Grid.Column="1" Text="1 (it's just me. forkless. hi.)" TextWrapping="Wrap"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <TextBlock TextWrapping="Wrap" Margin="0,8,0,0">
                 This is an unofficial fan-made utility and is not affiliated with or endorsed by KRAFTON or Unknown Worlds Entertainment.
             </TextBlock>
