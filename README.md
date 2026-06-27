@@ -18,6 +18,12 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 - **Warns** on name changes and mode switches before recovery
 - **Transaction log** — all actions timestamped to `transaction.log`
 
+### ⚠ Important
+
+**NotAlterra is a read-only metadata inspector and backup tool.** It does not edit `.sav` files in-place. Recovery operations restore a `.bak` copy to `.sav` (identical to a manual file copy). No save data is ever patched, rewritten, or modified byte-by-byte.
+
+**Metadata extraction uses a heuristic byte-scan** — it searches for known property names (`DisplayName`, `GameMode`, `PlaytimeSeconds`, etc.) as raw byte patterns in the binary GVAS data. This is NOT a full UE5 GVAS structure walker. Some fields may be absent or misidentified if the save format changes in a game update.
+
 ## Privacy
 
 **NotAlterra makes no network connections. No telemetry. No data leaves your machine.**
