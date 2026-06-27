@@ -114,15 +114,24 @@ jobs:
             -f net9.0-windows10.0.26100.0 `
             -p:WindowsPackageType=MSIX `
             -p:AppxPackageSigningEnabled=true `
-            -p:PackageCertificateThumbprint=$env:CERT_THUMB
+            -p:PackageCertificateThumbprint=$env:CERT_THUMB `
+            -p:AppxPackageDir="$env:RUNNER_TEMP\AppPackages\"
 
       - name: Collect MSIX artifacts
         shell: pwsh
         run: |
-          $pkg = Get-ChildItem -Recurse "AppPackages\*.msixupload" | Select-Object -First 1
-          if ($pkg) { Copy-Item $pkg.FullName .\publish\ }
-          Get-ChildItem .\publish\
-        continue-on-error: true
+          mkdir -Force publish | Out-Null
+          $pkg = Get-ChildItem -Recurse "$env:RUNNER_TEMP\AppPackages\*.msixupload,*.msixbundle" | Select-Object -First 1
+          if ($pkg) {
+            Copy-Item $pkg.FullName publish/
+            Write-Host "MSIX found: $($pkg.Name)"
+          } else {
+            Write-Warning "No MSIX in RUNNER_TEMP — searching workspace..."
+            $pkg2 = Get-ChildItem -Recurse "src/NotAlterra.UI/*/AppPackages/*.msixupload" | Select-Object -First 1
+            if ($pkg2) { Copy-Item $pkg2.FullName publish/; Write-Host "Found: $($pkg2.Name)" }
+            else { Write-Error "No MSIX package found" }
+          }
+          Get-ChildItem publish/
 
       - name: Create draft release
         uses: softprops/action-gh-release@v2
