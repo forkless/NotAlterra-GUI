@@ -40,8 +40,8 @@ $fuzzArgs = @("run", "--project", $ProjectDir, "-c", "Release", "--no-build", "-
 dotnet $fuzzArgs 2>&1
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "=== $Target: $Runs runs, no crashes ===" -Foreground Green
+    Write-Host "=== ${Target}: ${Runs} runs, no crashes ===" -Foreground Green
 } else {
-    Write-Host "=== $Target: CRASH FOUND (exit $LASTEXITCODE) ===" -Foreground Red
+    Write-Host "=== ${Target}: CRASH FOUND (exit ${LASTEXITCODE}) ===" -Foreground Red
     exit $LASTEXITCODE
 }
