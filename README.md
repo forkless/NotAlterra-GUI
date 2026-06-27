@@ -33,9 +33,9 @@ If network features are added in a future version, they will require explicit us
 
 ### Prerequisites
 
-- Windows 11
+- Windows 10 1809+ / Windows 11
 - [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
-- Windows App SDK 1.8 runtime (included with Windows App SDK NuGet)
+- [Windows App SDK 1.8 runtime](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads) — install the MSI from the link
 
 ### Build & run
 
