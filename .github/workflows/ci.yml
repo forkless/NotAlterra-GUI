@@ -78,22 +78,33 @@ jobs:
       - name: Build MSIX
         shell: pwsh
         run: |
+          $outDir = "$env:RUNNER_TEMP/msix"
           dotnet publish src/NotAlterra.UI -c Release `
             -f net9.0-windows10.0.26100.0 `
             -p:WindowsPackageType=MSIX `
             -p:AppxPackageSigningEnabled=true `
             -p:PackageCertificateThumbprint=$env:CERT_THUMB
+          Write-Host "=== Build output ==="
+          Get-ChildItem -Recurse -Depth 2 src/NotAlterra.UI/*/AppPackages/ -ErrorAction SilentlyContinue | Select FullName
 
       - name: Collect MSIX artifacts
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
-          $pkg = Get-ChildItem -Recurse -Filter *.msixupload | Select-Object -First 1
-          if (-not $pkg) { $pkg = Get-ChildItem -Recurse -Filter *.msixbundle | Select-Object -First 1 }
+          $exts = @("*.msixupload","*.msixbundle","*.appxupload","*.appxbundle","*.msix")
+          $pkg = $null
+          foreach ($ext in $exts) {
+            $pkg = Get-ChildItem -Recurse -Filter $ext -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($pkg) { break }
+          }
           if ($pkg) {
             Copy-Item $pkg.FullName publish/
             Write-Host "MSIX: $($pkg.Name) ($($pkg.Length) bytes)"
-          } else { Write-Error "No MSIX package found" }
+          } else {
+            Write-Warning "Searching for ANY package file..."
+            Get-ChildItem -Recurse src/NotAlterra.UI | Where-Object { $_.Extension -match 'msix|appx' } | Select FullName
+            Write-Error "No MSIX package found"
+          }
           Get-ChildItem publish/
 
       - name: Create draft release
