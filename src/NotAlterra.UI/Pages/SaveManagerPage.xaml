@@ -10,26 +10,26 @@
 
     <ScrollViewer>
         <StackPanel Padding="24" Spacing="16">
-            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Save Manager" />
-            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Manage your Subnautica 2 save files" />
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Save Manager" Margin="16,0,0,0"/>
+            
 
-            <Button x:Name="SaveSlotsBtn" Click="OnSaveSlots" HorizontalAlignment="Stretch" Height="80" CornerRadius="8" Margin="0,8,0,0" Background="{ThemeResource CardBackgroundFillColorDefault}">
+            <Button x:Name="SaveSlotsBtn" Click="OnSaveSlots" HorizontalAlignment="Stretch" Height="80" CornerRadius="8" Margin="0,8,0,0" Background="{ThemeResource CardBackgroundFillColorDefault}" HorizontalContentAlignment="Left">
                 <StackPanel VerticalAlignment="Center" Margin="16,0">
-                    <TextBlock Text="Save Slots" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text="Save Management" FontWeight="Bold" FontSize="16"/>
                     <TextBlock Text="Browse, inspect and recover save files" Opacity="0.6" FontSize="13"/>
                 </StackPanel>
             </Button>
 
-            <Button x:Name="BackupsBtn" Click="OnBackups" HorizontalAlignment="Stretch" Height="80" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}">
+            <Button x:Name="BackupsBtn" Click="OnBackups" HorizontalAlignment="Stretch" Height="80" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" HorizontalContentAlignment="Left">
                 <StackPanel VerticalAlignment="Center" Margin="16,0">
-                    <TextBlock Text="Backups" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text="Backup Management" FontWeight="Bold" FontSize="16"/>
                     <TextBlock Text="Create and restore full save archives" Opacity="0.6" FontSize="13"/>
                 </StackPanel>
             </Button>
 
-            <Button x:Name="IniConfigBtn" Click="OnIniConfig" HorizontalAlignment="Stretch" Height="80" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}">
+            <Button x:Name="IniConfigBtn" Click="OnIniConfig" HorizontalAlignment="Stretch" Height="80" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" HorizontalContentAlignment="Left">
                 <StackPanel VerticalAlignment="Center" Margin="16,0">
-                    <TextBlock Text="INI Config" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text="INI Management" FontWeight="Bold" FontSize="16"/>
                     <TextBlock Text="Manage UE5 configuration files" Opacity="0.6" FontSize="13"/>
                 </StackPanel>
             </Button>

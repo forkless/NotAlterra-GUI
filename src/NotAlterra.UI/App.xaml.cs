@@ -1,4 +1,4 @@
-﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
@@ -15,7 +15,7 @@ namespace NotAlterra_UI;
 /// </summary>
 public partial class App : Application
 {
-    private Window? _window;
+    private Window? _window; public static Window? MainWindow => (Current as App)?._window;
     
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code

@@ -21,10 +21,26 @@
                 KRAFTON® is a registered trademark of KRAFTON, Inc., and Unknown Worlds Entertainment™ is a trademark of Unknown Worlds Entertainment, Inc.
             </TextBlock>
 
+            <TextBlock TextWrapping="Wrap" Opacity="0.5" Margin="0,12,0,0">
+                Unreal® is a trademark or registered trademark of Epic Games, Inc. in the United States of America and elsewhere.
+            </TextBlock>
+            <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,4,0,0">
+                Unreal Engine, Copyright 1998-2026, Epic Games, Inc. All rights reserved.
+            </TextBlock>
+
             <TextBlock TextWrapping="Wrap" Opacity="0.6" Margin="0,8,0,0">
                 NotAlterra makes no network connections. No telemetry. No data leaves your machine.
                 This tool runs entirely offline.
             </TextBlock>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="About 40MB" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        No it is not the 3.7MB 40-second loop.webm. It is the .NET + WinAppSDK runtime. Think of it as the Windows App Tax. You pay it once and forget about it. If you dont like OS overhead you know where the Linux ISO is. Or TempleOS if you hate yourself.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
 
             <TextBlock Text="Copyright &amp; Attribution" FontWeight="SemiBold" Margin="0,16,0,0"/>
             <StackPanel Spacing="4">
@@ -37,7 +53,7 @@
             </StackPanel>
 
             <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,8,0,0">
-                NotAlterra © 2026 forkless.com — released under the MIT License
+                NotAlterra © 2026 forkless.com - released under the MIT License
             </TextBlock>
         </StackPanel>
     </ScrollViewer>

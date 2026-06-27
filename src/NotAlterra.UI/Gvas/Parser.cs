@@ -179,11 +179,24 @@ public static class GvasParser
         var data = File.ReadAllBytes(filePath);
         var span = new ReadOnlySpan<byte>(data);
 
+        // ── Corruption scan ──
+        string? corruption = data.Length < 500
+            ? "File is too small to be a valid save (under 500 bytes)"
+            : null;
+        if (corruption == null && data.AsSpan(0, Math.Min(100, data.Length)).IndexOfAnyExcept((byte)0) < 0)
+            corruption = "File appears to be blank or zeroed";
+        if (corruption == null && data[0] != 'G')
+            corruption = "Missing GVAS/GSWU header (truncated or not a save file)";
+
         var slot = ExtractStrProperty(span, "SlotName");
         var display = ExtractStrProperty(span, "DisplayName");
         var game = ExtractStrProperty(span, "GameMode");
         var level = ExtractStrProperty(span, "LevelName");
         var branch = ExtractStrProperty(span, "BuildBranch");
+
+        // If metadata scan found nothing and corruption not already flagged
+        if (corruption == null && slot == null && display == null && game == null)
+            corruption = "No recognizable save metadata found (file structure is corrupt)";
 
         return new FullMetadata
         {
@@ -199,6 +212,7 @@ public static class GvasParser
             LatestVersion = ExtractIntProperty(span, "LatestVersion"),
             DataVersion = ExtractIntProperty(span, "DataVersion"),
             PlaytimeSeconds = ScanDoubleNearElapsed(span),
+            CorruptionReason = corruption,
         };
     }
 

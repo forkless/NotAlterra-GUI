@@ -17,11 +17,11 @@ public sealed partial class SaveManagerPage : Page
 
     private void OnBackups(object sender, RoutedEventArgs e)
     {
-        Frame.Navigate(typeof(AboutPage));
+        Frame.Navigate(typeof(BackupsPage));
     }
 
     private void OnIniConfig(object sender, RoutedEventArgs e)
     {
-        Frame.Navigate(typeof(AboutPage));
+        Frame.Navigate(typeof(IniConfigPage));
     }
 }

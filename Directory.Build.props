@@ -7,6 +7,5 @@
     <PackageReference Include="Microsoft.Windows.CppWinRT" Version="2.0.250303.1">
       <IncludeAssets>build</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
   </ItemGroup>
 </Project>

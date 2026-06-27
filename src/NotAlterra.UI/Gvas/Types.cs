@@ -18,6 +18,7 @@ public record FullMetadata
     public uint? LatestVersion { get; init; }
     public uint? DataVersion { get; init; }
     public double? PlaytimeSeconds { get; init; }
+    public string? CorruptionReason { get; init; }
 }
 
 /// User-facing metadata for the restore picker.

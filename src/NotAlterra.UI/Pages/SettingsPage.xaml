@@ -8,12 +8,75 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Padding="24,16,24,16" RowSpacing="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Settings" />
-        <TextBlock Grid.Row="1" Text="This is the Settings page" />
-    </Grid>
+    <ScrollViewer>
+        <StackPanel Padding="32,32,64,32" Spacing="16" MaxWidth="800">
+
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Settings"/>
+            <TextBlock TextWrapping="Wrap" Opacity="0.6">
+                bro idk what to put here either
+            </TextBlock>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Save Folder" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        NotAlterra auto-detects your Subnautica 2 saves. You literally do not need to configure anything.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.3" FontFamily="Consolas" FontSize="12">
+                        %LOCALAPPDATA%\Subnautica2\Saved\SaveGames
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Backup Location" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        Full backups (tar.gz archives) go to %USERPROFILE%\NotAlterra\backups\. If you really need to change it, you can. Why would you though.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Game Guard" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        The app checks if Subnautica 2 is running before letting you do anything destructive. This has saved exactly zero saves so far but it makes me look professional.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Disclaimer" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        You already accepted it. If you want to read the wall of text again, you do you. Go read the MIT License, go bash a EULA you do not like. Gamer favorite past-time these days.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Planned Features" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        font size slider for sidebar text (because someone asked)
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        font color thingy
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        probably more stuff i forgot
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        maybe a dark mode toggle for the dark mode that is already on (peak UX)
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <TextBlock TextWrapping="Wrap" Opacity="0.3" Margin="0,8,0,0" FontStyle="Italic">
+                this page will probably have actual settings one day. maybe. dont hold your breath.
+            </TextBlock>
+
+        </StackPanel>
+    </ScrollViewer>
 </Page>

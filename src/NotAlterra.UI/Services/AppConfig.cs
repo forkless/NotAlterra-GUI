@@ -105,12 +105,13 @@ public static class AppConfig
         string? SaveFolder,
         string? BackupRoot);
 
-    /// Load app.ini. Returns default if file missing.
+    /// Load app.ini. Expands %LOCALAPPDATA% to full path.
     public static ConfigValues LoadAppConfig()
     {
         var path = AppIniPath();
         if (!File.Exists(path)) return new ConfigValues(null, null);
 
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         string? saveFolder = null, backupRoot = null;
         foreach (var line in File.ReadAllLines(path))
         {
@@ -120,21 +121,23 @@ public static class AppConfig
             if (eq < 0) continue;
             var key = trimmed[..eq].Trim();
             var val = trimmed[(eq + 1)..].Trim();
+            val = val.Replace("%LOCALAPPDATA%", localAppData);
             if (key == "save_folder") saveFolder = val;
             else if (key == "backup_root") backupRoot = val;
         }
         return new ConfigValues(saveFolder, backupRoot);
     }
 
-    /// Write current session paths to app.ini.
+    /// Write current session paths to app.ini. Replaces username paths with %LOCALAPPDATA%.
     public static void SaveAppConfig(string? saveFolder, string? backupRoot)
     {
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         var sb = new StringBuilder();
         sb.AppendLine("# NotAlterra configuration");
         sb.AppendLine("# This file is auto-generated. Edit while the tool is not running.");
         sb.AppendLine();
-        if (saveFolder != null) sb.AppendLine($"save_folder = {saveFolder}");
-        if (backupRoot != null) sb.AppendLine($"backup_root = {backupRoot}");
+        if (saveFolder != null) sb.AppendLine($"save_folder = {saveFolder.Replace(localAppData, "%LOCALAPPDATA%")}");
+        if (backupRoot != null) sb.AppendLine($"backup_root = {backupRoot.Replace(localAppData, "%LOCALAPPDATA%")}");
         File.WriteAllText(AppIniPath(), sb.ToString());
     }
 

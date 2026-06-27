@@ -14,66 +14,128 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Padding="24,24,24,0">
-            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Save Slots"/>
-            <TextBlock x:Name="StatusText" Text="Scanning..." Opacity="0.6" Margin="0,4,0,12"/>
-        </StackPanel>
+        <Grid Grid.Row="0" Padding="24,24,24,0" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="&#xE97A;" FontFamily="Segoe MDL2 Assets" FontSize="24" FontWeight="SemiBold" RenderTransformOrigin="0.5,0" Tapped="OnGoBack"><TextBlock.RenderTransform><ScaleTransform ScaleY="-1"/></TextBlock.RenderTransform></TextBlock>
+                <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Save Slots" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Border Grid.Column="2" x:Name="SlotCountBadge" Width="56" Height="56" CornerRadius="8" Background="#1AE8A84C" VerticalAlignment="Center">
+                <TextBlock x:Name="SlotCountText" Text="0" FontSize="24" FontWeight="Bold" Foreground="#FFE8A84C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </Border>
+            <TextBlock x:Name="StatusText" Grid.ColumnSpan="3" Text="No save files found" Opacity="0.6" Visibility="Collapsed" Margin="0,4,0,0"/>
+        </Grid>
 
         <ScrollViewer Grid.Row="1">
             <ItemsRepeater x:Name="SlotList" Margin="24,0,24,24">
                 <ItemsRepeater.ItemTemplate>
                     <DataTemplate>
-                        <Border Margin="0,0,0,12" CornerRadius="10" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
-                            <StackPanel Spacing="8">
+                        <Border Margin="0,0,0,12" CornerRadius="10" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="24">
+                            <StackPanel Spacing="12">
                                 <!-- Main slot row -->
-                                <Grid>
+                                <Grid Tapped="OnToggleCard">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="90"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Width="56" Height="56" CornerRadius="8" Background="#1A66FFFF" VerticalAlignment="Center" Margin="0,0,16,0">
-                                        <TextBlock Text="{Binding Number}" FontSize="24" FontWeight="Bold" Foreground="#FF66FFFF" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="0" Width="56" Height="56" CornerRadius="8" Background="#1AE8A84C" VerticalAlignment="Center" Margin="0,0,16,0">
+                                        <TextBlock Text="{Binding Number}" FontSize="24" FontWeight="Bold" Foreground="#FFE8A84C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                                        <TextBlock Text="{Binding NameDisplay}" FontSize="16" FontWeight="SemiBold"/>
-                                        <StackPanel Orientation="Horizontal" Spacing="12">
-                                            <TextBlock Text="{Binding PlaytimeDisplay}" FontSize="13" Foreground="#FF66FFFF"/>
-                                            <TextBlock Text="{Binding ModeDisplay}" FontSize="13" Opacity="0.6"/>
-                                            <TextBlock Text="{Binding GameModeDisplay}" FontSize="13" Opacity="0.6"/>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{Binding NameDisplay}" FontSize="18" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding ChevronGlyph}" FontFamily="{Binding ChevronFont}" FontSize="14" Foreground="#FFE8A84C" VerticalAlignment="Center"/>
                                         </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Spacing="12">
-                                            <TextBlock Text="{Binding SizeDisplay}" FontSize="12" Opacity="0.5"/>
-                                            <TextBlock Text="{Binding ModifiedDisplay}" FontSize="12" Opacity="0.5"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="14">
+                                            <TextBlock Text="{Binding PlaytimeDisplay}" FontSize="14"/>
+                                            <TextBlock Text="{Binding ModeDisplay}" FontSize="14" Opacity="0.6">
+                                                <ToolTipService.ToolTip>
+                                                    <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
+                                                        <Border Padding="14,10" CornerRadius="4">
+                                                            <StackPanel Spacing="6">
+                                                                <TextBlock Text="{Binding ModeDisplay}" FontSize="16" FontWeight="SemiBold" Foreground="#FFE8A84C"/>
+                                                                <TextBlock Text="{Binding ModeTooltip}" FontSize="14" TextWrapping="Wrap" MaxWidth="280"/>
+                                                                <TextBlock Text="Hover mode labels for details" FontSize="12" Opacity="0.4"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </ToolTip>
+                                                </ToolTipService.ToolTip>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding GameModeDisplay}" FontSize="14" Opacity="0.6"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="14">
+                                            <TextBlock Text="{Binding SizeDisplay}" FontSize="14" Opacity="0.5"/>
+                                            <TextBlock Text="{Binding ModifiedDisplay}" FontSize="14" Opacity="0.5"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
-                                        <Border CornerRadius="4" Background="#1A66FFFF" Padding="8,3">
-                                            <TextBlock Text="{Binding SavesCountDisplay}" FontSize="11" Foreground="#FF66FFFF"/>
-                                        </Border>
+                                        <TextBlock Text="{Binding CorruptionIcon}" FontFamily="{Binding CorruptionFont}" FontSize="18" HorizontalAlignment="Center" Visibility="{Binding CorruptionVisible}">
+                                            <ToolTipService.ToolTip>
+                                                <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
+                                                    <Border Padding="14,10" CornerRadius="4">
+                                                        <StackPanel Spacing="6">
+                                                            <TextBlock Text="Corruption Warning" FontSize="16" FontWeight="SemiBold" Foreground="#FFE8A84C"/>
+                                                            <StackPanel MaxWidth="280"><TextBlock Text="{Binding CorruptionPrefix}" FontSize="14" TextWrapping="Wrap"/><TextBlock Text="{Binding CorruptionDetail}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/></StackPanel>
+                                                        </StackPanel>
+                                                    </Border>
+                                                </ToolTip>
+                                            </ToolTipService.ToolTip>
+                                        </TextBlock>
                                         <Border CornerRadius="4" Background="#1AFFFFFF" Padding="8,3" Opacity="0.4">
-                                            <TextBlock Text="{Binding BuildDisplay}" FontSize="11"/>
+                                            <TextBlock Text="{Binding BuildDisplay}" FontSize="14"/>
                                         </Border>
                                     </StackPanel>
                                 </Grid>
-                                <!-- Backup sub-list -->
-                                <ItemsRepeater ItemsSource="{Binding Backups}" Margin="32,0,0,0">
+                                <!-- Backup sub-cards -->
+                                <ItemsRepeater ItemsSource="{Binding Backups}" Margin="72,0,0,0" Visibility="{Binding BackupsVisibility}">
                                     <ItemsRepeater.ItemTemplate>
                                         <DataTemplate>
-                                            <Grid Margin="0,4,0,0" Opacity="0.7">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="0" FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                <StackPanel Grid.Column="1">
-                                                    <TextBlock Text="{Binding Name}" FontSize="12"/>
-                                                    <StackPanel Orientation="Horizontal" Spacing="12">
-                                                        <TextBlock Text="{Binding SizeDisplay}" FontSize="11" Opacity="0.5"/>
-                                                        <TextBlock Text="{Binding ModifiedDisplay}" FontSize="11" Opacity="0.5"/>
+                                            <Border Margin="0,8,0,0" CornerRadius="6" Background="#1AFFFFFF" BorderBrush="#15FFFFFF" BorderThickness="1" Padding="0,14,14,14">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="40"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding CorruptionIcon}" FontFamily="{Binding CorruptionFont}" FontSize="16" Foreground="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="{Binding CorruptionVisible}">
+                                                        <ToolTipService.ToolTip>
+                                                            <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
+                                                                <Border Padding="14,10" CornerRadius="4">
+                                                                    <StackPanel Spacing="6">
+                                                                        <TextBlock Text="Corruption Warning" FontSize="16" FontWeight="SemiBold" Foreground="#FFE8A84C"/>
+                                                                        <StackPanel MaxWidth="280"><TextBlock Text="{Binding CorruptionPrefix}" FontSize="14" TextWrapping="Wrap"/><TextBlock Text="{Binding CorruptionDetail}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/></StackPanel>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                            </ToolTip>
+                                                        </ToolTipService.ToolTip>
+                                                    </TextBlock>
+                                                    <Rectangle Grid.Column="1" Width="3" Fill="#FFE8A84C" Opacity="0.5" HorizontalAlignment="Left" Margin="6,0,10,0"/>
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,0,0">
+                                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                                            <TextBlock Text="{Binding NameDisplay}" FontSize="18" FontWeight="SemiBold"/>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                                            <TextBlock Text="{Binding PlaytimeDisplay}" FontSize="14"/>
+                                                            <TextBlock Text="{Binding ModeDisplay}" FontSize="14" Opacity="0.5"/>
+                                                            <TextBlock Text="{Binding BuildDisplay}" FontSize="14" Opacity="0.5"/>
+                                                        </StackPanel>
+                                                        <StackPanel Orientation="Horizontal" Spacing="10">
+                                                            <TextBlock Text="{Binding SizeDisplay}" FontSize="14" Opacity="0.4"/>
+                                                            <TextBlock Text="{Binding ModifiedDisplay}" FontSize="14" Opacity="0.4"/>
+                                                        </StackPanel>
                                                     </StackPanel>
-                                                </StackPanel>
-                                            </Grid>
+                                                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                        <Button Content="Recover" Tag="{Binding FilePath}" Click="OnRecover" FontSize="12" Padding="10,6" CornerRadius="4"/>
+                                        <Button Content="Delete" Tag="{Binding FilePath}" Click="OnDeleteBak" FontSize="12" Padding="10,6" CornerRadius="4" Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold" Visibility="{Binding CorruptionVisible}"/>
+                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
                                         </DataTemplate>
                                     </ItemsRepeater.ItemTemplate>
                                 </ItemsRepeater>

@@ -9,38 +9,78 @@
     mc:Ignorable="d">
 
     <ScrollViewer>
-        <StackPanel Padding="24" Spacing="16">
-            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="NotAlterra" />
-            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Subnautica 2 Save Manager" />
-            <TextBlock Opacity="0.6" Text="Not affiliated with Unknown Worlds Entertainment or KRAFTON." />
+        <StackPanel Padding="32,32,64,32" Spacing="20" MaxWidth="800">
 
-            <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,16,0,0">
-                <Button x:Name="ScanButton" Click="OnScanSaves" Content="Scan Saves" />
-                <Button x:Name="ParseButton" Click="OnParseSave" Content="Parse First Save" />
-                <Button x:Name="BackupButton" Click="OnTestBackup" Content="Test Backup" />
-            </StackPanel>
+            <!-- Header -->
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="NotAlterra"/>
+            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Subnautica 2 Save Manager" Opacity="0.8"/>
+            
 
-            <!-- Save path display -->
-            <TextBlock x:Name="SavePathText" Style="{StaticResource BodyTextBlockStyle}" />
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Quick Start" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap">
+                        1. Click <Run FontWeight="SemiBold" Foreground="#FFE8A84C">Save Manager</Run> in the sidebar to browse your saves
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap">
+                        2. Expand a slot to see available backups
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap">
+                        3. Click <Run FontWeight="SemiBold" Foreground="#FFE8A84C">Recover</Run> to restore a backup. A snapshot is created automatically.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap">
+                        4. Hover warning icons and mode labels for details about each file
+                    </TextBlock>
+                </StackPanel>
+            </Border>
 
-            <!-- Metadata display -->
-            <ListView x:Name="MetaList" MinHeight="200" MaxHeight="400" Visibility="Collapsed">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" FontWeight="SemiBold" Text="{Binding Key}" />
-                            <TextBlock Grid.Column="1" Text="{Binding Value}" />
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="How It Protects Your Saves" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Read-only inspection</Run>: browsing never modifies files</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Pre-recovery snapshots</Run>: every Recover creates a backup first</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Game guard</Run>: warns if Subnautica 2 is running</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Corruption detection</Run>: flags broken files with a warning</TextBlock>
+                </StackPanel>
+            </Border>
 
-            <!-- Backup result display -->
-            <TextBlock x:Name="ResultText" Style="{StaticResource BodyTextBlockStyle}" />
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Understanding the Cards" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Slot number</Run>: identifies the save slot (0, 1, 2...)</TextBlock>
+                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Playtime</Run>: hours played from save metadata</TextBlock>
+                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Single Player / Multiplayer / Was Multiplayer</Run>: game mode with tooltip</TextBlock>
+                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Build</Run>: UE5 build number</TextBlock>
+                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Warning icon</Run>: corrupted file, hover for details</TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Backup Files" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap">
+                        Each slot has a <Run FontWeight="SemiBold">canonical</Run> file (<Run FontFamily="Consolas">savegame_N.sav</Run>). The game creates <Run FontWeight="SemiBold" Foreground="#FFE8A84C">backups</Run> (<Run FontFamily="Consolas">.bak</Run> files) with each save.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Foreground="#FFE8A84C">Recover</Run> copies a .bak over the .sav and creates a pre-recovery snapshot as a courtesy. Always keep your own independent backups. The tool does not guarantee recovery.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Privacy Statement" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap">I am just as keen on privacy as you are so this app will not;</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ connect to the internet. It contains zero networking code.</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ send telemetry, analytics, or crash reports of any kind.</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ enable the Windows App SDK opt-in telemetry feature.</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ store anything beyond timestamps in <Run FontFamily="Consolas">transaction.log</Run>.</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ store any data in <Run FontFamily="Consolas">%LOCALAPPDATA%\NotAlterra\config\</Run> beyond an empty completion marker.</TextBlock>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="NotAlterra © 2026 forkless.com under the MIT License" Opacity="0.3" Margin="0,16,0,0"/>
+
         </StackPanel>
     </ScrollViewer>
 </Page>

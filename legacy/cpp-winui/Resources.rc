@@ -1,0 +1,4 @@
+// NotAlterra — Application icon (ID 1 = default app icon for Windows)
+#include <winres.h>
+
+1 ICON "Assets/appicon.ico"
