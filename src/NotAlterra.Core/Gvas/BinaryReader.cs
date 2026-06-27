@@ -88,7 +88,11 @@ public static class BinaryReader
             {
                 chars[i] = (char)(data[off + i * 2] | (data[off + i * 2 + 1] << 8));
             }
-            value = new string(chars);
+            // Strip trailing null char(s) — consistent with UTF-8 path
+            int last = codeUnits - 1;
+            while (last >= 0 && chars[last] == '\0')
+                last--;
+            value = new string(chars[..(last + 1)]);
         }
         else
         {
