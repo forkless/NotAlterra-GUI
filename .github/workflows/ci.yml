@@ -19,6 +19,14 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
       - name: Restore
         run: dotnet restore src/NotAlterra.UI/NotAlterra.UI.csproj src/NotAlterra.UI.Tests/NotAlterra.UI.Tests.csproj
 
@@ -39,6 +47,14 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - name: Install SharpFuzz CLI
         run: dotnet tool install -g SharpFuzz.CommandLine
@@ -65,6 +81,14 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
 
       - name: Build Release
         run: dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o publish/
