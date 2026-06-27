@@ -64,66 +64,43 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
-      - name: Generate signing cert
+      - name: Signing cert
         shell: pwsh
         run: |
-          $cert = New-SelfSignedCertificate -Type Custom `
-            -Subject "CN=NotAlterra CI" `
-            -KeyUsage DigitalSignature `
-            -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") `
-            -CertStoreLocation "Cert:\CurrentUser\My"
-          $thumb = $cert.Thumbprint
-          echo "CERT_THUMB=$thumb" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $cert = New-SelfSignedCertificate -Type Custom -Subject "CN=NotAlterra CI" -KeyUsage DigitalSignature -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") -CertStoreLocation "Cert:\CurrentUser\My"
+          echo "CERT_THUMB=$($cert.Thumbprint)" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      - name: Build MSIX
+      - name: Package MSIX
         shell: pwsh
         run: |
-          dotnet publish src/NotAlterra.UI -c Release `
-            -p:RuntimeIdentifier=win-x64 `
-            -p:AppxPackage=true `
-            -p:AppxBundle=Never `
-            -f net9.0-windows10.0.26100.0 `
-            -p:WindowsPackageType=MSIX `
-            -p:AppxPackageSigningEnabled=true `
-            -p:PackageCertificateThumbprint=$env:CERT_THUMB
-          Write-Host "=== Search for packages ==="
-          Get-ChildItem -Recurse -Depth 5 src/NotAlterra.UI/bin/Release/ -ErrorAction SilentlyContinue |
-            Select-Object Mode, FullName
+          dotnet msbuild src/NotAlterra.UI/NotAlterra.UI.csproj /t:Publish `
+            /p:Configuration=Release /p:RuntimeIdentifier=win-x64 `
+            /p:AppxPackage=true /p:AppxBundle=Never `
+            /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint=$env:CERT_THUMB
+          Write-Host "=== Looking for MSIX ==="
+          Get-ChildItem -Recurse src/NotAlterra.UI/AppPackages/ -ErrorAction SilentlyContinue | Select FullName, Length
 
-      - name: Collect MSIX artifacts
+      - name: Collect
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
-          # Look for direct .msix first, then .msixupload
-          $pkg = Get-ChildItem -Recurse -Depth 5 src/NotAlterra.UI/ -ErrorAction SilentlyContinue |
-            Where-Object { $_.Extension -eq '.msix' } |
-            Select-Object -First 1
-          if (-not $pkg) {
-            $upload = Get-ChildItem -Recurse -Depth 5 src/NotAlterra.UI/ -ErrorAction SilentlyContinue |
-              Where-Object { $_.Extension -eq '.msixupload' } |
-              Select-Object -First 1
-            if ($upload) {
-              Write-Host "Extracting .msix from .msixupload..."
-              Expand-Archive -Path $upload.FullName -DestinationPath publish/
-              $pkg = Get-ChildItem publish/*.msix | Select-Object -First 1
-            }
+          $exts = @('.msix', '.msixupload', '.msixbundle')
+          foreach ($ext in $exts) {
+            $f = Get-ChildItem -Recurse -Filter "*$ext" -ErrorAction SilentlyContinue | Select-Object -First 1
+            if ($f) { Copy-Item $f.FullName publish/; Write-Host "PACKAGE: $($f.Name)"; break }
           }
-          if ($pkg) {
-            Copy-Item $pkg.FullName publish/ -ErrorAction SilentlyContinue
-            Write-Host "MSIX: $($pkg.Name) ($($pkg.Length) bytes)"
-          } else {
-            Write-Host "=== Project bin tree ==="
-            Get-ChildItem -Depth 3 src/NotAlterra.UI/bin/ -ErrorAction SilentlyContinue | Select Mode, FullName
-            Write-Error "No MSIX package found"
+          if (-not (Get-ChildItem publish/)) {
+            Get-ChildItem -Recurse -Depth 3 publish/ -ErrorAction SilentlyContinue | Select FullName
+            throw "No package produced"
           }
-          Get-ChildItem publish/
 
-      - name: Create draft release
+      - name: Draft release
         uses: softprops/action-gh-release@v3
         with:
           files: publish/**
           body: |
             ## NotAlterra ${{ github.ref_name }}
 
-            Windows MSIX installer. See [CHANGELOG.md](CHANGELOG.md) for details.
+            Windows MSIX installer — extract and run NotAlterra.UI.exe.
+            See [CHANGELOG.md](CHANGELOG.md) for details.
           draft: true
