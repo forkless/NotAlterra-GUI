@@ -94,16 +94,22 @@ jobs:
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
-          $pkg = Get-ChildItem -Recurse -Depth 5 src/NotAlterra.UI/bin/Release/ -ErrorAction SilentlyContinue |
-            Where-Object { $_.Extension -match 'msix|appx' } |
+          # Look for direct .msix first, then .msixupload
+          $pkg = Get-ChildItem -Recurse -Depth 5 src/NotAlterra.UI/ -ErrorAction SilentlyContinue |
+            Where-Object { $_.Extension -eq '.msix' } |
             Select-Object -First 1
           if (-not $pkg) {
-            $pkg = Get-ChildItem -Recurse -Depth 5 src/NotAlterra.UI/ -ErrorAction SilentlyContinue |
-              Where-Object { $_.Name -match 'msix|appx' } |
+            $upload = Get-ChildItem -Recurse -Depth 5 src/NotAlterra.UI/ -ErrorAction SilentlyContinue |
+              Where-Object { $_.Extension -eq '.msixupload' } |
               Select-Object -First 1
+            if ($upload) {
+              Write-Host "Extracting .msix from .msixupload..."
+              Expand-Archive -Path $upload.FullName -DestinationPath publish/
+              $pkg = Get-ChildItem publish/*.msix | Select-Object -First 1
+            }
           }
           if ($pkg) {
-            Copy-Item $pkg.FullName publish/
+            Copy-Item $pkg.FullName publish/ -ErrorAction SilentlyContinue
             Write-Host "MSIX: $($pkg.Name) ($($pkg.Length) bytes)"
           } else {
             Write-Host "=== Project bin tree ==="
