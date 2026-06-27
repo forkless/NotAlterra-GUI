@@ -100,7 +100,7 @@ public sealed partial class SaveSlotsPage : Page
         if (Frame.CanGoBack) Frame.GoBack();
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object? sender, RoutedEventArgs? e)
     {
         var dir = @"D:\Development\NotAlterra-GUI\gvas-files";
         var savFiles = Directory.GetFiles(dir, "savegame_*.sav");
