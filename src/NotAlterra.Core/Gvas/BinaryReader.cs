@@ -55,6 +55,10 @@ public static class BinaryReader
         return (s, off + length);
     }
 
+    // Max reasonable GVAS string size (10 MB).
+    // Prevents OOM / stack overflow from corrupt or extreme inputs.
+    private const int MaxFStringBytes = 10 * 1024 * 1024;
+
     /// Read an FString: &lt;i32 length&gt; — negative=UTF16, positive=UTF8 (incl null).
     /// Returns (string, new_offset) or (null, offset) on failure.
     public static (string? Value, int NextOffset) ReadFString(
@@ -71,9 +75,21 @@ public static class BinaryReader
             return (string.Empty, off);
 
         bool isUtf16 = rawLenVal < 0;
-        int bytes = isUtf16
-            ? -rawLenVal * 2
-            : rawLenVal;
+        int bytes;
+        try
+        {
+            // Guard against overflow: int.MinValue cannot be negated safely
+            bytes = isUtf16
+                ? checked(-rawLenVal * 2)
+                : rawLenVal;
+        }
+        catch (OverflowException)
+        {
+            return (null, off);
+        }
+
+        if (bytes <= 0 || bytes > MaxFStringBytes)
+            return (null, off);
 
         if (off + bytes > data.Length)
             return (null, off);
@@ -83,7 +99,7 @@ public static class BinaryReader
         {
             // Decode UTF-16 LE
             int codeUnits = bytes / 2;
-            Span<char> chars = stackalloc char[codeUnits];
+            var chars = new char[codeUnits];
             for (int i = 0; i < codeUnits; i++)
             {
                 chars[i] = (char)(data[off + i * 2] | (data[off + i * 2 + 1] << 8));
@@ -92,7 +108,7 @@ public static class BinaryReader
             int last = codeUnits - 1;
             while (last >= 0 && chars[last] == '\0')
                 last--;
-            value = new string(chars[..(last + 1)]);
+            value = new string(new ReadOnlySpan<char>(chars, 0, last + 1));
         }
         else
         {
