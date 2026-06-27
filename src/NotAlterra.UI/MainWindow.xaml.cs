@@ -142,7 +142,7 @@ public sealed partial class MainWindow : Window
     {
         if (sender is not Button btn || btn.Tag is not string tag) return;
         SetActive(btn);
-        switch (tag) { case "home": NavFrame.Navigate(typeof(HomePage)); break; case "about": NavFrame.Navigate(typeof(AboutPage)); break; default: NavFrame.Navigate(typeof(SettingsPage)); break; }
+        switch (tag) { case "home": NavFrame.Navigate(typeof(HomePage)); break; case "saves": NavFrame.Navigate(typeof(SaveManagerPage)); break; case "about": NavFrame.Navigate(typeof(AboutPage)); break; default: NavFrame.Navigate(typeof(SettingsPage)); break; }
     }
 
     private void SetActive(Button btn)
