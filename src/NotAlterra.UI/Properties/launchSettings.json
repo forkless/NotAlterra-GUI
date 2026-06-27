@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NotAlterra.UI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "NotAlterra.UI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

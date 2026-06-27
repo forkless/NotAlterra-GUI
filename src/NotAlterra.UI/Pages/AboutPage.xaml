@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="NotAlterra_UI.Pages.AboutPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:NotAlterra_UI.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Padding="24" Spacing="12">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="NotAlterra" />
+            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Subnautica 2 Save Manager" />
+
+            <TextBlock TextWrapping="Wrap" Margin="0,8,0,0">
+                This is an unofficial fan-made utility and is not affiliated with or endorsed by KRAFTON or Unknown Worlds Entertainment.
+            </TextBlock>
+
+            <TextBlock TextWrapping="Wrap" Opacity="0.8">
+                Subnautica 2 and related artwork are trademarks of KRAFTON, Inc. Used under the
+                Subnautica 2 Asset Usage and Video Agreement for non-commercial purposes.
+            </TextBlock>
+
+            <TextBlock TextWrapping="Wrap" Opacity="0.6" Margin="0,8,0,0">
+                NotAlterra makes no network connections. No telemetry. No data leaves your machine.
+                This tool runs entirely offline.
+            </TextBlock>
+
+            <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,16,0,0" FontSize="12">
+                MIT License. See LICENSE.md for details.
+            </TextBlock>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,55 @@
+public class UnderwaterParameters
+{
+    public float CausticIntensity { get; set; } = 0.2f;  // ← 20% NOT 80%
+    public float Speed { get; set; } = 0.1f;            // ← 0.1 NOT 10.0
+    public float Warmth { get; set; } = 0.5f;
+    public int ParticleCount { get; set; } = 60;
+    public bool ShowBubbles { get; set; } = true;
+}
+
+private void OnDraw(CanvasAnimatedControl sender, CanvasAnimatedDrawEventArgs args)
+{
+    var ds = args.DrawingSession;
+    ds.Clear(Colors.Transparent);
+    
+    float dt = (float)args.Timing.ElapsedTime.TotalSeconds;
+    _time += dt * 0.1f; // ← SLOW: divide by 10
+    
+    // Draw translucent caustics
+    DrawCaustics(ds);
+    
+    // Draw gentle particles
+    DrawParticles(ds);
+    
+    // Draw subtle bubbles
+    if (_params.ShowBubbles)
+        DrawBubbles(ds);
+}
+
+private void DrawCaustics(CanvasDrawingSession ds)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        // SLOW movement
+        float x = 320 + 120 * (float)Math.Sin(_time * 0.05f + i * 1.5f);
+        float y = 300 + i * 400 + 60 * (float)Math.Sin(_time * 0.03f + i * 2f);
+        float width = 280 + 40 * (float)Math.Sin(_time * 0.02f + i);
+        float height = 25 + 10 * (float)Math.Sin(_time * 0.04f + i * 1.3f);
+        
+        // LOW opacity (12-24%)
+        byte alpha = (byte)(20 + 10 * (0.5f + 0.5f * (float)Math.Sin(_time * 0.03f + i)));
+        alpha = (byte)(alpha * _params.CausticIntensity * 2);
+        
+        Color color = Color.FromArgb(alpha, 
+            (byte)(180 + 75 * _params.Warmth),
+            (byte)(200 + 55 * (1 - _params.Warmth)),
+            (byte)(220 + 35 * (1 - _params.Warmth))
+        );
+        
+        ds.FillEllipse(x, y, width, height, color);
+        
+        // Soft outer glow (even more translucent)
+        ds.FillEllipse(x, y, width * 2f, height * 2f, 
+            Color.FromArgb((byte)(alpha / 3), color.R, color.G, color.B));
+    }
+}
