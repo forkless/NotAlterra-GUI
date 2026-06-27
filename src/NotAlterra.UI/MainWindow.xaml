@@ -37,9 +37,9 @@
                 <!-- Video background fills entire sidebar -->
                 <MediaPlayerElement x:Name="SidebarVideo" Grid.RowSpan="5" Stretch="UniformToFill" AreTransportControlsEnabled="false"/>
                 <!-- Dark overlay behind Home + About (rows 1-2) -->
-                <Rectangle Grid.Row="1" Grid.RowSpan="2" Fill="#CC151A22"/>
+                <Rectangle Grid.Row="1" Grid.RowSpan="2" Fill="#B2151A22"/>
                 <!-- Dark overlay behind Settings (row 4) -->
-                <Rectangle Grid.Row="4" Fill="#CC151A22"/>
+                <Rectangle Grid.Row="4" Fill="#B2151A22"/>
                 <!-- Home -->
                 <Button Grid.Row="1" x:Name="HomeBtn" Tag="home" Background="Transparent" Foreground="White" FontWeight="Bold" BorderThickness="0" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Height="44" CornerRadius="0" Click="NavBtn_Click">
                     <Grid><Rectangle x:Name="HomeInd" Fill="#FF66FFFF" Width="3" HorizontalAlignment="Left" Visibility="Collapsed"/>
@@ -67,7 +67,7 @@
                 </Button>
             </Grid>
             <!-- Content area -->
-            <Frame Grid.Column="1" x:Name="NavFrame"/>
+            <Frame Grid.Column="1" x:Name="NavFrame" MinWidth="600"/>
         </Grid>
     </Grid>
 </Window>
