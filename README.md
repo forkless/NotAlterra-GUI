@@ -61,12 +61,11 @@ dotnet publish src\NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0
 dotnet test src\NotAlterra.UI.Tests -c Debug
 ```
 
-### Fuzz
+### Fuzz (property-based)
 
-```powershell
-dotnet tool install -g SharpFuzz.CommandLine
-.\fuzz\fuzz.ps1
-```
+Property-based tests run inside `dotnet test` — no separate tooling needed.
+16 FsCheck properties generate random inputs for the GVAS parser, BinaryReader,
+SaveOps, and Guard services. 500 iterations per property, runs in CI automatically.
 
 ## How to Run
 
