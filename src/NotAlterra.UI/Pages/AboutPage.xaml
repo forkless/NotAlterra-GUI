@@ -45,6 +45,9 @@
 
                         <TextBlock Grid.Row="7" Text="Bus factor" Opacity="0.6"/>
                         <TextBlock Grid.Row="7" Grid.Column="1" Text="1 (it's just me. forkless. hi.)" TextWrapping="Wrap"/>
+
+                        <TextBlock Grid.Row="8" Text="Total downloads" Opacity="0.6"/>
+                        <TextBlock Grid.Row="8" Grid.Column="1" Text="3 ...including family" TextWrapping="Wrap"/>
                     </Grid>
                 </StackPanel>
             </Border>
