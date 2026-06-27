@@ -81,6 +81,10 @@ Pre-compiled binaries will be available from the [releases page](https://github.
 
 Backups are stored as `tar.gz` archives: one archive per backup event, containing all `savegame_*` files. Standard `tar -xzf` recovers data without the tool (no vendor lock-in). Each archive contains a SHA256 manifest for integrity verification.
 
+## Credits
+
+- **Sidebar background video** by Pachon in Motion — [@Pachon.In.Motion](https://instagram.com/Pachon.In.Motion), Provincia de Buenos Aires, Argentina
+
 ## License
 
 MIT — see `LICENSE.md`.
