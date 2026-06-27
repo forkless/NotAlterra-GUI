@@ -34,27 +34,37 @@ If network features are added in a future version, they will require explicit us
 ### Prerequisites
 
 - Windows 11
-- [Visual Studio 2022 Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe) with **Desktop development with C++** workload
-- [CMake](https://cmake.org/download/) 3.20+
-- Windows App SDK (included with the C++ workload)
+- [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+- Windows App SDK 1.8 runtime (included with Windows App SDK NuGet)
+
+### Build & run
 
 ```powershell
-# From a Developer Command Prompt for VS 2022 (x64):
-cmake -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
+dotnet build src\NotAlterra.UI -c Debug
 ```
 
-### Quick start with bootstrap
-
-Run `bootstrap.ps1` as Administrator to install all prerequisites automatically:
+For packaged deployment:
 
 ```powershell
-.\bootstrap.ps1
+dotnet publish src\NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0
+```
+
+### Run tests
+
+```powershell
+dotnet test src\NotAlterra.UI.Tests -c Debug
+```
+
+### Fuzz
+
+```powershell
+dotnet tool install -g SharpFuzz.CommandLine
+.\fuzz\fuzz.ps1
 ```
 
 ## How to Run
 
-Build output is at `build/notalterra_tests.exe` (test runner) and will eventually be a WinUI 3 application.
+Build output is at `src\NotAlterra.UI\bin\Debug\net9.0-windows10.0.26100.0\win-x64\NotAlterra.UI.exe`.
 
 Pre-compiled binaries will be available from the [releases page](https://github.com/forkless/NotAlterra/releases).
 
