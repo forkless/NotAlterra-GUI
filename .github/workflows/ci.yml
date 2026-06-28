@@ -86,9 +86,11 @@ jobs:
             Copy-Item $msix.FullName publish/
             Write-Host "MSIX: $($msix.Name)" -Foreground Green
           }
-          # Always provide zip as fallback
-          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp/
-          Compress-Archive -Path tmp\* -DestinationPath NotAlterra-v0.5.0.zip -Force
+          Write-Host "=== Building self-contained .exe ===" -Foreground Cyan
+          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp/
+          $name = "NotAlterra-${{ github.ref_name }}"
+Compress-Archive -Path tmp\* -DestinationPath "$name.zip" -Force
+Rename-Item -Path $msix.FullName -NewName "$name.msix" -ErrorAction SilentlyContinue
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
@@ -97,11 +99,9 @@ jobs:
           body: |
             ## NotAlterra v0.5.0
 
-            **MSIX installer (recommended):** `NotAlterra.UI_*.msix`
-            Windows may show a greyed-out install button because the package is self-signed.
-            Fix: right-click .msix → Properties → Digital Signatures → select cert → Details → Install Certificate → Local Machine → Trusted People. Then double-click to install.
+            **MSIX installer:** download the `.msix` — double-click to install.
+            Self-signed: right-click .msix → Properties → Digital Signatures → Details → Install Certificate → Local Machine → Trusted People.
 
-            **ZIP fallback:** Extract and run `NotAlterra.UI.exe`.
-            Requires .NET 9.0 + WinAppSDK 1.8 runtime.
-            Windows may prompt about an unknown publisher — click "Run anyway".
+            **Portable .exe:** download the `.zip` — extract and run `NotAlterra.UI.exe`.
+            Fully self-contained — no runtimes needed. ~100MB.
           draft: true
