@@ -15,6 +15,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
+    <WindowsPackageType Condition="'$(Configuration)'=='Release'">MSIX</WindowsPackageType>
   </PropertyGroup>
 
   <ItemGroup>

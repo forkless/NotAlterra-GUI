@@ -22,6 +22,11 @@
                 <StackPanel Spacing="16">
                     <TextBlock Text="Technical Specifications" FontSize="18" FontWeight="SemiBold"/>
                     <Grid ColumnDefinitions="160, *" RowSpacing="10" ColumnSpacing="12">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                            <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
                         <TextBlock Text="Parsing engine" Opacity="0.6"/>
                         <TextBlock Grid.Column="1" Text="{x:Bind ParsingEngine}" TextWrapping="Wrap"/>
 
@@ -52,6 +57,15 @@
                 </StackPanel>
             </Border>
 
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="About 40MB" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        No it is not the 3.7MB 40-second loop.webm. It is the .NET + WinAppSDK runtime. Think of it as the Windows App Tax. You pay it once and forget about it. If you dont like OS overhead you know where the Linux ISO is. Or TempleOS if you hate yourself.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
             <TextBlock TextWrapping="Wrap" Margin="0,8,0,0">
                 This is an unofficial fan-made utility and is not affiliated with or endorsed by KRAFTON or Unknown Worlds Entertainment.
             </TextBlock>
@@ -71,15 +85,6 @@
                 NotAlterra makes no network connections. No telemetry. No data leaves your machine.
                 This tool runs entirely offline.
             </TextBlock>
-
-            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="About 40MB" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        No it is not the 3.7MB 40-second loop.webm. It is the .NET + WinAppSDK runtime. Think of it as the Windows App Tax. You pay it once and forget about it. If you dont like OS overhead you know where the Linux ISO is. Or TempleOS if you hate yourself.
-                    </TextBlock>
-                </StackPanel>
-            </Border>
 
             <TextBlock Text="Copyright &amp; Attribution" FontWeight="SemiBold" Margin="0,16,0,0"/>
             <StackPanel Spacing="4">
