@@ -1,0 +1,6 @@
+# Mark skill scripts as vendored so GitHub doesn't count them in language stats
+skills/*.py linguist-vendored
+skills/**/*.py linguist-vendored
+skills/*.sh linguist-vendored
+skills/**/*.sh linguist-vendored
+legacy/** linguist-vendored
