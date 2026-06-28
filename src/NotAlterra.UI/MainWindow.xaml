@@ -12,7 +12,7 @@
     <Grid>
         <Grid.RowDefinitions><RowDefinition Height="48"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <TitleBar x:Name="AppTitleBar" Title="NotAlterra" BackRequested="TitleBar_BackRequested" IsBackButtonVisible="False" IsPaneToggleButtonVisible="False">
-            <TitleBar.IconSource><ImageIconSource ImageSource="ms-appx:///Assets/na.png"/></TitleBar.IconSource>
+<TitleBar.IconSource><ImageIconSource ImageSource="ms-appx:///Assets/na.png"/></TitleBar.IconSource>
         </TitleBar>
         <Grid x:Name="MainGrid" Grid.Row="1">
             <Grid.ColumnDefinitions>
@@ -78,6 +78,10 @@
             </Grid>
             <!-- Content area -->
             <Frame Grid.Column="1" x:Name="NavFrame" MinWidth="600"/>
+        </Grid>
+            <Grid x:Name="SplashOverlay" Visibility="Visible" Opacity="1" IsHitTestVisible="True" Canvas.ZIndex="100">
+            <Grid.Background><SolidColorBrush Color="#E85D04"/></Grid.Background>
+            <Image Source="ms-appx:///Assets/splash.png" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
     </Grid>
 </Window>

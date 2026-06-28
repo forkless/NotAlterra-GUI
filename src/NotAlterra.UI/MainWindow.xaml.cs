@@ -75,6 +75,24 @@ public sealed partial class MainWindow : Window
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         var exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         AppWindow.SetIcon(System.IO.Path.Combine(exeDir!, "Assets/AppIcon.ico"));
+        // Hide main content, show splash first
+        AppTitleBar.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+        MainGrid.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+
+        // Fade out splash after 1.5s, then show content
+        DispatcherQueue.TryEnqueue(async () =>
+        {
+            await Task.Delay(1500);
+            for (int i = 10; i >= 0; i--)
+            {
+                SplashOverlay.Opacity = i / 10.0;
+                await Task.Delay(30);
+            }
+            SplashOverlay.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            AppTitleBar.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+            MainGrid.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
+        });
+
         var area = DisplayArea.Primary.WorkArea;
         _minW = (int)(area.Width * 0.65);
         _minH = (int)(area.Height * 0.75);
