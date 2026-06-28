@@ -88,7 +88,7 @@
                     <StackPanel Spacing="4">
                     <TextBlock Text="Sidebar video by Pachon Curubeto" Opacity="0.5"/>
                     <StackPanel Orientation="Horizontal" Spacing="4" Opacity="0.5">
-                    <FontIcon Glyph="&#xF16D;" FontFamily="ms-appx:///Assets/FontAwesomeBrands.ttf#Font Awesome 6 Brands" FontSize="14" VerticalAlignment="Center" Margin="0,2,0,0"/>
+                    <FontIcon Glyph="&#xF16D;" FontFamily="../Assets/FontAwesomeBrands.ttf#Font Awesome 6 Brands" FontSize="14" VerticalAlignment="Center" Margin="0,2,0,0"/>
                     <HyperlinkButton Content="Pachon in Motion" NavigateUri="https://instagram.com/Pachon.In.Motion" FontSize="14" Padding="0" Opacity="0.9"/>
                     <TextBlock Text="· Argentina"/>
                     </StackPanel>

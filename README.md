@@ -26,56 +26,20 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 
 **Metadata extraction uses a heuristic byte-scan** — it searches for known property names (`DisplayName`, `GameMode`, `PlaytimeSeconds`, etc.) as raw byte patterns in the binary GVAS data. This is NOT a full UE5 GVAS structure walker. Some fields may be absent or misidentified if the save format changes in a game update.
 
-## Privacy
+## Installation
 
-**NotAlterra makes no network connections. No telemetry. No data leaves your machine.**
+Download the latest installer from the [releases page](https://github.com/forkless/NotAlterra/releases). Two options:
 
-- The application never calls home — there are no update checks, no analytics, no crash reporters.
-- It runs entirely offline. Your save files and their metadata stay on your machine.
-- The Windows App SDK runtime has opt-in telemetry which NotAlterra does not enable.
-- Configuration (`app.ini`) stores your save-folder and backup paths locally. These may reveal your system username; the file is plain text you can inspect or delete at any time.
+| Installer | Size | Dependencies |
+|-----------|------|--------------|
+| **Minimal** (`-x64-Minimal.exe`) | ~19 MB | .NET 9 runtime + Windows App SDK 1.8 |
+| **Full** (`-x64-Full.exe`) | ~45 MB | None — fully self-contained |
 
-If network features are added in a future version, they will require explicit user opt-in.
+**Minimal** is smaller but needs the .NET 9 runtime and Windows App SDK 1.8 installed. If they are missing, the installer will prompt you to download them (one-time setup, ~90 MB total).
 
-## How to Build
+**Full** bundles everything — no additional downloads. Download once, install anywhere. The extra size is the bundled .NET runtime and Windows App SDK.
 
-### Prerequisites
-
-- Windows 10 1809+ / Windows 11
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
-- [Windows App SDK 1.8 runtime](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads) — install the MSI from the link
-
-### Build & run
-
-```powershell
-dotnet build src\NotAlterra.UI -c Debug
-```
-
-For packaged deployment:
-
-```powershell
-dotnet publish src\NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0
-```
-
-### Run tests
-
-```powershell
-dotnet test src\NotAlterra.UI.Tests -c Debug
-```
-
-### Fuzz (property-based)
-
-Property-based tests run inside `dotnet test` — no separate tooling needed.
-16 FsCheck properties generate random inputs for the GVAS parser, BinaryReader,
-SaveOps, and Guard services. 500 iterations per property, runs in CI automatically.
-
-## How to Run
-
-Build output is at `src\NotAlterra.UI\bin\Debug\net9.0-windows10.0.26100.0\win-x64\NotAlterra.UI.exe`.
-
-Pre-compiled binaries will be available from the [releases page](https://github.com/forkless/NotAlterra/releases).
-
-> **Runtime dependencies:** The MSIX installer handles everything — it bundles the Windows App SDK, and Windows will prompt to install .NET 9 and the VC++ redistributable if you don't have them. No manual setup needed.
+Run the installer and follow the prompts. A desktop shortcut is optional.
 
 ## Where Files Live
 
@@ -87,6 +51,17 @@ Pre-compiled binaries will be available from the [releases page](https://github.
     savegame_1.sav
     ...
 ```
+
+## Privacy
+
+**NotAlterra makes no network connections. No telemetry. No data leaves your machine.**
+
+- The application never calls home — there are no update checks, no analytics, no crash reporters.
+- It runs entirely offline. Your save files and their metadata stay on your machine.
+- The Windows App SDK runtime has opt-in telemetry which NotAlterra does not enable.
+- Configuration (`app.ini`) stores your save-folder and backup paths locally. These may reveal your system username; the file is plain text you can inspect or delete at any time.
+
+If network features are added in a future version, they will require explicit user opt-in.
 
 ## Safety
 
