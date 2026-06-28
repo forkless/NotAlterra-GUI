@@ -53,19 +53,14 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Find MakeAppx and set PATH
-        shell: pwsh
+      - name: Show SDK tools
         run: |
-          $makeappx = Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\MakeAppx.exe" -Recurse -ErrorAction SilentlyContinue | Select -First 1
-          if ($makeappx) {
-            Write-Host "Found: $($makeappx.FullName)" -Foreground Green
-            Add-Content $env:GITHUB_PATH (Split-Path $makeappx.FullName -Parent)
-          } else {
-            Write-Host "MakeAppx.exe NOT found" -Foreground Yellow
-            Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\" -Depth 1 -ErrorAction SilentlyContinue | Select FullName
-          }
+          dotnet --info
+          where msbuild
+          where makeappx
+          where signtool
 
-      - name: Build MSIX
+      - name: Build
         shell: pwsh
         run: |
           $hasMakeAppx = (Get-Command MakeAppx.exe -ErrorAction SilentlyContinue) -ne $null
