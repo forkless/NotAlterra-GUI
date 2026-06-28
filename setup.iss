@@ -9,6 +9,7 @@
 [Setup]
 AppId={{8FBD6084-3211-4AE3-8E4C-DDE929266317}
 AppName={#MyAppName}
+SetupIconFile=src\NotAlterra.UI\Assets\AppIcon.ico
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
