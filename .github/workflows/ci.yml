@@ -86,11 +86,12 @@ jobs:
             Copy-Item $msix.FullName publish/
             Write-Host "MSIX: $($msix.Name)" -Foreground Green
           }
-          Write-Host "=== Building self-contained .exe ===" -Foreground Cyan
+          Write-Host "=== Building self-contained package ===" -Foreground Cyan
           dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp/
           $name = "NotAlterra-${{ github.ref_name }}"
-Compress-Archive -Path tmp\* -DestinationPath "$name.zip" -Force
-Rename-Item -Path $msix.FullName -NewName "$name.msix" -ErrorAction SilentlyContinue
+          # Self-extracting .exe via 7z SFX (single file, no runtime needed)
+          & "C:\Program Files\7-Zip\7z.exe" a -sfx7z.sfx "publish\$name.exe" tmp\* 2>&1 | Out-Null
+          Rename-Item -Path $msix.FullName -NewName "$name.msix" -ErrorAction SilentlyContinue
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
@@ -102,6 +103,5 @@ Rename-Item -Path $msix.FullName -NewName "$name.msix" -ErrorAction SilentlyCont
             **MSIX installer:** download the `.msix` — double-click to install.
             Self-signed: right-click .msix → Properties → Digital Signatures → Details → Install Certificate → Local Machine → Trusted People.
 
-            **Portable .exe:** download the `.zip` — extract and run `NotAlterra.UI.exe`.
-            Fully self-contained — no runtimes needed. ~100MB.
+            **Portable .exe:** download the `.exe` — single file, self-extracting, no runtimes needed.
           draft: true
