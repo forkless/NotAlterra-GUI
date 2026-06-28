@@ -19,15 +19,23 @@ public partial class App : Application
         _window = new MainWindow();
         _window.Activate();
 
-        if (!Services.AppConfig.DisclaimerAccepted())
-            _ = ShowDisclaimerAsync();
+        if (!AppConfig.DisclaimerAccepted())
+            _window.DispatcherQueue.TryEnqueue(async () =>
+            {
+                await Task.Delay(200);
+                await ShowDisclaimerAsync();
+            });
     }
 
     private async Task ShowDisclaimerAsync()
     {
+        // Wait until XamlRoot is available
+        while (_window!.Content?.XamlRoot is null)
+            await Task.Delay(100);
+
         var dialog = new ContentDialog
         {
-            XamlRoot = _window!.Content.XamlRoot,
+            XamlRoot = _window.Content.XamlRoot,
             Title = "NotAlterra — Disclaimer",
             CloseButtonText = "Decline",
             PrimaryButtonText = "Accept",
@@ -51,7 +59,7 @@ public partial class App : Application
                     new TextBlock
                     {
                         TextWrapping = TextWrapping.Wrap,
-                        Text = "NotAlterra makes no network connections. No telemetry. No data leaves your machine. Configuration files are stored locally in plain text."
+                        Text = "NotAlterra makes no network connections. No telemetry. No data leaves your machine."
                     },
                     new TextBlock
                     {
