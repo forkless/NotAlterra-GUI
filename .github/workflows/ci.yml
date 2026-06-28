@@ -67,11 +67,13 @@ jobs:
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
+          Write-Host "=== Searching for MSIX ==="
+          Get-ChildItem -Recurse -Depth 5 src/NotAlterra.UI/bin/Release/ -ErrorAction SilentlyContinue | Select FullName, Length
           $f = Get-ChildItem -Recurse -Filter *.msixupload -ErrorAction SilentlyContinue | Select -First 1
           if (-not $f) { $f = Get-ChildItem -Recurse -Filter *.msix -ErrorAction SilentlyContinue | Select -First 1 }
           if ($f) { Copy-Item $f.FullName publish/; Write-Host "MSIX: $($f.Name)" }
           else {
-            Get-ChildItem -Recurse -Depth 2 src/NotAlterra.UI/AppPackages/ -ErrorAction SilentlyContinue | Select FullName, Length
+            Get-ChildItem -Recurse -Depth 2 src/NotAlterra.UI/AppPackages/ src/NotAlterra.UI/bin/ -ErrorAction SilentlyContinue | Select FullName, Length
             throw "No MSIX found"
           }
 
