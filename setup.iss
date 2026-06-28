@@ -5,6 +5,7 @@
 #define MyAppPublisher "forkless"
 #define MyAppURL "https://github.com/forkless/NotAlterra-GUI"
 #define MyAppExeName "NotAlterra.UI.exe"
+#define SourceDir "tmp"
 
 [Setup]
 AppId={{8FBD6084-3211-4AE3-8E4C-DDE929266317}
@@ -22,7 +23,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 OutputDir=.
-OutputBaseFilename=NotAlterra-{#MyAppVersion}-setup
+OutputBaseFilename=NotAlterra-{#MyAppVersion}
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -37,7 +38,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "tmp\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "{#SourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
