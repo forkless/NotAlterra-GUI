@@ -89,10 +89,13 @@ public sealed partial class MainWindow : Window
             _wndProcRef = WndProc;
             _oldWndProc = SetWindowLongPtr64(hwnd, GWLP_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProcRef));
 
+            var webmUri = Windows.ApplicationModel.Package.Current != null
+                ? new Uri("ms-appx:///Assets/loop.webm")
+                : new Uri(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "loop.webm"));
             SidebarVideo.SetMediaPlayer(new MediaPlayer
             {
                 IsLoopingEnabled = true, AutoPlay = true,
-                Source = MediaSource.CreateFromUri(new Uri("ms-appx:///Assets/loop.webm"))
+                Source = MediaSource.CreateFromUri(webmUri)
             });
 
             bool _wide = true;
