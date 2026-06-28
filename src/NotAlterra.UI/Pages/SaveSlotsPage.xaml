@@ -25,7 +25,7 @@
                 <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Save Slots" VerticalAlignment="Center"/>
             </StackPanel>
             <Border Grid.Column="2" x:Name="SlotCountBadge" Width="56" Height="56" CornerRadius="8" Background="#1AE8A84C" VerticalAlignment="Center">
-                <TextBlock x:Name="SlotCountText" Text="0" FontSize="24" FontWeight="Bold" Foreground="#FFE8A84C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock x:Name="SlotCountText" Text="0" FontSize="24" FontWeight="Bold" Foreground="#FFe85d04" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Border>
             <TextBlock x:Name="StatusText" Grid.ColumnSpan="3" Text="No save files found" Opacity="0.6" Visibility="Collapsed" Margin="0,4,0,0"/>
         </Grid>
@@ -44,12 +44,12 @@
                                         <ColumnDefinition Width="90"/>
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0" Width="56" Height="56" CornerRadius="8" Background="#1AE8A84C" VerticalAlignment="Center" Margin="0,0,16,0">
-                                        <TextBlock Text="{Binding Number}" FontSize="24" FontWeight="Bold" Foreground="#FFE8A84C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Number}" FontSize="24" FontWeight="Bold" Foreground="#FFe85d04" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                             <TextBlock Text="{Binding NameDisplay}" FontSize="18" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding ChevronGlyph}" FontFamily="{Binding ChevronFont}" FontSize="14" Foreground="#FFE8A84C" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding ChevronGlyph}" FontFamily="{Binding ChevronFont}" FontSize="14" Foreground="#FFe85d04" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Spacing="14">
                                             <TextBlock Text="{Binding PlaytimeDisplay}" FontSize="14"/>
@@ -58,7 +58,7 @@
                                                     <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
                                                         <Border Padding="14,10" CornerRadius="4">
                                                             <StackPanel Spacing="6">
-                                                                <TextBlock Text="{Binding ModeDisplay}" FontSize="16" FontWeight="SemiBold" Foreground="#FFE8A84C"/>
+                                                                <TextBlock Text="{Binding ModeDisplay}" FontSize="16" FontWeight="SemiBold" Foreground="#FFe85d04"/>
                                                                 <TextBlock Text="{Binding ModeTooltip}" FontSize="14" TextWrapping="Wrap" MaxWidth="280"/>
                                                                 <TextBlock Text="Hover mode labels for details" FontSize="12" Opacity="0.4"/>
                                                             </StackPanel>
@@ -79,7 +79,7 @@
                                                 <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
                                                     <Border Padding="14,10" CornerRadius="4">
                                                         <StackPanel Spacing="6">
-                                                            <TextBlock Text="Corruption Warning" FontSize="16" FontWeight="SemiBold" Foreground="#FFE8A84C"/>
+                                                            <TextBlock Text="Corruption Warning" FontSize="16" FontWeight="SemiBold" Foreground="#FFe85d04"/>
                                                             <StackPanel MaxWidth="280"><TextBlock Text="{Binding CorruptionPrefix}" FontSize="14" TextWrapping="Wrap"/><TextBlock Text="{Binding CorruptionDetail}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/></StackPanel>
                                                         </StackPanel>
                                                     </Border>
@@ -108,14 +108,14 @@
                                                             <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
                                                                 <Border Padding="14,10" CornerRadius="4">
                                                                     <StackPanel Spacing="6">
-                                                                        <TextBlock Text="Corruption Warning" FontSize="16" FontWeight="SemiBold" Foreground="#FFE8A84C"/>
+                                                                        <TextBlock Text="Corruption Warning" FontSize="16" FontWeight="SemiBold" Foreground="#FFe85d04"/>
                                                                         <StackPanel MaxWidth="280"><TextBlock Text="{Binding CorruptionPrefix}" FontSize="14" TextWrapping="Wrap"/><TextBlock Text="{Binding CorruptionDetail}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/></StackPanel>
                                                                     </StackPanel>
                                                                 </Border>
                                                             </ToolTip>
                                                         </ToolTipService.ToolTip>
                                                     </TextBlock>
-                                                    <Rectangle Grid.Column="1" Width="3" Fill="#FFE8A84C" Opacity="0.5" HorizontalAlignment="Left" Margin="6,0,10,0"/>
+                                                    <Rectangle Grid.Column="1" Width="3" Fill="#FFe85d04" Opacity="0.5" HorizontalAlignment="Left" Margin="6,0,10,0"/>
                                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,0,0">
                                                         <StackPanel Orientation="Horizontal" Spacing="4">
                                                             <TextBlock Text="{Binding NameDisplay}" FontSize="18" FontWeight="SemiBold"/>
@@ -147,3 +147,4 @@
         </ScrollViewer>
     </Grid>
 </Page>
+

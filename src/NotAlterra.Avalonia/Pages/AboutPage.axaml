@@ -3,10 +3,11 @@
              x:Class="NotAlterra.Avalonia.Pages.AboutPage">
   <StackPanel>
     <TextBlock Text="About" FontSize="24" FontWeight="Bold"
-               Foreground="#FFE8A84C" Margin="0,0,0,16"/>
+               Foreground="#FFe85d04" Margin="0,0,0,16"/>
     <TextBlock Text="NotAlterra — unofficial Subnautica 2 save manager."
                Foreground="Gray" TextWrapping="Wrap"/>
     <TextBlock Text="Not affiliated with Unknown Worlds Entertainment or KRAFTON."
                Foreground="Gray" TextWrapping="Wrap" Margin="0,8,0,0"/>
   </StackPanel>
 </UserControl>
+

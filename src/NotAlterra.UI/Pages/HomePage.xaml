@@ -20,13 +20,13 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Quick Start" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap">
-                        1. Click <Run FontWeight="SemiBold" Foreground="#FFE8A84C">Save Manager</Run> in the sidebar to browse your saves
+                        1. Click <Run FontWeight="SemiBold" Foreground="#FFe85d04">Save Manager</Run> in the sidebar to browse your saves
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap">
                         2. Expand a slot to see available backups
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap">
-                        3. Click <Run FontWeight="SemiBold" Foreground="#FFE8A84C">Recover</Run> to restore a backup. A snapshot is created automatically.
+                        3. Click <Run FontWeight="SemiBold" Foreground="#FFe85d04">Recover</Run> to restore a backup. A snapshot is created automatically.
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap">
                         4. Hover warning icons and mode labels for details about each file
@@ -59,10 +59,10 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Backup Files" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap">
-                        Each slot has a <Run FontWeight="SemiBold">canonical</Run> file (<Run FontFamily="Consolas">savegame_N.sav</Run>). The game creates <Run FontWeight="SemiBold" Foreground="#FFE8A84C">backups</Run> (<Run FontFamily="Consolas">.bak</Run> files) with each save.
+                        Each slot has a <Run FontWeight="SemiBold">canonical</Run> file (<Run FontFamily="Consolas">savegame_N.sav</Run>). The game creates <Run FontWeight="SemiBold" Foreground="#FFe85d04">backups</Run> (<Run FontFamily="Consolas">.bak</Run> files) with each save.
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap">
-                        <Run FontWeight="SemiBold" Foreground="#FFE8A84C">Recover</Run> copies a .bak over the .sav and creates a pre-recovery snapshot as a courtesy. Always keep your own independent backups. The tool does not guarantee recovery.
+                        <Run FontWeight="SemiBold" Foreground="#FFe85d04">Recover</Run> copies a .bak over the .sav and creates a pre-recovery snapshot as a courtesy. Always keep your own independent backups. The tool does not guarantee recovery.
                     </TextBlock>
                 </StackPanel>
             </Border>

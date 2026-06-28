@@ -7,7 +7,7 @@
     <Border Background="#1A1A2E" Grid.Column="0">
       <StackPanel Margin="12,24">
         <TextBlock Text="NotAlterra" FontSize="20" FontWeight="Bold"
-                   Foreground="#FFE8A84C" Margin="0,0,0,24"/>
+                   Foreground="#FFe85d04" Margin="0,0,0,24"/>
 
         <Button Content="Home" Click="NavigateHome"
                 Background="Transparent" Foreground="White"
@@ -28,3 +28,4 @@
     <ContentControl x:Name="ContentArea" Grid.Column="1" Margin="24"/>
   </Grid>
 </Window>
+
