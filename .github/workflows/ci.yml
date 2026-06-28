@@ -45,36 +45,31 @@ jobs:
       - name: 📋 MSIX diagnostics — Windows SDK tooling
         shell: pwsh
         run: |
+          $ErrorActionPreference = "Continue"
           $log = "msix-diagnostics-logs.md"
           function diag($title) { "`n=== $title ===" | Out-File -Append $log; Write-Host $title -Foreground Cyan }
-          function capture($cmd) { $out = cmd /c $cmd 2>&1; $out | Out-File -Append $log; $out | Out-Host }
+          function capture($title, $scriptblock) { diag $title; try { & $scriptblock 2>&1 | Tee-Object -Append $log } catch { "ERROR: $_" | Out-File -Append $log; Write-Warning $_ } }
 
-          diag "DotNet info"
-          capture "dotnet --info"
+          capture "DotNet info" { dotnet --info }
 
-          diag "Windows SDK — MakeAppx.exe"
-          capture "dir /s /b C:\'Program Files (x86)'\Windows*Kits\10\bin\*\x64\MakeAppx.exe 2>nul"
-          capture "dir /s /b C:\'Program Files'\Microsoft*Visual*Studio\*\*\*\*\*\*\MakeAppx.exe 2>nul"
+          capture "Windows SDK — MakeAppx.exe" { Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\MakeAppx.exe" -ErrorAction SilentlyContinue | Select FullName, Length, LastWriteTime }
+          capture "MSVC MakeAppx.exe" { Get-ChildItem "C:\Program Files\Microsoft Visual Studio\*\*\*\*\*\*\MakeAppx.exe" -ErrorAction SilentlyContinue | Select FullName }
 
-          diag "Windows SDK — SignTool.exe"
-          capture "dir /s /b C:\'Program Files (x86)'\Windows*Kits\10\bin\*\x64\SignTool.exe 2>nul"
+          capture "Windows SDK — SignTool.exe" { Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\SignTool.exe" -ErrorAction SilentlyContinue | Select FullName }
 
-          diag "vcvars64.bat locations"
-          capture "dir /s /b C:\'Program Files'\Microsoft*Visual*Studio\*\*\*\Auxiliary\Build\vcvars64.bat 2>nul"
+          capture "vcvars64.bat locations" { Get-ChildItem "C:\Program Files\Microsoft Visual Studio\*\*\*\Auxiliary\Build\vcvars64.bat" -ErrorAction SilentlyContinue | Select FullName }
 
-          diag "VS installations"
-          capture "dir /b C:\'Program Files'\Microsoft*Visual*Studio 2>nul"
-          capture "dir /b C:\'Program Files (x86)'\Microsoft*Visual*Studio 2>nul"
+          capture "VS installations" { Get-ChildItem "C:\Program Files\Microsoft Visual Studio\*" -Directory -ErrorAction SilentlyContinue | Select Name }
+          capture "VS installations (x86)" { Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\*" -Directory -ErrorAction SilentlyContinue | Select Name }
 
-          diag "Windows SDK registry"
-          capture 'reg query "HKLM\SOFTWARE\Microsoft\Windows Kits\Installed Roots" /s 2>nul'
+          capture "Windows SDK registry" { Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows Kits\Installed Roots" -ErrorAction SilentlyContinue | Select-Object * }
 
-          diag "PATH (filtered SDK)"
+          capture "PATH (filtered SDK)" {
           $env:Path -split ';' | Select-String -Pattern "kits|sdk|makeappx|signtool" | Out-String | Out-File -Append $log
-          $env:Path -split ';' | Select-String -Pattern "kits|sdk|makeappx|signtool" | Out-Host
+          $env:Path -split ';' | Select-String -Pattern "kits|sdk|makeappx|signtool"
+          }
 
-          diag "WinAppSDK NuGet package"
-          capture "dir /s /b %USERPROFILE%\.nuget\packages\microsoft.windowsappsdk\1.8*\build"
+          capture "WinAppSDK NuGet package" { Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\1.8*\build" -ErrorAction SilentlyContinue | Select FullName }
 
           Write-Host "`n=== Log saved ===" -Foreground Green
           Write-Host "msix-diagnostics-logs.md saved to artifact"
@@ -109,6 +104,17 @@ jobs:
           if ($cert) { Get-ChildItem "Cert:\CurrentUser\My\$thumb" -ErrorAction SilentlyContinue | Remove-Item -ErrorAction SilentlyContinue }
 
           Write-Host "`n=== Full log saved to artifact ===" -Foreground Green
+
+      - name: 🔍 Download previous run logs for comparison
+        if: ${{ secrets.GH_PAT != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        shell: pwsh
+        run: |
+          # Fetch the previous completed run's logs and append to diagnostics
+          gh run list --repo forkless/NotAlterra-GUI --branch main --status completed --limit 2 --json databaseId --jq '.[0].databaseId' | ForEach-Object {
+            gh run view $_ --log --repo forkless/NotAlterra-GUI | Out-File -Append msix-diagnostics-logs.md -Encoding utf8
+          }
 
       - name: 📤 Upload MSIX diagnostics
         uses: actions/upload-artifact@v4
