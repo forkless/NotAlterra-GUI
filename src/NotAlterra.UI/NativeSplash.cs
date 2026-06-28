@@ -67,7 +67,6 @@ public sealed class NativeSplash : IDisposable
     private const int DIB_RGB_COLORS = 0;
 
     private IntPtr _hwnd;
-    private System.Threading.Timer? _timer;
 
     /// Fires when the splash window is hidden/closed.
     public event Action? Closed;
@@ -146,7 +145,6 @@ public sealed class NativeSplash : IDisposable
 
     public void Close()
     {
-        _timer?.Dispose();
         if (_hwnd != IntPtr.Zero) { ShowWindow(_hwnd, 0); DestroyWindow(_hwnd); _hwnd = IntPtr.Zero; Closed?.Invoke(); }
     }
 
