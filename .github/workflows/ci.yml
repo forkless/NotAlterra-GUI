@@ -61,7 +61,7 @@ jobs:
 
       - name: Build MSIX
         shell: pwsh
-        run: dotnet build src/NotAlterra.UI -c Release -p:AppxPackageSigningEnabled=true -p:PackageCertificateThumbprint=$env:CERT_THUMB
+        run: dotnet build src/NotAlterra.UI -c Release -p:PublishTrimmed=false -p:AppxPackageSigningEnabled=true -p:PackageCertificateThumbprint=$env:CERT_THUMB
 
       - name: Collect MSIX
         shell: pwsh
