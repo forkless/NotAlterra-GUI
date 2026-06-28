@@ -12,25 +12,24 @@ All notable changes to NotAlterra are documented in this file.
 - **xUnit test project** (`NotAlterra.UI.Tests`) — 102 tests covering BinaryReader, SlotUtils, GvasParser, Guard, SaveOps, AppConfig
 - **FsCheck property-based fuzzing** — 16 properties at 500/200/100 iterations, runs inside `dotnet test`
 - **GVAS BinaryReader** — overflow-safe `ReadFString` with max 10MB size cap, heap alloc instead of stackalloc
-- **SharpFuzz fuzz harness** (removed) — replaced by FsCheck due to NRE on .NET 9
-- **Avalonia scaffold** (`NotAlterra.Avalonia`) — Linux frontend ready for future
-- **About page stats** — over-engineered card with bus factor 1, 102 tests, 8 MB of pure spite
+- **About page** — over-engineered stats card (bus factor 1, 102 tests, 8 MB of pure spite)
 - **Version display** — reads from `Package.appxmanifest`, shows `0.5.0 · AMD64`
 - **Total downloads** — 3 (including family)
+- **App screenshot** — inline in README via `docs/screenshot.jpg`
 
 ### Changed
-- **Legacy cleanup** — all Rust code, C++ WinUI, CMake build, stale artifacts moved to `legacy/` then deleted
-- **README** — rewritten from scratch for .NET 9 / WinUI 3 build
-- **CI pipeline** — GitHub Actions: restore → build → test → fuzz; MSIX packaging WIP
-- **Node.js actions** — bumped to v7/v6/v5 for Node.js 24 compatibility
+- **Legacy cleanup** — all Rust, C++, CMake, stale artifacts moved to `legacy/` then removed
+- **README** — rewritten for .NET 9 / WinUI 3, screenshot at top
+- **CI pipeline** — GitHub Actions: restore → build → test; action versions bumped to Node.js 24
 - **Minimum .sav size** — raised from 500 bytes to 100KB (smallest real save is 301KB)
-- **Backup sort** — now by `LastWriteTimeUtc` descending, not filename
+- **Backup sort** — changed from filename order to `LastWriteTimeUtc` descending
+- **About page layout** — stats Grid with RowDefinitions, 40MB card after Tech Specs, legal in Border card
+- **Changelog + handoff** — rewritten to reflect C# era
+- **`.gitattributes`** — mark `skills/` and `legacy/` as `linguist-vendored` so GitHub shows 100% C#
 
 ### Fixed
 - **BinaryReader.ReadFString overflow** — FsCheck found overflow on `int.MinValue`, added `checked()` + 10MB cap
-- **About page layout** — added `RowDefinitions` to stats Grid (WinUI 3 doesn't auto-create)
-- **About page AMD64 duplicate** — removed redundant `Arch` binding
-- **About page card order** — 40MB card moved after Tech Specs, legal wrapped in Border card
+- **About page AMD64 duplicate** — removed redundant `Arch` binding in XAML
 - **Nullable warnings** — `OnLoaded` params made nullable, CS8625 squashed
 - **C++ source removal** — `src/gvas/` C++ parser deleted (git rm)
 
@@ -40,12 +39,14 @@ All notable changes to NotAlterra are documented in this file.
 - CMake build system, MSBuild project files, old packaging scripts
 - SharpFuzz fuzz project (NRE'd on .NET 9 — replaced with FsCheck)
 - Stale root artifacts: `bootstrap.log`, `build_msbuild.log`, `vc140.pdb`, `null`, `NUL.obj`
+- Stale test data: dummy slot 9, old backups, old snapshots in `gvas-files/`
 
 ### Project Stats
 - **Language:** 100% C# (via `.gitattributes` linguist-vendored)
 - **Lines:** ~400 (GVAS parser) + ~1500 (Services + UI)
 - **Tests:** 102 (85 xUnit + 17 FsCheck property)
-- **Dependencies:** 6 NuGet packages (Win2D, WinAppSDK, WinAppSDK.BuildTools, WinSDK.BuildTools, FsCheck, xUnit)
+- **Dependencies:** 6 NuGet packages
+- **Bus factor:** 1
 
 ---
 
