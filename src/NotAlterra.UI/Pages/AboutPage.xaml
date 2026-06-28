@@ -14,7 +14,7 @@
             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Subnautica 2 Save Manager" />
 
             <TextBlock TextWrapping="Wrap" Opacity="0.7" Margin="0,0,0,4">
-                Version <Run Text="{x:Bind AppVersion}"/> · <Run Text="{x:Bind BuildInfo}"/> · <Run Text="{x:Bind Arch}"/>
+                Version <Run Text="{x:Bind AppVersion}"/> · <Run Text="{x:Bind BuildInfo}"/>
             </TextBlock>
 
             <!-- Stats card -->
@@ -66,39 +66,38 @@
                 </StackPanel>
             </Border>
 
-            <TextBlock TextWrapping="Wrap" Margin="0,8,0,0">
-                This is an unofficial fan-made utility and is not affiliated with or endorsed by KRAFTON or Unknown Worlds Entertainment.
-            </TextBlock>
-
-            <TextBlock TextWrapping="Wrap" Opacity="0.8" Margin="0,8,0,0">
-                KRAFTON® is a registered trademark of KRAFTON, Inc., and Unknown Worlds Entertainment™ is a trademark of Unknown Worlds Entertainment, Inc.
-            </TextBlock>
-
-            <TextBlock TextWrapping="Wrap" Opacity="0.5" Margin="0,12,0,0">
-                Unreal® is a trademark or registered trademark of Epic Games, Inc. in the United States of America and elsewhere.
-            </TextBlock>
-            <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,4,0,0">
-                Unreal Engine, Copyright 1998-2026, Epic Games, Inc. All rights reserved.
-            </TextBlock>
-
-            <TextBlock TextWrapping="Wrap" Opacity="0.6" Margin="0,8,0,0">
-                NotAlterra makes no network connections. No telemetry. No data leaves your machine.
-                This tool runs entirely offline.
-            </TextBlock>
-
-            <TextBlock Text="Copyright &amp; Attribution" FontWeight="SemiBold" Margin="0,16,0,0"/>
-            <StackPanel Spacing="4">
-                <TextBlock Text="Sidebar video by Pachon Curubeto" Opacity="0.5"/>
-                <StackPanel Orientation="Horizontal" Spacing="4" Opacity="0.5">
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Copyright &amp; Attribution" FontWeight="SemiBold" Margin="0,16,0,0"/>
+                    <TextBlock TextWrapping="Wrap" Margin="0,8,0,0">
+                    This is an unofficial fan-made utility and is not affiliated with or endorsed by KRAFTON or Unknown Worlds Entertainment.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.8" Margin="0,8,0,0">
+                    KRAFTON® is a registered trademark of KRAFTON, Inc., and Unknown Worlds Entertainment™ is a trademark of Unknown Worlds Entertainment, Inc.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5" Margin="0,12,0,0">
+                    Unreal® is a trademark or registered trademark of Epic Games, Inc. in the United States of America and elsewhere.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,4,0,0">
+                    Unreal Engine, Copyright 1998-2026, Epic Games, Inc. All rights reserved.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.6" Margin="0,8,0,0">
+                    NotAlterra makes no network connections. No telemetry. No data leaves your machine.
+                    This tool runs entirely offline.
+                    </TextBlock>
+                    <StackPanel Spacing="4">
+                    <TextBlock Text="Sidebar video by Pachon Curubeto" Opacity="0.5"/>
+                    <StackPanel Orientation="Horizontal" Spacing="4" Opacity="0.5">
                     <FontIcon Glyph="&#xF16D;" FontFamily="ms-appx:///Assets/FontAwesomeBrands.ttf#Font Awesome 6 Brands" FontSize="14" VerticalAlignment="Center" Margin="0,2,0,0"/>
                     <HyperlinkButton Content="Pachon in Motion" NavigateUri="https://instagram.com/Pachon.In.Motion" FontSize="14" Padding="0" Opacity="0.9"/>
                     <TextBlock Text="· Argentina"/>
+                    </StackPanel>
+                    </StackPanel>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,8,0,0">
+                    NotAlterra © 2026 forkless.com - released under the MIT License
+                    </TextBlock>
                 </StackPanel>
-            </StackPanel>
-
-            <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,8,0,0">
-                NotAlterra © 2026 forkless.com - released under the MIT License
-            </TextBlock>
+            </Border>
         </StackPanel>
     </ScrollViewer>
 </Page>
