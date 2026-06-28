@@ -58,6 +58,7 @@ jobs:
         run: |
           mkdir -Force publish | Out-Null
           dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp/
+          python _gen_splash.py "${{ github.ref_name }}"
           choco install innosetup -y --no-progress 2>&1 | Out-Null
           iscc setup.iss /DMyAppVersion="${{ github.ref_name }}" /O"publish"
 
