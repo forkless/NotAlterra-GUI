@@ -106,12 +106,11 @@ jobs:
           Write-Host "`n=== Full log saved to artifact ===" -Foreground Green
 
       - name: 🔍 Download previous run logs for comparison
-        if: ${{ secrets.GH_PAT != '' }}
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         shell: pwsh
         run: |
-          # Fetch the previous completed run's logs and append to diagnostics
           gh run list --repo forkless/NotAlterra-GUI --branch main --status completed --limit 2 --json databaseId --jq '.[0].databaseId' | ForEach-Object {
             gh run view $_ --log --repo forkless/NotAlterra-GUI | Out-File -Append msix-diagnostics-logs.md -Encoding utf8
           }
