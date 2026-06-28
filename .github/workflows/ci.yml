@@ -76,37 +76,35 @@ jobs:
             /p:PublishTrimmed=false `
             /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint=$env:CERT_THUMB
 
-      - name: Collect
+      - name: Pack (Inno Setup installer)
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
+          $name = "NotAlterra-${{ github.ref_name }}"
+
+          # Copy MSIX to publish
           $msix = Get-ChildItem -Recurse -Filter "*.msixupload" -ErrorAction SilentlyContinue | Select -First 1
           if (-not $msix) { $msix = Get-ChildItem -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue | Select -First 1 }
-          if ($msix) {
-            Copy-Item $msix.FullName publish/
-            Write-Host "MSIX: $($msix.Name)" -Foreground Green
-          }
-          Write-Host "=== Building single-file .exe ===" -Foreground Cyan
-          $name = "NotAlterra-${{ github.ref_name }}"
-          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:PublishSingleFile=true -o tmp/
-          if (Test-Path tmp/NotAlterra.UI.exe) {
-            Copy-Item tmp/NotAlterra.UI.exe "publish/$name.exe"
-            Write-Host "SINGLE-FILE EXE: $name.exe" -Foreground Green
-          } else {
-            Write-Warning "Single-file failed — fallback to zip"
-            Compress-Archive -Path tmp\* -DestinationPath "publish/$name.zip" -Force
-          }
-          Rename-Item -Path $msix.FullName -NewName "$name.msix" -ErrorAction SilentlyContinue
+          if ($msix) { Copy-Item $msix.FullName "publish/$name.msix"; Write-Host "MSIX done" -Foreground Green }
+
+          # Publish unpackaged for Inno Setup
+          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp/
+
+          # Install Inno Setup and build installer
+          choco install innosetup -y --no-progress 2>&1 | Out-Null
+          iscc setup.iss /DMyAppVersion="${{ github.ref_name }}" /O"publish"
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
         with:
           files: publish/**
           body: |
-            ## NotAlterra v0.5.0
+            ## NotAlterra ${{ github.ref_name }}
 
-            **MSIX installer:** download the `.msix` — double-click to install.
+            **Inno Setup installer:** `NotAlterra-*-setup.exe` — standard Windows installer.
+            Fully self-contained, no runtimes needed. Creates Start Menu shortcut.
+            Self-signed: click "More info" → "Run anyway" if Windows Defender blocks.
+
+            **MSIX installer:** `*.msix` — double-click to install.
             Self-signed: right-click .msix → Properties → Digital Signatures → Details → Install Certificate → Local Machine → Trusted People.
-
-            **Portable .exe:** download the `.exe` — single file, self-extracting, no runtimes needed.
           draft: true
