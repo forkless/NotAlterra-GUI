@@ -16,6 +16,7 @@ All notable changes to NotAlterra are documented in this file.
 - **Version display** — reads from `Package.appxmanifest`, shows `0.5.0 · AMD64`
 - **Total downloads** — 3 (including family)
 - **App screenshot** — inline in README via `docs/screenshot.jpg`
+- **Disclaimer dialog** — Accept/Decline on first launch, sentinel file gates subsequent launches, XamlRoot wait-loop for WinUI 3
 
 ### Changed
 - **Legacy cleanup** — all Rust, C++, CMake, stale artifacts moved to `legacy/` then removed
