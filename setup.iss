@@ -5,7 +5,9 @@
 #define MyAppPublisher "forkless"
 #define MyAppURL "https://github.com/forkless/NotAlterra-GUI"
 #define MyAppExeName "NotAlterra.UI.exe"
-#define SourceDir "tmp"
+#ifndef SourceDir
+  #define SourceDir "tmp"
+#endif
 
 [Setup]
 AppId={{8FBD6084-3211-4AE3-8E4C-DDE929266317}

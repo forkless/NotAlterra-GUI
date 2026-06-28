@@ -60,16 +60,17 @@ jobs:
           $tag = "${{ github.ref_name }}"
           choco install innosetup -y --no-progress 2>&1 | Out-Null
 
+          pip install Pillow -q 2>&1 | Out-Null
           python _gen_splash.py "$tag"
 
           # Minimal (~20MB, needs .NET 9 + WinAppSDK runtime)
           dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp_min/
-          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir="tmp_min" /F"NotAlterra-$tag-minimal" /O"publish"
+          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_min /F"NotAlterra-$tag-minimal" /O"publish"
           Remove-Item tmp_min\* -Recurse -Force -ErrorAction SilentlyContinue
 
           # Full (~90MB, self-contained)
           dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp_full/
-          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir="tmp_full" /F"NotAlterra-$tag-full" /O"publish"
+          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_full /F"NotAlterra-$tag-full" /O"publish"
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
