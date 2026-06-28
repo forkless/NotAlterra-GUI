@@ -315,7 +315,7 @@ public static class SaveOps
             {
                 var meta = Gvas.GvasParser.ExtractMetadata(file);
                 var mtime = fi.LastWriteTimeUtc.Year > 1970
-                    ? fi.LastWriteTimeUtc.ToString("yyyy-MMM-dd HH:mm")
+                    ? fi.LastWriteTimeUtc.ToString("yyyy-MM-dd HH:mm")
                     : null;
 
                 results.Add(new BakFileSummary(
