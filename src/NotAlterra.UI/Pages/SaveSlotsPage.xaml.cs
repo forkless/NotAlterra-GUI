@@ -121,7 +121,7 @@ public sealed partial class SaveSlotsPage : Page
 
             var backups = allBaks
                 .Where(b => b.Name.StartsWith(slotPrefix, StringComparison.OrdinalIgnoreCase))
-                .OrderBy(b => b.Name)
+                .OrderByDescending(b => b.LastWriteTimeUtc)
                 .Select(b => { FullMetadata? m = null; try { m = GvasParser.ExtractFullMetadata(b.FullName); } catch { } return new BakInfo(b, m); })
                 .ToList();
 
