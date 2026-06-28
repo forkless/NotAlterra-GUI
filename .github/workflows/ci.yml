@@ -73,6 +73,7 @@ jobs:
           msbuild src/NotAlterra.UI/NotAlterra.UI.csproj /restore `
             /p:Configuration=Release /p:Platform=x64 /p:RuntimeIdentifier=win-x64 `
             /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true `
+            /p:PublishTrimmed=false `
             /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint=$env:CERT_THUMB
 
       - name: Collect
