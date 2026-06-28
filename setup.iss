@@ -26,6 +26,7 @@ OutputBaseFilename=NotAlterra-{#MyAppVersion}-setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+DisableWelcomePage=no
 PrivilegesRequired=admin
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
