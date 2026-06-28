@@ -7,26 +7,27 @@ ver = "v0.5.0"
 for line in open(manifest, encoding="utf-8"):
     if 'Version="' in line:
         v = line.split('Version="')[1].split('"')[0]
-        ver = "v" + v
+        ver = "v" + v.rsplit('.', 1)[0]
         break
 
 # Allow override from command line
 if len(sys.argv) > 1:
     ver = sys.argv[1]
 
-path = "src/NotAlterra.UI/Assets/splash.png"
+template = "src/NotAlterra.UI/Assets/splash_template.png"
+out = "src/NotAlterra.UI/Assets/splash.png"
 font_path = "C:/Windows/Fonts/SEGOEUI.TTF"
 
-img = Image.open(path).convert("RGBA")
+img = Image.open(template).convert("RGBA")
 w, h = img.size
 draw = ImageDraw.Draw(img)
 
-fl = ImageFont.truetype(font_path, 10)
+fl = ImageFont.truetype(font_path, 18)
 
 bb = draw.textbbox((0, 0), ver, font=fl)
 x = w - bb[2] - 16
 y = h - bb[3] - 16
 draw.text((x, y), ver, font=fl, fill=(255, 255, 255, 160))
 
-img.save(path)
+img.save(out)
 print(f"splash version: {ver}")
