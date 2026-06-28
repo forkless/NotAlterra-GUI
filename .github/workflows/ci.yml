@@ -80,14 +80,15 @@ jobs:
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
-          $pkg = Get-ChildItem -Recurse -Filter "*.msixupload" -ErrorAction SilentlyContinue | Select -First 1
-          if (-not $pkg) { $pkg = Get-ChildItem -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue | Select -First 1 }
-          if ($pkg) { Copy-Item $pkg.FullName publish/; Write-Host "MSIX: $($pkg.Name)" -Foreground Green }
-          else {
-            Write-Host "No MSIX — fallback to zip" -Foreground Yellow
-            dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp/
-            Compress-Archive -Path tmp\* -DestinationPath NotAlterra-v0.5.0.zip -Force
+          $msix = Get-ChildItem -Recurse -Filter "*.msixupload" -ErrorAction SilentlyContinue | Select -First 1
+          if (-not $msix) { $msix = Get-ChildItem -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue | Select -First 1 }
+          if ($msix) {
+            Copy-Item $msix.FullName publish/
+            Write-Host "MSIX: $($msix.Name)" -Foreground Green
           }
+          # Always provide zip as fallback
+          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp/
+          Compress-Archive -Path tmp\* -DestinationPath NotAlterra-v0.5.0.zip -Force
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
@@ -96,5 +97,11 @@ jobs:
           body: |
             ## NotAlterra v0.5.0
 
-            MSIX installer — double-click to install.
+            **MSIX installer (recommended):** `NotAlterra.UI_*.msix`
+            Windows may show a greyed-out install button because the package is self-signed.
+            Fix: right-click .msix → Properties → Digital Signatures → select cert → Details → Install Certificate → Local Machine → Trusted People. Then double-click to install.
+
+            **ZIP fallback:** Extract and run `NotAlterra.UI.exe`.
+            Requires .NET 9.0 + WinAppSDK 1.8 runtime.
+            Windows may prompt about an unknown publisher — click "Run anyway".
           draft: true
