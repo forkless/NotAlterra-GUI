@@ -79,9 +79,5 @@
             <!-- Content area -->
             <Frame Grid.Column="1" x:Name="NavFrame" MinWidth="600"/>
         </Grid>
-            <Grid x:Name="SplashOverlay" Visibility="Visible" Opacity="1" IsHitTestVisible="True" Canvas.ZIndex="100">
-            <Grid.Background><SolidColorBrush Color="#E85D04"/></Grid.Background>
-            <Image Source="ms-appx:///Assets/splash.png" Stretch="None" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        </Grid>
     </Grid>
 </Window>
