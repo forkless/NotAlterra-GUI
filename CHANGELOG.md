@@ -13,6 +13,9 @@ All notable changes to NotAlterra are documented in this file.
 - **FsCheck property-based fuzzing** — 16 properties at 500/200/100 iterations, runs inside `dotnet test`
 - **GVAS BinaryReader** — overflow-safe `ReadFString` with max 10MB size cap, heap alloc instead of stackalloc
 - **About page** — over-engineered stats card (bus factor 1, 102 tests, 8 MB of pure spite)
+- **Native splash screen** — Win32 layered transparent window (per-pixel alpha), 3s splash + 1.5s gap before app
+- **Window centering** — app opens centered on desktop via `MonitorFromWindow` + `DisplayArea`
+- **Disclaimer dialog** — ContentDialog on first launch, Accept/Decline, creates sentinel
 - **Version display** — reads from `Package.appxmanifest`, shows `0.5.0 · AMD64`
 - **Total downloads** — 3 (including family)
 - **App screenshot** — inline in README via `docs/screenshot.jpg`
