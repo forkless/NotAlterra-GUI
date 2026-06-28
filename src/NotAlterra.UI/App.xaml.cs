@@ -1,38 +1,83 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using NotAlterra.Services;
 
 namespace NotAlterra_UI;
 
-/// <summary>
-/// Provides application-specific behavior to supplement the default Application class.
-/// </summary>
 public partial class App : Application
 {
-    private Window? _window; public static Window? MainWindow => (Current as App)?._window;
-    
-    /// <summary>
-    /// Initializes the singleton application object.  This is the first line of authored code
-    /// executed, and as such is the logical equivalent of main() or WinMain().
-    /// </summary>
+    private Window? _window;
+    public static Window? MainWindow => (Current as App)?._window;
+
     public App()
     {
         InitializeComponent();
     }
 
-    /// <summary>
-    /// Invoked when the application is launched.
-    /// </summary>
-    /// <param name="args">Details about the launch request and process.</param>
-    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         _window = new MainWindow();
         _window.Activate();
+
+        if (!Services.AppConfig.DisclaimerAccepted())
+            _ = ShowDisclaimerAsync();
+    }
+
+    private async Task ShowDisclaimerAsync()
+    {
+        var dialog = new ContentDialog
+        {
+            XamlRoot = _window!.Content.XamlRoot,
+            Title = "NotAlterra — Disclaimer",
+            CloseButtonText = "Decline",
+            PrimaryButtonText = "Accept",
+            DefaultButton = ContentDialogButton.Primary,
+            Content = new StackPanel
+            {
+                Spacing = 12,
+                MaxWidth = 500,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        TextWrapping = TextWrapping.Wrap,
+                        Text = "NotAlterra is an unofficial fan-made utility for managing Subnautica 2 save files. It is not affiliated with or endorsed by KRAFTON or Unknown Worlds Entertainment."
+                    },
+                    new TextBlock
+                    {
+                        TextWrapping = TextWrapping.Wrap,
+                        Text = "This tool is a read-only metadata inspector and backup manager. It does not edit .sav files in-place."
+                    },
+                    new TextBlock
+                    {
+                        TextWrapping = TextWrapping.Wrap,
+                        Text = "NotAlterra makes no network connections. No telemetry. No data leaves your machine. Configuration files are stored locally in plain text."
+                    },
+                    new TextBlock
+                    {
+                        TextWrapping = TextWrapping.Wrap,
+                        FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                        Text = "This software is provided 'as is', without warranty of any kind. Use at your own risk."
+                    },
+                    new TextBlock
+                    {
+                        TextWrapping = TextWrapping.Wrap,
+                        Opacity = 0.6,
+                        Text = "MIT License — see LICENSE.md for full terms."
+                    }
+                }
+            }
+        };
+
+        var result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            AppConfig.AcceptDisclaimer();
+        }
+        else
+        {
+            Environment.Exit(0);
+        }
     }
 }
