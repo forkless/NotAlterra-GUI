@@ -53,40 +53,39 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
       - name: Show SDK tools
         run: |
-          dotnet --info
           where msbuild
           where makeappx
           where signtool
 
-      - name: Build
+      - name: Generate cert
         shell: pwsh
         run: |
-          $hasMakeAppx = (Get-Command MakeAppx.exe -ErrorAction SilentlyContinue) -ne $null
-          if ($hasMakeAppx) {
-            $cert = New-SelfSignedCertificate -Type Custom -Subject "CN=NA" -KeyUsage DigitalSignature -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") -CertStoreLocation "Cert:\CurrentUser\My"
-            Add-Content $env:GITHUB_ENV "CERT_THUMB=$($cert.Thumbprint)"
-            dotnet build src/NotAlterra.UI -c Release -p:PublishTrimmed=false -p:AppxPackageSigningEnabled=true -p:PackageCertificateThumbprint=$($cert.Thumbprint)
-            # Save cert thumb for collect step
-            Add-Content $env:GITHUB_ENV "HAS_MSIX=true"
-          } else {
-            Write-Host "No MakeAppx — publish unpackaged" -Foreground Yellow
-            dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o publish/
-            Add-Content $env:GITHUB_ENV "HAS_MSIX=false"
-          }
+          $thumb = (New-SelfSignedCertificate -Type Custom -Subject "CN=NA" -KeyUsage DigitalSignature -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") -CertStoreLocation "Cert:\CurrentUser\My").Thumbprint
+          Add-Content $env:GITHUB_ENV "CERT_THUMB=$thumb"
+
+      - name: Build MSIX
+        run: |
+          msbuild src/NotAlterra.UI/NotAlterra.UI.csproj /restore `
+            /p:Configuration=Release /p:Platform=x64 /p:RuntimeIdentifier=win-x64 `
+            /p:WindowsPackageType=MSIX /p:GenerateAppxPackageOnBuild=true `
+            /p:AppxPackageSigningEnabled=true /p:PackageCertificateThumbprint=$env:CERT_THUMB
 
       - name: Collect
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
-          if ($env:HAS_MSIX -eq "true") {
-            $pkg = Get-ChildItem -Recurse -Filter *.msixupload -ErrorAction SilentlyContinue | Select -First 1
-            if (-not $pkg) { $pkg = Get-ChildItem -Recurse -Filter *.msix -ErrorAction SilentlyContinue | Select -First 1 }
-            if ($pkg) { Copy-Item $pkg.FullName publish/; Write-Host "BUILT: $($pkg.Name)" -Foreground Green; exit 0 }
-            Write-Host "MSIX build ran but no package — fallback to zip" -Foreground Yellow
-            dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o publish/
-          }
+          Write-Host "=== Looking for MSIX ==="
+          Get-ChildItem -Recurse -Depth 1 src/NotAlterra.UI/AppPackages/ -ErrorAction SilentlyContinue | Select FullName, Length
+          $pkg = Get-ChildItem -Recurse -Filter *.msixupload -ErrorAction SilentlyContinue | Select -First 1
+          if (-not $pkg) { $pkg = Get-ChildItem -Recurse -Filter *.msix -ErrorAction SilentlyContinue | Select -First 1 }
+          if ($pkg) { Copy-Item $pkg.FullName publish/; Write-Host "BUILT: $($pkg.Name)" -Foreground Green; exit 0 }
+          Write-Host "No MSIX — zipping" -Foreground Yellow
+          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o publish/
           Compress-Archive -Path publish\* -DestinationPath NotAlterra-v0.5.0.zip -Force
 
       - name: Draft release
