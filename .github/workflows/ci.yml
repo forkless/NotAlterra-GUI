@@ -45,51 +45,83 @@ jobs:
       - name: 📋 MSIX diagnostics — Windows SDK tooling
         shell: pwsh
         run: |
-          Write-Host "=== DotNet info ===" -Foreground Cyan
-          dotnet --info 2>&1
+          $log = "msix-diagnostics-logs.md"
+          function diag($title) { "`n=== $title ===" | Out-File -Append $log; Write-Host $title -Foreground Cyan }
+          function capture($cmd) { $out = cmd /c $cmd 2>&1; $out | Out-File -Append $log; $out | Out-Host }
 
-          Write-Host "=== Windows SDK — MakeAppx.exe ===" -Foreground Cyan
-          Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\MakeAppx.exe" -ErrorAction SilentlyContinue | Select FullName, Length, LastWriteTime
-          Get-ChildItem "C:\Program Files\Microsoft Visual Studio\*\*\*\*\*\*\MakeAppx.exe" -ErrorAction SilentlyContinue | Select FullName
+          diag "DotNet info"
+          capture "dotnet --info"
 
-          Write-Host "=== Windows SDK — SignTool.exe ===" -Foreground Cyan
-          Get-ChildItem "C:\Program Files (x86)\Windows Kits\10\bin\*\x64\SignTool.exe" -ErrorAction SilentlyContinue | Select FullName
+          diag "Windows SDK — MakeAppx.exe"
+          capture "dir /s /b C:\'Program Files (x86)'\Windows*Kits\10\bin\*\x64\MakeAppx.exe 2>nul"
+          capture "dir /s /b C:\'Program Files'\Microsoft*Visual*Studio\*\*\*\*\*\*\MakeAppx.exe 2>nul"
 
-          Write-Host "=== vcvars64.bat locations ===" -Foreground Cyan
-          Get-ChildItem "C:\Program Files\Microsoft Visual Studio\*\*\*\Auxiliary\Build\vcvars64.bat" -Recurse -ErrorAction SilentlyContinue | Select FullName
+          diag "Windows SDK — SignTool.exe"
+          capture "dir /s /b C:\'Program Files (x86)'\Windows*Kits\10\bin\*\x64\SignTool.exe 2>nul"
 
-          Write-Host "=== Visual Studio installations ===" -Foreground Cyan
-          Get-ChildItem "C:\Program Files\Microsoft Visual Studio\*" -Directory -ErrorAction SilentlyContinue | Select Name
-          Get-ChildItem "C:\Program Files (x86)\Microsoft Visual Studio\*" -Directory -ErrorAction SilentlyContinue | Select Name
+          diag "vcvars64.bat locations"
+          capture "dir /s /b C:\'Program Files'\Microsoft*Visual*Studio\*\*\*\Auxiliary\Build\vcvars64.bat 2>nul"
 
-          Write-Host "=== Windows SDK registry ===" -Foreground Cyan
-          Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows Kits\Installed Roots" -ErrorAction SilentlyContinue | Select-Object KitsRoot*, @{N="SDK Version";E={(Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0").InstallationFolder}}
+          diag "VS installations"
+          capture "dir /b C:\'Program Files'\Microsoft*Visual*Studio 2>nul"
+          capture "dir /b C:\'Program Files (x86)'\Microsoft*Visual*Studio 2>nul"
 
-          Write-Host "=== PATH (filtered SDK) ===" -Foreground Cyan
+          diag "Windows SDK registry"
+          capture 'reg query "HKLM\SOFTWARE\Microsoft\Windows Kits\Installed Roots" /s 2>nul'
+
+          diag "PATH (filtered SDK)"
+          $env:Path -split ';' | Select-String -Pattern "kits|sdk|makeappx|signtool" | Out-String | Out-File -Append $log
           $env:Path -split ';' | Select-String -Pattern "kits|sdk|makeappx|signtool" | Out-Host
 
-          Write-Host "=== MSBuild SDK resolver ===" -Foreground Cyan
-          dir "$env:USERPROFILE\.nuget\packages\microsoft.windowsappsdk\1.8*\build\Microsoft.WindowsAppSDK.targets" -ErrorAction SilentlyContinue | Select FullName, Length
+          diag "WinAppSDK NuGet package"
+          capture "dir /s /b %USERPROFILE%\.nuget\packages\microsoft.windowsappsdk\1.8*\build"
+
+          Write-Host "`n=== Log saved ===" -Foreground Green
+          Write-Host "msix-diagnostics-logs.md saved to artifact"
 
       - name: 📋 MSIX diagnostics — diagnostic build attempt
         shell: pwsh
         run: |
+          $log = "msix-diagnostics-logs.md"
+          "`n=== Diagnostic MSIX build ===" | Out-File -Append $log
           Write-Host "=== Diagnostic MSIX build (will fail, capture output) ===" -Foreground Cyan
 
-          # Generate temp cert
           $cert = New-SelfSignedCertificate -Type Custom -Subject "CN=Diag" -KeyUsage DigitalSignature -TextExtension @("2.5.29.37={text}1.3.6.1.5.5.7.3.3") -CertStoreLocation "Cert:\CurrentUser\My" -ErrorAction SilentlyContinue
           if ($cert) { $thumb = $cert.Thumbprint } else { $thumb = "" }
 
-          # Build with diagnostic verbosity, capture MSIX-related output
-          dotnet build src/NotAlterra.UI -c Release -p:WindowsPackageType=MSIX -p:AppxPackageSigningEnabled=true -p:PackageCertificateThumbprint=$thumb -v d 2>&1 | Select-String -Pattern "MakeAppx|AppxPackage|msixupload|msixbundle|MSIX|AppPackages|WindowsPackageType|CreateAppx|GenerateAppx" -Context 1,2
+          "`n### Build command:" | Out-File -Append $log
+          "dotnet build src/NotAlterra.UI -c Release -p:WindowsPackageType=MSIX -p:AppxPackageSigningEnabled=true -p:PackageCertificateThumbprint=$thumb -v d" | Out-File -Append $log
 
-          Write-Host "=== Post-build: search for any MSIX artifact ===" -Foreground Cyan
+          "`n### Full build output:" | Out-File -Append $log
+          dotnet build src/NotAlterra.UI -c Release -p:WindowsPackageType=MSIX -p:AppxPackageSigningEnabled=true -p:PackageCertificateThumbprint=$thumb -v d 2>&1 | Tee-Object -Append $log
+
+          "`n### Filtered MSIX output:" | Out-File -Append $log
+          Get-Content $log | Select-String -Pattern "MakeAppx|AppxPackage|msixupload|msixbundle|MSIX|AppPackages|WindowsPackageType|CreateAppx|GenerateAppx|error|error" | Tee-Object -Append $log
+
+          "`n=== Post-build artifact search ===" | Out-File -Append $log
+          Get-ChildItem -Recurse -Filter "*.msix*" -ErrorAction SilentlyContinue | Select FullName, Length | Out-File -Append $log
+          Get-ChildItem -Recurse -Filter "*.appx*" -ErrorAction SilentlyContinue | Select FullName, Length | Out-File -Append $log
+          Get-ChildItem -Recurse -Filter "*.build.appxrecipe" -ErrorAction SilentlyContinue | Select FullName, Length | Out-File -Append $log
           Get-ChildItem -Recurse -Filter "*.msix*" -ErrorAction SilentlyContinue | Select FullName, Length
           Get-ChildItem -Recurse -Filter "*.appx*" -ErrorAction SilentlyContinue | Select FullName, Length
           Get-ChildItem -Recurse -Filter "*.build.appxrecipe" -ErrorAction SilentlyContinue | Select FullName, Length
 
-          # Cleanup cert
           if ($cert) { Get-ChildItem "Cert:\CurrentUser\My\$thumb" -ErrorAction SilentlyContinue | Remove-Item -ErrorAction SilentlyContinue }
+
+          Write-Host "`n=== Full log saved to artifact ===" -Foreground Green
+
+      - name: 📤 Upload MSIX diagnostics
+        uses: actions/upload-artifact@v4
+        with:
+          name: msix-diagnostics-${{ github.run_id }}
+          path: |
+            msix-diagnostics-logs.md
+            src/NotAlterra.UI/AppPackages/
+            src/NotAlterra.UI/bin/Release/**/*.msix*
+            src/NotAlterra.UI/bin/Release/**/*.appx*
+            src/NotAlterra.UI/bin/Release/**/*.build.appxrecipe
+          if-no-files-found: warn
+          retention-days: 7
 
   release:
     needs: check
