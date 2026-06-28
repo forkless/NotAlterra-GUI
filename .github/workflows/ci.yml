@@ -86,11 +86,16 @@ jobs:
             Copy-Item $msix.FullName publish/
             Write-Host "MSIX: $($msix.Name)" -Foreground Green
           }
-          Write-Host "=== Building self-contained package ===" -Foreground Cyan
-          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp/
+          Write-Host "=== Building single-file .exe ===" -Foreground Cyan
           $name = "NotAlterra-${{ github.ref_name }}"
-          # Self-extracting .exe via 7z SFX (single file, no runtime needed)
-          & "C:\Program Files\7-Zip\7z.exe" a -sfx7z.sfx "publish\$name.exe" tmp\* 2>&1 | Out-Null
+          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:PublishSingleFile=true -o tmp/
+          if (Test-Path tmp/NotAlterra.UI.exe) {
+            Copy-Item tmp/NotAlterra.UI.exe "publish/$name.exe"
+            Write-Host "SINGLE-FILE EXE: $name.exe" -Foreground Green
+          } else {
+            Write-Warning "Single-file failed — fallback to zip"
+            Compress-Archive -Path tmp\* -DestinationPath "publish/$name.zip" -Force
+          }
           Rename-Item -Path $msix.FullName -NewName "$name.msix" -ErrorAction SilentlyContinue
 
       - name: Draft release
