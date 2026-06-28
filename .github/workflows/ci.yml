@@ -80,14 +80,14 @@ jobs:
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
-          Write-Host "=== Looking for MSIX ==="
-          Get-ChildItem -Recurse -Depth 1 src/NotAlterra.UI/AppPackages/ -ErrorAction SilentlyContinue | Select FullName, Length
-          $pkg = Get-ChildItem -Recurse -Filter *.msixupload -ErrorAction SilentlyContinue | Select -First 1
-          if (-not $pkg) { $pkg = Get-ChildItem -Recurse -Filter *.msix -ErrorAction SilentlyContinue | Select -First 1 }
-          if ($pkg) { Copy-Item $pkg.FullName publish/; Write-Host "BUILT: $($pkg.Name)" -Foreground Green; exit 0 }
-          Write-Host "No MSIX — zipping" -Foreground Yellow
-          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o publish/
-          Compress-Archive -Path publish\* -DestinationPath NotAlterra-v0.5.0.zip -Force
+          $pkg = Get-ChildItem -Recurse -Filter "*.msixupload" -ErrorAction SilentlyContinue | Select -First 1
+          if (-not $pkg) { $pkg = Get-ChildItem -Recurse -Filter "*.msix" -ErrorAction SilentlyContinue | Select -First 1 }
+          if ($pkg) { Copy-Item $pkg.FullName publish/; Write-Host "MSIX: $($pkg.Name)" -Foreground Green }
+          else {
+            Write-Host "No MSIX — fallback to zip" -Foreground Yellow
+            dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp/
+            Compress-Archive -Path tmp\* -DestinationPath NotAlterra-v0.5.0.zip -Force
+          }
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
