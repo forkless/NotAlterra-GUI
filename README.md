@@ -2,6 +2,8 @@
 
 **Subnautica 2 Save Manager — Windows Native GUI**
 
+![NotAlterra screenshot](docs/screenshot.jpg)
+
 NotAlterra is an unofficial tool for managing Subnautica 2 save files. It locates your save folders, backs up and restores `.sav` / `.bak` files, and lets you inspect the internal metadata of every save.
 
 Not affiliated with Unknown Worlds Entertainment or KRAFTON.
