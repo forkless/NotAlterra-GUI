@@ -16,6 +16,7 @@ WizardImageFile=src\NotAlterra.UI\Assets\setup_bg.bmp
 WizardSmallImageFile=src\NotAlterra.UI\Assets\setup_logo.bmp
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
+AppCopyright=Copyright (c) 2026 forkless. MIT License.
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
