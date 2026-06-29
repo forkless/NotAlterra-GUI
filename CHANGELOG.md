@@ -29,7 +29,6 @@ All notable changes to NotAlterra are documented in this file.
 - **Backup sort** — changed from filename order to `LastWriteTimeUtc` descending
 - **About page layout** — stats Grid with RowDefinitions, 40MB card after Tech Specs, legal in Border card
 - **Changelog + handoff** — rewritten to reflect C# era
-- **`.gitattributes`** — mark `skills/` and `legacy/` as `linguist-vendored` so GitHub shows 100% C#
 
 ### Fixed
 - **BinaryReader.ReadFString overflow** — FsCheck found overflow on `int.MinValue`, added `checked()` + 10MB cap
@@ -62,13 +61,11 @@ All notable changes to NotAlterra are documented in this file.
 - **CMake build system** — NMake generator, FetchContent for GTest, tl::expected error handling
 - **CI pipeline** — GitHub Actions: Debug + Release builds, tests, release draft
 - **MSIX packaging** — self-signed, auto-resolves WinAppSDK dependency
-- **`skills/winui3/SKILL.md`** — error code reference, bootstrap debugging guide
 - **Privacy statement** — no network connections, no telemetry
 
 ### Changed
 - Runtime dependency: Windows App SDK 1.8 (bootstrap DLL shipped alongside .exe)
 - Build requirements: VS 2022 Build Tools + CMake 3.20+
-- UX spec: `docs/UX_SPEC.md` with full page layouts and user flows
 
 ### Removed
 - All Rust code — Cargo.toml, tui.rs, fuzz targets, examples (kept as git history)
