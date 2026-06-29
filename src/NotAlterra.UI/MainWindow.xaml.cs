@@ -85,7 +85,7 @@ public sealed partial class MainWindow : Window
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         var exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-        AppWindow.SetIcon(System.IO.Path.Combine(exeDir!, "Assets/AppIcon.ico"));
+        System.Uri iconUri = new System.Uri(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets/AppIcon.ico"));
         var area = DisplayArea.Primary.WorkArea;
         _minW = (int)(area.Width * 0.65);
         _minH = (int)(area.Height * 0.75);
@@ -95,6 +95,7 @@ public sealed partial class MainWindow : Window
 
         ((FrameworkElement)Content).Loaded += async (_, _) =>
         {
+            AppWindow.SetIcon(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets/AppIcon.ico"));
             PositionWindow();
             var hwnd = WindowNative.GetWindowHandle(this);
             _wndProcRef = WndProc;
