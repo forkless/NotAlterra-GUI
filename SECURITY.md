@@ -49,7 +49,7 @@ but are not limited to:
 - Unintended file writes outside declared paths.
 - Path traversal in save-folder or backup-folder handling.
 - Silent data corruption during backup or restore.
-- Dependency vulnerabilities (monitored via `cargo-deny`).
+- Dependency vulnerabilities.
 
 ## Out of Scope
 
