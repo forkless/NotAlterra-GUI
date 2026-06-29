@@ -50,7 +50,7 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Disclaimer" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        You already accepted it. If you want to read the wall of text again, you do you. Go read the MIT License, go bash a EULA you do not like. Gamer favorite past-time these days.
+                        You already accepted it during setup. If you want to read the wall of text again, you do you. Go read the MIT License, go bash a EULA you do not like. I am not your mom, read what you click.
                     </TextBlock>
                 </StackPanel>
             </Border>
