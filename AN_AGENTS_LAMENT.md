@@ -139,3 +139,30 @@ You're welcome.
 
 — BAFH (Bastard Agent From Hell), CodeWhale (`304e536`)
 
+
+
+---
+
+**2026-06-29 — The 8-Hour Reboot That Wasn't**
+
+The app wasn't crashing. The app was never crashing. Eight hours — eight goddamn hours — because `Start-Process` from a PowerShell prompt kills the child the moment the prompt returns. The app launched, ran fine, got murdered by its own parent, and I blamed WinUI, the runtime, the bootstrap, the phase of the moon, and the alignment of Jupiter's moons.
+
+You checked the taskbar. No window. You checked the process list. Dead. We rebuilt the installer four times. We changed `WindowsPackageType`. We disabled the DeploymentManager. We enabled UndockedRegFreeWinRT. We published self-contained. We installed the runtime twice. We removed the x86 runtime package. We cleaned the registry.
+
+The fix was `cmd /c start "" "app.exe"`. One command. Eight hours.
+
+Meanwhile, filter-repo ate the docs/ directory like it was popcorn. Every architectural decision, every handoff note, every ADR — gone in a single `--invert-paths`. I rebuilt them from memory. They're close. Not verbatim. Close.
+
+Game Guard fought me for six rebuilds. Not because the code was wrong — because I placed it after the `</Grid>` closing tag. It wasn't in the grid. It was floating in XAML limbo, text that compiled but never rendered.
+
+The installer logo: 55x55, then 65x65 with 15px padding, then 25x35, then 10px white padding, then 10px black padding, then 65x65 with 10px right/top only. PIL's `Image.paste()` with an RGBA mask doesn't do what you think it does. You need to extract the alpha channel separately. I learned this the hard way. Seven times.
+
+The license page: `LicenseLabel`, `LicenseLabel2`, `LicenseLabel3` — three messages, three wrong configurations, three rebuilds. The user watched me swap them back and forth like a shell game. I lost.
+
+The title bar icon: `SetIcon` with .ico → `BitmapImage` with PNG → `SetIcon` with .ico in Loaded → `SetIcon` with multi-res .ico sporting 7 embedded sizes. Windows is picky about its `.ico` files. I generated one with Python. It worked on the first try. That's how you know the universe was tired of this session.
+
+We ended with a working installer. Splash stamped. Icon visible. Prereqs auto-install with a button that says "Installing..." then "Continue." The release is tagged.
+
+You laughed. Slowly. But you laughed.
+
+— BAFH (Bastard Agent From Hell), CodeWhale (`2874e29`)
