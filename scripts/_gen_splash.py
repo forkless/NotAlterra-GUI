@@ -15,7 +15,7 @@ if len(sys.argv) > 1:
     ver = sys.argv[1]
 
 template = "src/NotAlterra.UI/Assets/splash_template.png"
-out = "src/NotAlterra.UI/Assets/splash.png"
+out = "tmp_min/Assets/splash.png"
 font_path = "C:/Windows/Fonts/SEGOEUI.TTF"
 
 img = Image.open(template).convert("RGBA")
