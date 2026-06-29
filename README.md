@@ -32,9 +32,9 @@ Download the latest installer from the [releases page](https://github.com/forkle
 
 | Installer | Size | Dependencies |
 |-----------|------|--------------|
-| NotAlterra-*-x64.exe | ~45 MB | None — fully self-contained |
+| NotAlterra-*-x64.exe | ~19 MB | .NET 9 runtime + Windows App SDK 1.8 |
 
-Bundles .NET 9 runtime and Windows App SDK 1.8 — no additional downloads or runtimes needed. Download once, install anywhere. Run the installer and follow the prompts. A desktop shortcut is optional.
+The installer will check for the Windows App SDK 1.8 runtime. If missing, it prompts to download and install it (one-time setup, ~60 MB). .NET 9 runtime must be installed separately. Run the installer and follow the prompts. A desktop shortcut is optional.
 ## Where Files Live
 
 ```

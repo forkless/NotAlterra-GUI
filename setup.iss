@@ -49,3 +49,57 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[Code]
+const
+  WinAppSDK_URL = 'https://aka.ms/windowsappsdk/1.8/1.8.260317003/windowsappruntimeinstall-x64.exe';
+
+function URLDownloadToFile(pCaller: Integer; szURL: string; szFileName: string; dwReserved: Integer; lpfnCB: Integer): Integer;
+  external 'URLDownloadToFileW@urlmon.dll stdcall';
+
+function IsWinAppSDK18Installed: Boolean;
+var
+  ExitCode: Integer;
+begin
+  Result := False;
+  if Exec('powershell.exe', '-NoProfile -Command "if (Get-AppxPackage -Name ''Microsoft.WindowsAppRuntime.1.8*'' -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"', '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
+    Result := (ExitCode = 0);
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+var
+  ResultCode: Integer;
+  DownloadPath: string;
+begin
+  Result := True;
+  if CurPageID = wpReady then
+  begin
+    if not IsWinAppSDK18Installed then
+    begin
+      if MsgBox('NotAlterra requires the Windows App SDK 1.8 runtime to run.' + #13#10 + #13#10 +
+                'Download and install it now (~60 MB)?' + #13#10 + #13#10 +
+                'Click No to skip and install manually later.',
+                mbConfirmation, MB_YESNO) = IDYES then
+      begin
+        DownloadPath := ExpandConstant('{tmp}\WindowsAppRuntimeInstall-x64.exe');
+        if URLDownloadToFile(0, WinAppSDK_URL, DownloadPath, 0, 0) <> 0 then
+        begin
+          MsgBox('Download failed. Please install the runtime manually:' + #13#10 + WinAppSDK_URL, mbError, MB_OK);
+        end
+        else
+        begin
+          if not Exec(DownloadPath, '-q --msix --force', '', SW_SHOW, ewWaitUntilTerminated, ResultCode) or (ResultCode <> 0) then
+          begin
+            MsgBox('Installation failed (code ' + IntToStr(ResultCode) + '). Please install manually:' + #13#10 + WinAppSDK_URL, mbError, MB_OK);
+          end
+          else
+          begin
+            MsgBox('Windows App SDK runtime installed.' + #13#10 + #13#10 +
+                   'A restart is recommended before launching NotAlterra.',
+                   mbInformation, MB_OK);
+          end;
+        end;
+      end;
+    end;
+  end;
+end;

@@ -42,8 +42,8 @@ jobs:
       - name: Run tests
         run: dotnet test src/NotAlterra.UI.Tests -c Debug --no-build --verbosity normal
 
-      - name: Build self-contained for smoke test
-        run: dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp_smoke/
+      - name: Build for smoke test
+        run: dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp_smoke/
 
       - name: Smoke test — launch and verify 15s uptime
         shell: pwsh
@@ -70,9 +70,9 @@ jobs:
           pip install Pillow -q 2>&1 | Out-Null
           python _gen_splash.py "$tag"
 
-          # Full (~45MB, self-contained — no runtime dependencies)
-          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp_full/
-          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_full /F"NotAlterra-$tag-x64" /O"publish"
+          # Minimal (~19MB, needs .NET 9 runtime, installer prompts for WinAppSDK)
+          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp_min/
+          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_min /F"NotAlterra-$tag-x64" /O"publish"
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
@@ -81,7 +81,8 @@ jobs:
           body: |
             ## NotAlterra ${{ github.ref_name }}
 
-            **Installer:** `NotAlterra-*-x64.exe` — fully self-contained, ~45 MB.
-            No runtimes needed. Creates Start Menu shortcut.
+            **Installer:** `NotAlterra-*-x64.exe` — ~19 MB, needs .NET 9 runtime.
+            Prompts to download Windows App SDK 1.8 if missing.
+            Creates Start Menu shortcut.
             Self-signed: click "More info" → "Run anyway" if Windows Defender blocks.
           draft: true
