@@ -34,7 +34,7 @@ Download the latest installer: [NotAlterra-Windows-x64.exe](https://github.com/f
 |-----------|------|--------------|
 | NotAlterra-*-x64.exe | ~19 MB | .NET 9 runtime + Windows App SDK 1.8 |
 
-Downloads and installs both .NET 9 Desktop Runtime and Windows App SDK 1.8 if missing. Idempotent — safe to re-run. A desktop shortcut is optional.
+Downloads and installs both .NET 9 Desktop Runtime and Windows App SDK 1.8 if missing. Safe to re-run. A desktop shortcut is optional.
 ## Where Files Live
 
 ```
