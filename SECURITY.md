@@ -8,7 +8,7 @@ through one of the channels below. Do **not** open a public issue.
 ### Preferred: GitHub Private Vulnerability Reporting
 
 1. Go to the repository's **Security** tab:
-   <https://github.com/forkless/NotAlterra/security/advisories>
+   <https://github.com/forkless/NotAlterra-GUI/security/advisories>
 2. Click **Report a vulnerability**.
 3. Fill in the form — no GPG needed, the thread is private by default.
 4. GitHub can assign a CVE ID directly through their CNA.
