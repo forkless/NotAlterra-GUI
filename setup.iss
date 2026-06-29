@@ -57,9 +57,13 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Code]
+var
+  PrereqPage: TWizardPage;
+
 procedure InitializeWizard;
 begin
   WizardForm.WelcomeLabel2.Caption := 'NotAlterra is an unofficial Subnautica 2 save file manager. It backs up your progress, recovers corrupted saves, and inspects every file metadata without ever modifying them directly.'#13#10#13#10'Required Microsoft runtime prerequisites if missing will be downloaded and installed silently.';
+  PrereqPage := CreateCustomPage(wpLicense, 'Prerequisites', 'Now checking and installing Microsoft runtime prerequisites. This may take a moment.');
 end;
 
 const
@@ -73,6 +77,7 @@ function URLDownloadToFile(pCaller: Integer; szURL: string; szFileName: string; 
 
 function TryInstall(Url: string; FileName: string; InstallArgs: string; DisplayName: string; HelpUrl: string): Boolean;
 var
+  PrereqPage: TWizardPage;
   Path: string;
   ResultCode: Integer;
 begin
@@ -100,7 +105,7 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
-  if CurPageID = wpLicense then
+  if CurPageID = PrereqPage.ID then
   begin
     TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', '.NET 9', DotNet9_Help);
     TryInstall(WinAppSDK_URL, 'WinAppSDK-x64.exe', '-q --msix --force', 'WinAppSDK 1.8', WinAppSDK_Help);
