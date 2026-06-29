@@ -31,11 +31,12 @@ All notable changes to NotAlterra are documented in this file.
 - **Changelog + handoff** — rewritten to reflect C# era
 
 ### Fixed
+- **Game guard** — now checks before every destructive operation (Recover, Restore, Delete), not just at app launch
+
 - **BinaryReader.ReadFString overflow** — FsCheck found overflow on `int.MinValue`, added `checked()` + 10MB cap
 - **About page AMD64 duplicate** — removed redundant `Arch` binding in XAML
 - **Nullable warnings** — `OnLoaded` params made nullable, CS8625 squashed
 - **C++ source removal** — `src/gvas/` C++ parser deleted (git rm)
-
 ### Removed
 - All Rust code (`Cargo.toml`, `src/*.rs`, `fuzz/`, `tests/`, `examples/`)
 - All C++ WinUI code (`NotAlterra/`, `src/ui/`, `CMakeLists.txt`, `NotAlterra.vcxproj`, `AppxManifest.xml`)
@@ -77,12 +78,13 @@ All notable changes to NotAlterra are documented in this file.
 - **README** — end-user focused, no build instructions, direct download link
 
 ### Fixed
+- **Game guard** — now checks before every destructive operation (Recover, Restore, Delete), not just at app launch
+
 - **0xc000027b crash** — unpackaged WinUI 3 COM crash fixed (WindowsPackageType=None + UndockedRegFreeWinRT)
 - **Splash DestroyWindow thread safety** — dispatched to DispatcherQueue
 - **Window position after install** — unasoriginaluser flag in Inno Setup [Run] prevents minimized launch
 - **ms-appx:/// URIs** — removed from MainWindow and AboutPage (crash unpackaged)
 - **XAML builds** — FontAwesome ttf URI changed from ms-appx:/// to relative path
-
 ### Removed
 - MSIX packaging (replaced by Inno Setup)
 - Disclaimer sentinel file (replaced by Inno Setup License page)
@@ -104,7 +106,6 @@ All notable changes to NotAlterra are documented in this file.
 ### Changed
 - Runtime dependency: Windows App SDK 1.8 (bootstrap DLL shipped alongside .exe)
 - Build requirements: VS 2022 Build Tools + CMake 3.20+
-
 ### Removed
 - All Rust code — Cargo.toml, tui.rs, fuzz targets, examples (kept as git history)
 

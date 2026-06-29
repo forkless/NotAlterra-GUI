@@ -169,6 +169,7 @@ public sealed partial class SaveSlotsPage : Page
         var bak = btn.DataContext as BakInfo;
         var filePath = btn.Tag as string;
         if (filePath == null) return;
+        if (!await MainWindow.CheckGameGuard(this.XamlRoot)) return;
 
         // Guard: warn about corruption, mode change, name change
         if (btn.XamlRoot != null)
@@ -292,6 +293,7 @@ public sealed partial class SaveSlotsPage : Page
     private async void OnDeleteBak(object sender, RoutedEventArgs e)
     {
         if (sender is not Button btn || btn.Tag is not string filePath) return;
+        if (!await MainWindow.CheckGameGuard(this.XamlRoot)) return;
         var fi = new System.IO.FileInfo(filePath);
         if (btn.XamlRoot != null)
         {
