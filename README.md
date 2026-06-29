@@ -63,7 +63,7 @@ If network features are added in a future version, they will require explicit us
 - No network connections
 - Read-only inspect mode won't touch files
 - Pre-restore snapshots created automatically
-- .ini delete requires a prior backup
+- UE5 .ini file delete requires a prior backup
 
 ## Backup Format
 
