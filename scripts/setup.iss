@@ -108,9 +108,11 @@ procedure CurPageChanged(CurPageID: Integer);
 begin
   if CurPageID = PrereqPage.ID then
   begin
+    WizardForm.NextButton.Caption := 'Installing...';
     WizardForm.NextButton.Enabled := False;
     TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', '.NET 9', DotNet9_Help);
     TryInstall(WinAppSDK_URL, 'WinAppSDK-x64.exe', '-q --msix --force', 'WinAppSDK 1.8', WinAppSDK_Help);
     WizardForm.NextButton.Enabled := True;
+    WizardForm.NextButton.Caption := 'Continue';
   end;
 end;
