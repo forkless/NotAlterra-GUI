@@ -12,6 +12,7 @@
 [Setup]
 AppId={{8FBD6084-3211-4AE3-8E4C-DDE929266317}
 AppName={#MyAppName}
+LicenseFile=LICENSE.md
 AppVerName={#MyAppName} {#MyAppVersion} — Subnautica 2 Save Manager
 SetupIconFile=src\NotAlterra.UI\Assets\AppIcon.ico
 WizardImageFile=src\NotAlterra.UI\Assets\setup_bg.bmp
@@ -24,6 +25,7 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
+DisableDirPage=no
 DisableProgramGroupPage=yes
 OutputDir=.
 OutputBaseFilename=NotAlterra-{#MyAppVersion}
@@ -31,6 +33,7 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 DisableWelcomePage=no
+ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=admin
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
@@ -54,6 +57,11 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [Code]
+procedure InitializeWizard;
+begin
+  WizardForm.WelcomeLabel2.Caption := 'NotAlterra is an unofficial Subnautica 2 save file manager. It backs up your progress, recovers corrupted saves, and inspects every file metadata without ever modifying them directly.'#13#10#13#10'Required Microsoft runtime prerequisites if missing will be downloaded and installed silently.';
+end;
+
 const
   DotNet9_URL = 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.17/windowsdesktop-runtime-9.0.17-win-x64.exe';
   DotNet9_Help = 'https://dotnet.microsoft.com/en-us/download/dotnet/9.0';
@@ -72,7 +80,7 @@ begin
   Path := ExpandConstant('{tmp}\' + FileName);
   if URLDownloadToFile(0, Url, Path, 0, 0) = 0 then
   begin
-    if Exec(Path, InstallArgs, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
+    if Exec(Path, InstallArgs, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
       Result := True
     else
     begin
@@ -92,11 +100,9 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
-  if CurPageID = wpWelcome then
+  if CurPageID = wpLicense then
   begin
-    if MsgBox('Download and install .NET 9 Desktop Runtime?', mbConfirmation, MB_YESNO) = IDYES then
-      TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', '.NET 9', DotNet9_Help);
-    if MsgBox('Download and install Windows App SDK 1.8?', mbConfirmation, MB_YESNO) = IDYES then
-      TryInstall(WinAppSDK_URL, 'WinAppSDK-x64.exe', '-q --msix --force', 'WinAppSDK 1.8', WinAppSDK_Help);
+    TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', '.NET 9', DotNet9_Help);
+    TryInstall(WinAppSDK_URL, 'WinAppSDK-x64.exe', '-q --msix --force', 'WinAppSDK 1.8', WinAppSDK_Help);
   end;
 end;
