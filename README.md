@@ -28,7 +28,7 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 
 ## Installation
 
-Download the latest installer from the [releases page](https://github.com/forkless/NotAlterra/releases).
+Download the latest installer from the [releases page](https://github.com/forkless/NotAlterra/releases/latest).
 
 | Installer | Size | Dependencies |
 |-----------|------|--------------|
