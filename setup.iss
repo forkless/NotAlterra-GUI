@@ -37,6 +37,9 @@ UninstallDisplayIcon={app}\{#MyAppExeName}
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[Messages]
+WelcomeLabel2=This will install NotAlterra [name/ver] on your computer. Required Microsoft runtime prerequisites (if missing) will be downloaded and installed silently.
+
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
@@ -52,33 +55,13 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 
 [Code]
 const
-  WinAppSDK_URL = 'https://aka.ms/windowsappsdk/1.8/1.8.260317003/windowsappruntimeinstall-x64.exe';
-  WinAppSDK_Name = 'Windows App SDK 1.8 Runtime';
-  WinAppSDK_Help = 'https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads';
   DotNet9_URL = 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.17/windowsdesktop-runtime-9.0.17-win-x64.exe';
-  DotNet9_Name = '.NET 9 Windows Desktop Runtime';
   DotNet9_Help = 'https://dotnet.microsoft.com/en-us/download/dotnet/9.0';
+  WinAppSDK_URL = 'https://aka.ms/windowsappsdk/1.8/1.8.260317003/windowsappruntimeinstall-x64.exe';
+  WinAppSDK_Help = 'https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads';
 
 function URLDownloadToFile(pCaller: Integer; szURL: string; szFileName: string; dwReserved: Integer; lpfnCB: Integer): Integer;
   external 'URLDownloadToFileW@urlmon.dll stdcall';
-
-function IsNet9Installed: Boolean;
-var
-  ExitCode: Integer;
-begin
-  Result := False;
-  Exec('powershell.exe', '-NoProfile -Command "try { dotnet --list-runtimes | Select-String ''Microsoft.WindowsDesktop.App 9.'' | Out-Null; exit 0 } catch { exit 1 }"', '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
-  Result := (ExitCode = 0);
-end;
-
-function IsWinAppSDK18Installed: Boolean;
-var
-  ExitCode: Integer;
-begin
-  Result := False;
-  Exec('powershell.exe', '-NoProfile -Command "try { Get-AppxPackage -Name ''Microsoft.WindowsAppRuntime.1.8*'' -ErrorAction Stop | Out-Null; exit 0 } catch { exit 1 }"', '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
-  Result := (ExitCode = 0);
-end;
 
 function TryInstall(Url: string; FileName: string; InstallArgs: string; DisplayName: string; HelpUrl: string): Boolean;
 var
@@ -93,15 +76,15 @@ begin
       Result := True
     else
     begin
-      MsgBox(DisplayName + ' installer failed (code ' + IntToStr(ResultCode) + ').', mbError, MB_OK);
-      if MsgBox('Open the download page in your browser?', mbConfirmation, MB_YESNO) = IDYES then
+      MsgBox(DisplayName + ' installer failed.', mbError, MB_OK);
+      if MsgBox('Open download page?', mbConfirmation, MB_YESNO) = IDYES then
         ShellExec('open', HelpUrl, '', '', SW_SHOW, ewNoWait, ResultCode);
     end;
   end
   else
   begin
     MsgBox('Could not download ' + DisplayName + '.', mbError, MB_OK);
-    if MsgBox('Open the download page in your browser?', mbConfirmation, MB_YESNO) = IDYES then
+    if MsgBox('Open download page?', mbConfirmation, MB_YESNO) = IDYES then
       ShellExec('open', HelpUrl, '', '', SW_SHOW, ewNoWait, ResultCode);
   end;
 end;
@@ -109,20 +92,11 @@ end;
 function NextButtonClick(CurPageID: Integer): Boolean;
 begin
   Result := True;
-  if CurPageID = wpReady then
+  if CurPageID = wpWelcome then
   begin
-    if not IsNet9Installed then
-      if MsgBox('NotAlterra needs ' + DotNet9_Name + '.' + #13#10 +
-                'Download and install it now (~60 MB)?' + #13#10 +
-                'Click No to open the download page.',
-                mbConfirmation, MB_YESNO) = IDYES then
-        TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', DotNet9_Name, DotNet9_Help);
-
-    if not IsWinAppSDK18Installed then
-      if MsgBox('NotAlterra also needs ' + WinAppSDK_Name + '.' + #13#10 +
-                'Download and install it now (~60 MB)?' + #13#10 +
-                'Click No to open the download page.',
-                mbConfirmation, MB_YESNO) = IDYES then
-        TryInstall(WinAppSDK_URL, 'WindowsAppRuntimeInstall-x64.exe', '-q --msix --force', WinAppSDK_Name, WinAppSDK_Help);
+    if MsgBox('Download and install .NET 9 Desktop Runtime?', mbConfirmation, MB_YESNO) = IDYES then
+      TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', '.NET 9', DotNet9_Help);
+    if MsgBox('Download and install Windows App SDK 1.8?', mbConfirmation, MB_YESNO) = IDYES then
+      TryInstall(WinAppSDK_URL, 'WinAppSDK-x64.exe', '-q --msix --force', 'WinAppSDK 1.8', WinAppSDK_Help);
   end;
 end;
