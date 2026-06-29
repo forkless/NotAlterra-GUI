@@ -95,6 +95,9 @@ public sealed partial class MainWindow : Window
 
         ((FrameworkElement)Content).Loaded += async (_, _) =>
         {
+            var ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+            Title = $"NotAlterra v{ver.Major}.{ver.Minor}.{ver.Build}";
+            AppTitleBar.Title = Title;
             var iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets/AppIcon.ico");
             var iconUri = new System.Uri(iconPath);
             var iconSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(iconUri);

@@ -21,15 +21,8 @@ public sealed partial class AboutPage : Page
     {
         InitializeComponent();
 
-        try
-        {
-            var ver = Package.Current.Id.Version;
-            AppVersion = $"{ver.Major}.{ver.Minor}.{ver.Build}";
-        }
-        catch
-        {
-            AppVersion = "0.5.0";
-        }
+        var ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        AppVersion = ver != null ? $"{ver.Major}.{ver.Minor}.{ver.Build}" : "0.5.0";
 
         Arch = RuntimeInformation.ProcessArchitecture switch
         {
