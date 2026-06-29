@@ -102,7 +102,18 @@ public sealed partial class SaveSlotsPage : Page
 
     private void OnLoaded(object? sender, RoutedEventArgs? e)
     {
-        var dir = @"D:\Development\NotAlterra-GUI\gvas-files";
+        var cfg = AppConfig.LoadAppConfig();
+        var dir = cfg.SaveFolder
+            ?? System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "Subnautica2", "Saved", "SaveGames");
+        if (!Directory.Exists(dir))
+        {
+            SlotCountText.Text = "?";
+            StatusText.Text = "Save folder not found. Set it in Settings.";
+            StatusText.Visibility = Visibility.Visible;
+            return;
+        }
         var savFiles = Directory.GetFiles(dir, "savegame_*.sav");
         if (savFiles.Length == 0) { SlotCountText.Text = "0"; StatusText.Visibility = Visibility.Visible; return; }
 

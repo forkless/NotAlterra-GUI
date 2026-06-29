@@ -37,6 +37,9 @@ ArchitecturesInstallIn64BitMode=x64
 PrivilegesRequired=admin
 UninstallDisplayIcon={app}\{#MyAppExeName}
 
+[Messages]
+LicenseLabel=
+
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
@@ -54,7 +57,7 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent shellexec
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent runasoriginaluser
 
 [Code]
 var
@@ -63,7 +66,7 @@ var
 procedure InitializeWizard;
 begin
   WizardForm.WelcomeLabel2.Caption := 'NotAlterra is an unofficial Subnautica 2 save file manager. It backs up your progress, recovers corrupted saves, and inspects every file metadata without ever modifying them directly.'#13#10#13#10'Required Microsoft runtime prerequisites if missing will be downloaded and installed silently.';
-  PrereqPage := CreateCustomPage(wpLicense, 'Prerequisites', 'Now checking and installing Microsoft runtime prerequisites. This may take a moment.');
+  PrereqPage := CreateCustomPage(wpLicense, 'Prerequisites', 'Checking for Microsoft runtime prerequisites. This may take a moment.');
 end;
 
 const

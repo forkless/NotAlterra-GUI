@@ -49,7 +49,7 @@
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
                                             <TextBlock Text="{Binding NameDisplay}" FontSize="18" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding ChevronGlyph}" FontFamily="{Binding ChevronFont}" FontSize="14" Foreground="#FFe85d04" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding ChevronGlyph}" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#FFe85d04" VerticalAlignment="Center"/>
                                         </StackPanel>
                                         <StackPanel Orientation="Horizontal" Spacing="14">
                                             <TextBlock Text="{Binding PlaytimeDisplay}" FontSize="14"/>
@@ -74,7 +74,7 @@
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
-                                        <TextBlock Text="{Binding CorruptionIcon}" FontFamily="{Binding CorruptionFont}" FontSize="18" HorizontalAlignment="Center" Visibility="{Binding CorruptionVisible}">
+                                        <TextBlock Text="{Binding CorruptionIcon}" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" Visibility="{Binding CorruptionVisible}">
                                             <ToolTipService.ToolTip>
                                                 <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
                                                     <Border Padding="14,10" CornerRadius="4">
@@ -103,7 +103,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding CorruptionIcon}" FontFamily="{Binding CorruptionFont}" FontSize="16" Foreground="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="{Binding CorruptionVisible}">
+                                                    <TextBlock Grid.Column="0" Text="{Binding CorruptionIcon}" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="{Binding CorruptionVisible}">
                                                         <ToolTipService.ToolTip>
                                                             <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
                                                                 <Border Padding="14,10" CornerRadius="4">

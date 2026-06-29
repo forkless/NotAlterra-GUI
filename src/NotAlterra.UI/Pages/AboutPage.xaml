@@ -26,6 +26,8 @@
                             <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
                             <RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/>
                             <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
                         <TextBlock Text="Parsing engine" Opacity="0.6"/>
                         <TextBlock Grid.Column="1" Text="{x:Bind ParsingEngine}" TextWrapping="Wrap"/>
@@ -53,39 +55,71 @@
 
                         <TextBlock Grid.Row="8" Text="Total downloads" Opacity="0.6"/>
                         <TextBlock Grid.Row="8" Grid.Column="1" Text="3 ...including family" TextWrapping="Wrap"/>
+
+                        <TextBlock Grid.Row="9" Text="Splash screen" Opacity="0.6"/>
+                        <TextBlock Grid.Row="9" Grid.Column="1" TextWrapping="Wrap">3 seconds of pure vanity. The app loads in ~300ms but I love seeing my homemade splash. So tough luck!</TextBlock>
+
+                        <TextBlock Grid.Row="10" Text="Game Guard" Opacity="0.6"/>
+                        <TextBlock Grid.Row="10" Grid.Column="1" TextWrapping="Wrap">Checks if Subnautica 2 is running before destructive operations. Has saved exactly zero saves so far but it makes me look professional.</TextBlock>
                     </Grid>
                 </StackPanel>
             </Border>
 
             <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="About 19MB" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="About 42MB" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        No it is not the 3.7MB 40-second loop.webm. It is prerequisites are downloaded and installed separately if needed. Think of it as the Windows App Tax. You pay it once and forget about it. If you dont like OS overhead you know where the Linux ISO is. Or TempleOS if you hate yourself.
+                        No it is not the 3.7MB 40-second loop.webm. It is prerequisites are downloaded and downloaded separately if needed. Think of it as the Windows App Tax. You pay it once and forget about it. If you dont like OS overhead you know where the Linux ISO is. Or TempleOS if you hate yourself.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">The installer is 19MB. The real weight (~160MB) is Microsoft's .NET + WinAppSDK runtimes — you already have them if you built this from source. NotAlterra itself is a featherweight. The taxman is Microsoft, not us. But hey, at least we prompt you to download them instead of silently shipping a 200MB installer. You are welcome.</TextBlock>
+                </StackPanel>
+            </Border>
+
+
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Post Early Access Planned Features" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        font size slider for sidebar text (because someone asked)
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        font color thingy
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        probably more stuff i forgot
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        maybe a dark mode toggle for the dark mode that is already on (peak UX)
                     </TextBlock>
                 </StackPanel>
             </Border>
 
             <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
-                <StackPanel Spacing="8">
-                    <TextBlock Text="Copyright &amp; Attribution" FontWeight="SemiBold" Margin="0,16,0,0"/>
-                    <TextBlock TextWrapping="Wrap" Margin="0,8,0,0">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Copyright &amp; Attribution" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.8">
                     This is an unofficial fan-made utility and is not affiliated with or endorsed by KRAFTON or Unknown Worlds Entertainment.
                     </TextBlock>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.8" Margin="0,8,0,0">
+                    <TextBlock TextWrapping="Wrap" Opacity="0.6">
                     KRAFTON® is a registered trademark of KRAFTON, Inc., and Unknown Worlds Entertainment™ is a trademark of Unknown Worlds Entertainment, Inc.
                     </TextBlock>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.5" Margin="0,12,0,0">
+                    <TextBlock TextWrapping="Wrap" Opacity="0.4">
                     Unreal® is a trademark or registered trademark of Epic Games, Inc. in the United States of America and elsewhere.
                     </TextBlock>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,4,0,0">
+                    <TextBlock TextWrapping="Wrap" Opacity="0.4">
                     Unreal Engine, Copyright 1998-2026, Epic Games, Inc. All rights reserved.
                     </TextBlock>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.6" Margin="0,8,0,0">
-                    NotAlterra makes no network connections. No telemetry. No data leaves your machine.
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                    This app will not:
+                    ▪ connect to the internet. It contains zero networking code.
+                    ▪ send telemetry, analytics, or crash reports of any kind.
+                    ▪ enable the Windows App SDK opt-in telemetry feature.
+                    ▪ store anything beyond timestamps.
+                    ▪ store any data beyond the HKCU\Software\NotAlterra registry keys.
                     This tool runs entirely offline.
                     </TextBlock>
-                    <StackPanel Spacing="4">
+                    <StackPanel Spacing="4" Margin="0,4,0,0">
                     <TextBlock Text="Sidebar video by Pachon Curubeto" Opacity="0.5"/>
                     <StackPanel Orientation="Horizontal" Spacing="4" Opacity="0.5">
                     <FontIcon Glyph="&#xF16D;" FontFamily="../Assets/FontAwesomeBrands.ttf#Font Awesome 6 Brands" FontSize="14" VerticalAlignment="Center" Margin="0,2,0,0"/>
@@ -93,8 +127,17 @@
                     <TextBlock Text="· Argentina"/>
                     </StackPanel>
                     </StackPanel>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.4" Margin="0,8,0,0">
+                    <TextBlock TextWrapping="Wrap" Opacity="0.4">
                     NotAlterra © 2026 forkless.com - released under the MIT License
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Disclaimer" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        You already accepted it during setup. If you want to read the wall of text again, you do you. Go read the MIT License, go bash a EULA you do not like. I am not your mom, read what you click.
                     </TextBlock>
                 </StackPanel>
             </Border>

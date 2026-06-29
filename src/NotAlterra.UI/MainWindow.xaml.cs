@@ -53,7 +53,6 @@ public sealed partial class MainWindow : Window
         _minH = (int)(area.Height * 0.75);
         int initW = Math.Max(_minW, (int)(area.Width * 0.8));
         int initH = Math.Max(_minH, (int)(area.Height * 0.85));
-        AppWindow.Resize(new SizeInt32(initW, initH));
         AppWindow.Move(new PointInt32((area.Width - initW) / 2, (area.Height - initH) / 2));
     }
 

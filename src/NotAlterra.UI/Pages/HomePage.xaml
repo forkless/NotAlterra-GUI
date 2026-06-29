@@ -25,16 +25,16 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Quick Start" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap">
-                        1. Click <Run FontWeight="SemiBold" Foreground="#FFe85d04">Save Manager</Run> in the sidebar to browse your saves
+                        ▪ Click <Run FontWeight="SemiBold" Foreground="#FFe85d04">Save Manager</Run> in the sidebar to browse your saves
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap">
-                        2. Expand a slot to see available backups
+                        ▪ Expand a slot to see available backups
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap">
-                        3. Click <Run FontWeight="SemiBold" Foreground="#FFe85d04">Recover</Run> to restore a backup. A snapshot is created automatically.
+                        ▪ Click <Run FontWeight="SemiBold" Foreground="#FFe85d04">Recover</Run> to restore a backup. A snapshot is created automatically.
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap">
-                        4. Hover warning icons and mode labels for details about each file
+                        ▪ Hover warning icons and mode labels for details about each file
                     </TextBlock>
                 </StackPanel>
             </Border>
@@ -42,21 +42,29 @@
             <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
                 <StackPanel Spacing="12">
                     <TextBlock Text="How It Protects Your Saves" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Read-only inspection</Run>: browsing never modifies files</TextBlock>
-                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Pre-recovery snapshots</Run>: every Recover creates a backup first</TextBlock>
-                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Game guard</Run>: warns if Subnautica 2 is running</TextBlock>
-                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Corruption detection</Run>: flags broken files with a warning</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Read-only inspection</Run> browsing never modifies files</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Pre-recovery snapshots</Run> every Recover creates a backup first</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Game guard</Run> warns if Subnautica 2 is running</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Corruption detection</Run> flags broken files with a warning</TextBlock>
                 </StackPanel>
             </Border>
 
             <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
                 <StackPanel Spacing="12">
                     <TextBlock Text="Understanding the Cards" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Slot number</Run>: identifies the save slot (0, 1, 2...)</TextBlock>
-                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Playtime</Run>: hours played from save metadata</TextBlock>
-                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Single Player / Multiplayer / Was Multiplayer</Run>: game mode with tooltip</TextBlock>
-                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Build</Run>: UE5 build number</TextBlock>
-                    <TextBlock TextWrapping="Wrap"><Run FontWeight="SemiBold">Warning icon</Run>: corrupted file, hover for details</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Slot number</Run> identifies the save slot (0, 1, 2...)</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Playtime</Run> hours played from save metadata</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Single Player / Multiplayer / Was Multiplayer</Run> game mode with tooltip</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Build</Run> UE5 build number</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Warning icon</Run> corrupted file, hover for details</TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Locations" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">Save folder: <Run x:Name="SavePathRun" FontFamily="Consolas"/></TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">Backup folder: <Run x:Name="BackupPathRun" FontFamily="Consolas"/></TextBlock>
                 </StackPanel>
             </Border>
 
@@ -72,19 +80,6 @@
                 </StackPanel>
             </Border>
 
-            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Privacy Statement" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock TextWrapping="Wrap">I am just as keen on privacy as you are so this app will not;</TextBlock>
-                    <TextBlock TextWrapping="Wrap">▪ connect to the internet. It contains zero networking code.</TextBlock>
-                    <TextBlock TextWrapping="Wrap">▪ send telemetry, analytics, or crash reports of any kind.</TextBlock>
-                    <TextBlock TextWrapping="Wrap">▪ enable the Windows App SDK opt-in telemetry feature.</TextBlock>
-                    <TextBlock TextWrapping="Wrap">▪ store anything beyond timestamps in <Run FontFamily="Consolas">transaction.log</Run>.</TextBlock>
-                    <TextBlock TextWrapping="Wrap">▪ store any data in <Run FontFamily="Consolas">%LOCALAPPDATA%\NotAlterra\config\</Run> beyond an empty completion marker.</TextBlock>
-                </StackPanel>
-            </Border>
-
-            <TextBlock Text="NotAlterra © 2026 forkless.com under the MIT License" Opacity="0.3" Margin="0,16,0,0"/>
 
         </StackPanel>
     </ScrollViewer>

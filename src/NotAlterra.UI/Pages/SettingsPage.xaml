@@ -12,19 +12,18 @@
         <StackPanel Padding="32,32,64,32" Spacing="16" MaxWidth="800">
 
             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Settings"/>
-            <TextBlock TextWrapping="Wrap" Opacity="0.6">
-                bro idk what to put here either
-            </TextBlock>
 
             <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="Save Folder" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="Game Save Folder" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        NotAlterra auto-detects your Subnautica 2 saves. You literally do not need to configure anything.
+                        Change the game save folder if Subnautica 2 stores its saves in a custom location.
                     </TextBlock>
                     <TextBlock TextWrapping="Wrap" Opacity="0.3" FontFamily="Consolas" FontSize="12">
                         %LOCALAPPDATA%\Subnautica2\Saved\SaveGames
                     </TextBlock>
+                    <TextBox x:Name="SaveFolderBox" PlaceholderText="Custom save folder (leave empty for default)" Text="" />
+                    <StackPanel Orientation="Horizontal" Spacing="8"><Button x:Name="BrowseBtn" Content="Browse..." Click="OnBrowseFolder" /><Button x:Name="ResetSaveBtn" Content="Reset" Click="OnResetSaveFolder" /></StackPanel>
                 </StackPanel>
             </Border>
 
@@ -32,50 +31,17 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="Backup Location" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        Full backups (tar.gz archives) go to %USERPROFILE%\NotAlterra\backups\. If you really need to change it, you can. Why would you though.
+                        Change where backup archives are stored.
                     </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.3" FontFamily="Consolas" FontSize="12">
+                        %USERPROFILE%\NotAlterra
+                    </TextBlock>
+                    <TextBox x:Name="BackupFolderBox" PlaceholderText="Custom backup folder (leave empty for default)" Text="" />
+                    <StackPanel Orientation="Horizontal" Spacing="8"><Button x:Name="BrowseBackupBtn" Content="Browse..." Click="OnBrowseBackupFolder" /><Button x:Name="ResetBackupBtn" Content="Reset" Click="OnResetBackupFolder" /></StackPanel>
                 </StackPanel>
             </Border>
 
-            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Game Guard" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        The app checks if Subnautica 2 is running before letting you do anything destructive. This has saved exactly zero saves so far but it makes me look professional.
-                    </TextBlock>
-                </StackPanel>
-            </Border>
 
-            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Disclaimer" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        You already accepted it during setup. If you want to read the wall of text again, you do you. Go read the MIT License, go bash a EULA you do not like. I am not your mom, read what you click.
-                    </TextBlock>
-                </StackPanel>
-            </Border>
-
-            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="Planned Features" FontSize="18" FontWeight="SemiBold"/>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        font size slider for sidebar text (because someone asked)
-                    </TextBlock>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        font color thingy
-                    </TextBlock>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        probably more stuff i forgot
-                    </TextBlock>
-                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        maybe a dark mode toggle for the dark mode that is already on (peak UX)
-                    </TextBlock>
-                </StackPanel>
-            </Border>
-
-            <TextBlock TextWrapping="Wrap" Opacity="0.3" Margin="0,8,0,0" FontStyle="Italic">
-                this page will probably have actual settings one day. maybe. dont hold your breath.
-            </TextBlock>
 
         </StackPanel>
     </ScrollViewer>
