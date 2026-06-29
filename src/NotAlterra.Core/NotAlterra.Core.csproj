@@ -4,6 +4,7 @@
     <RootNamespace>NotAlterra</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <NoWarn>CA1416</NoWarn>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 </Project>
