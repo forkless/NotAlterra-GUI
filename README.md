@@ -10,7 +10,7 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 
 ## Features
 
-- **Manual path entry** — set your save folder from the menu (paste supported)
+- **Manual path entry** — set your save folder from the menu
 - **Recover** a corrupted `.sav` from its `.bak` backup with rollback
 - **Create / restore** full backups (only `savegame_*` files)
 - **Manage** UE5 Config `.ini` files — backup, restore, delete
@@ -18,7 +18,7 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 - **Slot grouping** with Multiplayer / Single Player detection
 - **Playtime extraction** — displays total playtime from save metadata
 - **Warns** on name changes and mode switches before recovery
-- **Transaction log** — all actions timestamped to `transaction.log`
+
 
 ### ⚠ Important
 
