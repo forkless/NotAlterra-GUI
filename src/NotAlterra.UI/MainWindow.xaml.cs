@@ -96,6 +96,7 @@ public sealed partial class MainWindow : Window
 
         ((FrameworkElement)Content).Loaded += async (_, _) =>
         {
+            PositionWindow();
             var hwnd = WindowNative.GetWindowHandle(this);
             _wndProcRef = WndProc;
             _oldWndProc = SetWindowLongPtr64(hwnd, GWLP_WNDPROC, Marshal.GetFunctionPointerForDelegate(_wndProcRef));
