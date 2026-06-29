@@ -85,7 +85,7 @@ public sealed partial class MainWindow : Window
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         var exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-        System.Uri iconUri = new System.Uri(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets/AppIcon.ico"));
+        AppWindow.SetIcon(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets/AppIcon.ico"));
         var area = DisplayArea.Primary.WorkArea;
         _minW = (int)(area.Width * 0.65);
         _minH = (int)(area.Height * 0.75);
