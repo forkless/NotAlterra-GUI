@@ -75,7 +75,7 @@ jobs:
 
           # Minimal (~19MB, needs .NET 9 runtime, installer prompts for WinAppSDK)
           dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp_min/
-          iscc scripts/setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_min /F"NotAlterra-$tag-Windows-x64" /O"publish"
+          iscc scripts/setup.iss /DMyAppVersion="$tag" /DSourceDir=..\tmp_min /F"NotAlterra-$tag-Windows-x64" /O"..\publish"
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
