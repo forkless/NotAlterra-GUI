@@ -1,6 +1,8 @@
 /// Native Win32 layered transparent splash window.
 /// No WinUI dependencies — shows instantly, per-pixel alpha.
 using System.Runtime.InteropServices;
+using Microsoft.UI.Dispatching;
+using Microsoft.UI.Dispatching;
 using Windows.Graphics.Imaging;
 using Windows.Storage;
 

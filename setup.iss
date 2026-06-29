@@ -52,7 +52,7 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 
 [Code]
 const
-  WinAppSDK_URL = 'https://aka.ms/windowsappsdk/1.8/latest/windowsappruntimeinstall-x64.exe';
+  WinAppSDK_URL = 'https://aka.ms/windowsappsdk/1.8/1.8.260317003/windowsappruntimeinstall-x64.exe';
 
 function URLDownloadToFile(pCaller: Integer; szURL: string; szFileName: string; dwReserved: Integer; lpfnCB: Integer): Integer;
   external 'URLDownloadToFileW@urlmon.dll stdcall';
@@ -91,6 +91,12 @@ begin
           if not Exec(DownloadPath, '-q --msix --force', '', SW_SHOW, ewWaitUntilTerminated, ResultCode) or (ResultCode <> 0) then
           begin
             MsgBox('Installation failed (code ' + IntToStr(ResultCode) + '). Please install manually:' + #13#10 + WinAppSDK_URL, mbError, MB_OK);
+          end
+          else
+          begin
+            MsgBox('Windows App SDK runtime installed.' + #13#10 + #13#10 +
+                   'A restart is recommended before launching NotAlterra.',
+                   mbInformation, MB_OK);
           end;
         end;
       end;

@@ -45,6 +45,18 @@ public sealed partial class MainWindow : Window
     private const int GWLP_WNDPROC = -4;
     private const uint WM_GETMINMAXINFO = 0x24;
 
+    /// Position and size the window. Must be called after Activate().
+    public void PositionWindow()
+    {
+        var area = DisplayArea.Primary.WorkArea;
+        _minW = (int)(area.Width * 0.65);
+        _minH = (int)(area.Height * 0.75);
+        int initW = Math.Max(_minW, (int)(area.Width * 0.8));
+        int initH = Math.Max(_minH, (int)(area.Height * 0.85));
+        AppWindow.Resize(new SizeInt32(initW, initH));
+        AppWindow.Move(new PointInt32((area.Width - initW) / 2, (area.Height - initH) / 2));
+    }
+
     /// Check if game is running and warn before destructive operations.
     /// Returns true if safe to proceed, false if user should stop.
     public static async Task<bool> CheckGameGuard(XamlRoot? xamlRoot)
@@ -75,13 +87,6 @@ public sealed partial class MainWindow : Window
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         var exeDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         AppWindow.SetIcon(System.IO.Path.Combine(exeDir!, "Assets/AppIcon.ico"));
-        var area = DisplayArea.Primary.WorkArea;
-        _minW = (int)(area.Width * 0.65);
-        _minH = (int)(area.Height * 0.75);
-        int initW = Math.Max(_minW, (int)(area.Width * 0.8));
-        int initH = Math.Max(_minH, (int)(area.Height * 0.85));
-        AppWindow.Resize(new SizeInt32(initW, initH));
-        AppWindow.Move(new PointInt32((area.Width - initW) / 2, (area.Height - initH) / 2));
 
         ((FrameworkElement)Content).Loaded += async (_, _) =>
         {

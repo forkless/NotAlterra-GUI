@@ -32,6 +32,7 @@ public partial class App : Application
 
         _window = new MainWindow();
         _window.Activate();
+        ((NotAlterra_UI.MainWindow)_window).PositionWindow();
 
         if (!AppConfig.DisclaimerAccepted())
             _window.DispatcherQueue.TryEnqueue(async () =>
