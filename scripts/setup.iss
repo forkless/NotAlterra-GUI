@@ -80,7 +80,6 @@ function URLDownloadToFile(pCaller: Integer; szURL: string; szFileName: string; 
 
 function TryInstall(Url: string; FileName: string; InstallArgs: string; DisplayName: string; HelpUrl: string): Boolean;
 var
-  PrereqPage: TWizardPage;
   Path: string;
   ResultCode: Integer;
 begin
@@ -105,12 +104,13 @@ begin
   end;
 end;
 
-function NextButtonClick(CurPageID: Integer): Boolean;
+procedure CurPageChanged(CurPageID: Integer);
 begin
-  Result := True;
   if CurPageID = PrereqPage.ID then
   begin
+    WizardForm.NextButton.Enabled := False;
     TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', '.NET 9', DotNet9_Help);
     TryInstall(WinAppSDK_URL, 'WinAppSDK-x64.exe', '-q --msix --force', 'WinAppSDK 1.8', WinAppSDK_Help);
+    WizardForm.NextButton.Enabled := True;
   end;
 end;
