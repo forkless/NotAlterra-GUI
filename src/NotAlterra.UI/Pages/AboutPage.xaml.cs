@@ -45,6 +45,6 @@ public sealed partial class AboutPage : Page
         TestCoverage = "102 tests · 85 unit + 17 property-based\n(we test everything. twice.)";
         FuzzStats = "2,700 random inputs per test run\nFsCheck tried to break it. It couldn't. We scared it.";
         Dependencies = "6 NuGet packages\n(no node_modules in sight)";
-        BinarySize = "~30 MB MSIX\n(22 MB of that is .NET runtime tax.\nThe actual app is 8 MB of pure spite.)";
+        BinarySize = "~19 MB installer\n(The app itself is ~8 MB. The rest is Microsoft runtime tax.)";
     }
 }

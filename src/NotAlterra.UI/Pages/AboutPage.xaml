@@ -59,9 +59,9 @@
 
             <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
                 <StackPanel Spacing="12">
-                    <TextBlock Text="About 40MB" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock Text="About 19MB" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        No it is not the 3.7MB 40-second loop.webm. It is the .NET + WinAppSDK runtime. Think of it as the Windows App Tax. You pay it once and forget about it. If you dont like OS overhead you know where the Linux ISO is. Or TempleOS if you hate yourself.
+                        No it is not the 3.7MB 40-second loop.webm. It is prerequisites are downloaded and installed separately if needed. Think of it as the Windows App Tax. You pay it once and forget about it. If you dont like OS overhead you know where the Linux ISO is. Or TempleOS if you hate yourself.
                     </TextBlock>
                 </StackPanel>
             </Border>
