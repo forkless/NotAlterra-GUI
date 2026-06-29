@@ -32,7 +32,7 @@ Download the latest installer from the [releases page](https://github.com/forkle
 
 | Installer | Size | Dependencies |
 |-----------|------|--------------|
-| NotAlterra-*-x64-Full.exe | ~45 MB | None — fully self-contained |
+| NotAlterra-*-x64.exe | ~45 MB | None — fully self-contained |
 
 Bundles .NET 9 runtime and Windows App SDK 1.8 — no additional downloads or runtimes needed. Download once, install anywhere. Run the installer and follow the prompts. A desktop shortcut is optional.
 ## Where Files Live

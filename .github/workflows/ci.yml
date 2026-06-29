@@ -65,7 +65,7 @@ jobs:
 
           # Full (~45MB, self-contained — no runtime dependencies)
           dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp_full/
-          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_full /F"NotAlterra-$tag-x64-Full" /O"publish"
+          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_full /F"NotAlterra-$tag-x64" /O"publish"
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
@@ -74,7 +74,7 @@ jobs:
           body: |
             ## NotAlterra ${{ github.ref_name }}
 
-            **Installer:** `NotAlterra-*-x64-Full.exe` — fully self-contained, ~45 MB.
+            **Installer:** `NotAlterra-*-x64.exe` — fully self-contained, ~45 MB.
             No runtimes needed. Creates Start Menu shortcut.
             Self-signed: click "More info" → "Run anyway" if Windows Defender blocks.
           draft: true
