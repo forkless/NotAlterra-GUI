@@ -85,7 +85,7 @@ jobs:
             ## NotAlterra ${{ github.ref_name }}
 
             **Installer:** `NotAlterra-*-Windows-x64.exe` — ~19 MB, needs .NET 9 Desktop Runtime and Windows App SDK 1.8.
-            Prompts to download missing prerequisites automatically (silent install).
+            All prerequisites are installed unattended. UAC prompt required for installation.
             Creates Start Menu shortcut.
             Self-signed: click "More info" → "Run anyway" if Windows Defender blocks.
           draft: true
