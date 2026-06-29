@@ -95,7 +95,10 @@ public sealed partial class MainWindow : Window
 
         ((FrameworkElement)Content).Loaded += async (_, _) =>
         {
-            AppWindow.SetIcon(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets/AppIcon.ico"));
+            var iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets/AppIcon.ico");
+            var iconUri = new System.Uri(iconPath);
+            var iconSource = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage(iconUri);
+            AppTitleBar.IconSource = new Microsoft.UI.Xaml.Controls.ImageIconSource { ImageSource = iconSource };
             PositionWindow();
             var hwnd = WindowNative.GetWindowHandle(this);
             _wndProcRef = WndProc;
