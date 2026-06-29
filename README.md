@@ -59,7 +59,7 @@ If network features are added in a future version, they will require explicit us
 
 ## Safety
 
-- Runs in your user context — no admin privileges required
+- Installer requires admin (writes to Program Files). The app itself runs without elevation.
 - No network connections
 - Read-only inspect mode won't touch files
 - Pre-restore snapshots created automatically
