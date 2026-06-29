@@ -53,7 +53,7 @@ The installer will check for the Windows App SDK 1.8 runtime. If missing, it pro
 - The application never calls home — there are no update checks, no analytics, no crash reporters.
 - It runs entirely offline. Your save files and their metadata stay on your machine.
 - The Windows App SDK runtime has opt-in telemetry which NotAlterra does not enable.
-- Configuration (`app.ini`) stores your save-folder and backup paths locally. These may reveal your system username; the file is plain text you can inspect or delete at any time.
+- Configuration is stored in HKCU\Software\NotAlterra registry keys — no config files on disk.
 
 If network features are added in a future version, they will require explicit user opt-in.
 
