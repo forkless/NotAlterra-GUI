@@ -92,6 +92,7 @@ public sealed partial class IniConfigPage : Page
 
     private async void OnDeleteIni(object sender, RoutedEventArgs e)
     {
+        if (!await MainWindow.CheckGameGuard(this.XamlRoot)) return;
         try
         {
             var configPath = GetConfigPath();
@@ -159,6 +160,7 @@ public sealed partial class IniConfigPage : Page
     private async void OnRestoreArchive(object sender, RoutedEventArgs e)
     {
         if (sender is not Button btn || btn.Tag is not string path) return;
+        if (!await MainWindow.CheckGameGuard(this.XamlRoot)) return;
         try
         {
             var configPath = GetConfigPath();

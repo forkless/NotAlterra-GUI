@@ -162,6 +162,7 @@ public sealed partial class BackupsPage : Page
     private async void OnRestoreArchive(object sender, RoutedEventArgs e)
     {
         if (sender is not Button btn || btn.Tag is not string path) return;
+        if (!await MainWindow.CheckGameGuard(this.XamlRoot)) return;
         try
         {
             var saveFolder = AppConfig.LoadAppConfig().SaveFolder
@@ -253,6 +254,7 @@ public sealed partial class BackupsPage : Page
     private async void OnDeleteArchive(object sender, RoutedEventArgs e)
     {
         if (sender is not Button btn || btn.Tag is not string path) return;
+        if (!await MainWindow.CheckGameGuard(this.XamlRoot)) return;
         try
         {
             if (btn.XamlRoot != null)

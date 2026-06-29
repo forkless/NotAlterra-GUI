@@ -31,7 +31,6 @@ All notable changes to NotAlterra are documented in this file.
 - **Changelog + handoff** — rewritten to reflect C# era
 
 ### Fixed
-- **Game guard** — now checks before every destructive operation (Recover, Restore, Delete), not just at app launch
 
 - **BinaryReader.ReadFString overflow** — FsCheck found overflow on `int.MinValue`, added `checked()` + 10MB cap
 - **About page AMD64 duplicate** — removed redundant `Arch` binding in XAML
@@ -79,7 +78,6 @@ All notable changes to NotAlterra are documented in this file.
 
 ### Fixed
 - **Game guard** — now checks before every destructive operation (Recover, Restore, Delete), not just at app launch
-
 - **0xc000027b crash** — unpackaged WinUI 3 COM crash fixed (WindowsPackageType=None + UndockedRegFreeWinRT)
 - **Splash DestroyWindow thread safety** — dispatched to DispatcherQueue
 - **Window position after install** — unasoriginaluser flag in Inno Setup [Run] prevents minimized launch
