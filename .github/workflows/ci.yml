@@ -76,6 +76,7 @@ jobs:
           # Minimal (~19MB, needs .NET 9 runtime, installer prompts for WinAppSDK)
           dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp_min/
           iscc scripts/setup.iss /DMyAppVersion="$tag" /DSourceDir=..\tmp_min /F"NotAlterra-$tag-Windows-x64" /O"${env:GITHUB_WORKSPACE}\publish"
+          Copy-Item "${env:GITHUB_WORKSPACE}\publish\NotAlterra-$tag-Windows-x64.exe" "${env:GITHUB_WORKSPACE}\publish\NotAlterra-Windows-x64.exe"
 
       - name: Draft release
         uses: softprops/action-gh-release@v3
@@ -84,8 +85,10 @@ jobs:
           body: |
             ## NotAlterra ${{ github.ref_name }}
 
-            **Installer:** `NotAlterra-*-Windows-x64.exe` — ~19 MB, needs .NET 9 Desktop Runtime and Windows App SDK 1.8.
-            All prerequisites are installed unattended. UAC prompt required for installation.
-            Creates Start Menu shortcut.
-            Self-signed: click "More info" → "Run anyway" if Windows Defender blocks.
+            Subnautica 2 save manager — unofficial, offline, no telemetry.
+
+            **Installer:** `NotAlterra-Windows-x64.exe` (~19 MB)
+            Auto-detects missing .NET 9 Desktop Runtime and Windows App SDK 1.8. UAC required.
+
+            **Changes:** MSIX → Inno Setup, registry-based config, dynamic version in title bar.
           draft: false
