@@ -54,7 +54,7 @@
                         <TextBlock Grid.Row="7" Grid.Column="1" Text="1 (it's just me. forkless. hi.)" TextWrapping="Wrap"/>
 
                         <TextBlock Grid.Row="8" Text="Total downloads" Opacity="0.6"/>
-                        <TextBlock Grid.Row="8" Grid.Column="1" Text="3 ...including family" TextWrapping="Wrap"/>
+                        <TextBlock Grid.Row="8" Grid.Column="1" Text="2 ...including family" TextWrapping="Wrap"/>
 
                         <TextBlock Grid.Row="9" Text="Splash screen" Opacity="0.6"/>
                         <TextBlock Grid.Row="9" Grid.Column="1" TextWrapping="Wrap">3 seconds of pure vanity. The app loads in ~300ms but I love seeing my homemade splash. So tough luck!</TextBlock>
