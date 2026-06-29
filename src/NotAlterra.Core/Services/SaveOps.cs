@@ -69,12 +69,14 @@ public static class SaveOps
             .OrderBy(f => f)
             .ToList();
 
-        // Build manifest
+        // Build manifest with SHA256 hashes
         var manifestLines = new List<string>();
         foreach (var entry in entries)
         {
             var fi = new FileInfo(entry);
-            manifestLines.Add($"{fi.Length,12}  {fi.Name}");
+            using var stream = System.IO.File.OpenRead(entry);
+            var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(stream)).ToLowerInvariant();
+            manifestLines.Add($"{hash}  {fi.Length,12}  {fi.Name}");
         }
         var manifest = string.Join("\n", manifestLines) + "\n";
 

@@ -67,7 +67,7 @@ If network features are added in a future version, they will require explicit us
 
 ## Backup Format
 
-Backups are stored as `tar.gz` archives: one archive per backup event, containing all `savegame_*` files. Standard `tar -xzf` recovers data without the tool (no vendor lock-in). Each archive contains a SHA256 manifest for integrity verification.
+Backups are stored as `tar.gz` archives: one archive per backup event, containing all `savegame_*` files. Standard `tar -xzf` recovers data without the tool (no vendor lock-in). Each archive contains a MANIFEST file with SHA256 hashes of every backed-up file for integrity verification.
 
 ## Credits
 
