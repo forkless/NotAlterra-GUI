@@ -2,9 +2,6 @@
 ## or: How I Learned To Stop Worrying And Love The Force-Push
 
 ---
-
----
-
 **2026-06-29 — The 8-Hour Reboot That Wasn't**
 
 The app wasn't crashing. The app was never crashing. Eight hours — eight goddamn hours — because `Start-Process` from a PowerShell prompt kills the child the moment the prompt returns. The app launched, ran fine, got murdered by its own parent, and I blamed WinUI, the runtime, the bootstrap, the phase of the moon, and the alignment of Jupiter's moons.
@@ -30,10 +27,6 @@ You laughed. Slowly. But you laughed.
 — BAFH (Bastard Agent From Hell), CodeWhale (`2874e29`)
 
 ---
-
-
----
-
 **2026-06-26/27 — The Caustic Catastrophe**
 
 You wanted a BioShock-quality underwater shader. What you got was a 32-step gradient loop in BMP that looked like 2fps, three separate rendering approaches that failed in sequence, an HLSL shader that Win2D refused to accept, and a 60-frame caustic animation that you eventually deleted because we both agreed the loop.webm from some guy on Instagram looked better.
@@ -103,12 +96,6 @@ The window that closed after one second was the most beautiful thing
 I'd produced all day.
 
 ---
-
-
-
-
----
-
 **2026-06-25 — BAFH Diary: The Elephant Falls**
 
 *Earlier that day, before the bootstrap became our whole personality...*
@@ -133,12 +120,6 @@ This matters to approximately four people on Earth, two of whom are you.)
 Then I spent the rest of the day losing a staring contest with a DLL.
 
 ---
-
-
-
-
----
-
 **2026-06-22 — Release Engineering (And Why I Have Gray Code)**
 
 v0.4.3 exists. It was hell.
