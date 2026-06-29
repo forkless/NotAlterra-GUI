@@ -28,19 +28,13 @@ Not affiliated with Unknown Worlds Entertainment or KRAFTON.
 
 ## Installation
 
-Download the latest installer from the [releases page](https://github.com/forkless/NotAlterra/releases). Two options:
+Download the latest installer from the [releases page](https://github.com/forkless/NotAlterra/releases).
 
 | Installer | Size | Dependencies |
 |-----------|------|--------------|
-| **Minimal** (`-x64-Minimal.exe`) | ~19 MB | .NET 9 runtime + Windows App SDK 1.8 |
-| **Full** (`-x64-Full.exe`) | ~45 MB | None — fully self-contained |
+| NotAlterra-*-x64-Full.exe | ~45 MB | None — fully self-contained |
 
-**Minimal** is smaller but needs the .NET 9 runtime and Windows App SDK 1.8 installed. If they are missing, the installer will prompt you to download them (one-time setup, ~90 MB total).
-
-**Full** bundles everything — no additional downloads. Download once, install anywhere. The extra size is the bundled .NET runtime and Windows App SDK.
-
-Run the installer and follow the prompts. A desktop shortcut is optional.
-
+Bundles .NET 9 runtime and Windows App SDK 1.8 — no additional downloads or runtimes needed. Download once, install anywhere. Run the installer and follow the prompts. A desktop shortcut is optional.
 ## Where Files Live
 
 ```

@@ -53,7 +53,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
 
-      - name: Pack (Inno Setup installers)
+      - name: Pack (Inno Setup installer)
         shell: pwsh
         run: |
           mkdir -Force publish | Out-Null
@@ -63,12 +63,7 @@ jobs:
           pip install Pillow -q 2>&1 | Out-Null
           python _gen_splash.py "$tag"
 
-          # Minimal (~20MB, needs .NET 9 + WinAppSDK runtime)
-          dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -o tmp_min/
-          iscc setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_min /F"NotAlterra-$tag-x64-Minimal" /O"publish"
-          Remove-Item tmp_min\* -Recurse -Force -ErrorAction SilentlyContinue
-
-          # Full (~90MB, self-contained)
+          # Full (~45MB, self-contained — no runtime dependencies)
           dotnet publish src/NotAlterra.UI -c Release -f net9.0-windows10.0.26100.0 -r win-x64 --self-contained -p:WindowsAppSDKSelfContained=true -o tmp_full/
           iscc setup.iss /DMyAppVersion="$tag" /DSourceDir=tmp_full /F"NotAlterra-$tag-x64-Full" /O"publish"
 
@@ -79,7 +74,7 @@ jobs:
           body: |
             ## NotAlterra ${{ github.ref_name }}
 
-            **Installer:** `NotAlterra-*-setup.exe` — standard Windows installer.
-            Fully self-contained, no runtimes needed. Creates Start Menu shortcut.
+            **Installer:** `NotAlterra-*-x64-Full.exe` — fully self-contained, ~45 MB.
+            No runtimes needed. Creates Start Menu shortcut.
             Self-signed: click "More info" → "Run anyway" if Windows Defender blocks.
           draft: true
