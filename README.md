@@ -1,4 +1,4 @@
-# NotAlterra
+# NotAlterra DO NOT INSTALL YET, NOT PRODUCTION READY
 
 **Subnautica 2 Save Manager — Windows Native GUI**
 
