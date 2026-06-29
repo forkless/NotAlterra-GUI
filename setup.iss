@@ -53,53 +53,68 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 [Code]
 const
   WinAppSDK_URL = 'https://aka.ms/windowsappsdk/1.8/1.8.260317003/windowsappruntimeinstall-x64.exe';
+  WinAppSDK_Name = 'Windows App SDK 1.8 Runtime';
+  WinAppSDK_Help = 'https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads';
+  DotNet9_URL = 'https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/9.0.17/windowsdesktop-runtime-9.0.17-win-x64.exe';
+  DotNet9_Name = '.NET 9 Windows Desktop Runtime';
+  DotNet9_Help = 'https://dotnet.microsoft.com/en-us/download/dotnet/9.0';
 
 function URLDownloadToFile(pCaller: Integer; szURL: string; szFileName: string; dwReserved: Integer; lpfnCB: Integer): Integer;
   external 'URLDownloadToFileW@urlmon.dll stdcall';
+
+function IsNet9Installed: Boolean;
+var
+  ExitCode: Integer;
+begin
+  Result := False;
+  Exec('powershell.exe', '-NoProfile -Command "try { dotnet --list-runtimes | Select-String ''Microsoft.WindowsDesktop.App 9.'' | Out-Null; exit 0 } catch { exit 1 }"', '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+  Result := (ExitCode = 0);
+end;
 
 function IsWinAppSDK18Installed: Boolean;
 var
   ExitCode: Integer;
 begin
   Result := False;
-  if Exec('powershell.exe', '-NoProfile -Command "if (Get-AppxPackage -Name ''Microsoft.WindowsAppRuntime.1.8*'' -ErrorAction SilentlyContinue) { exit 0 } else { exit 1 }"', '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
-    Result := (ExitCode = 0);
+  Exec('powershell.exe', '-NoProfile -Command "try { Get-AppxPackage -Name ''Microsoft.WindowsAppRuntime.1.8*'' -ErrorAction Stop | Out-Null; exit 0 } catch { exit 1 }"', '', SW_HIDE, ewWaitUntilTerminated, ExitCode);
+  Result := (ExitCode = 0);
+end;
+
+function TryInstall(Url: string; FileName: string; InstallArgs: string; DisplayName: string; HelpUrl: string): Boolean;
+var
+  Path: string;
+  ResultCode: Integer;
+begin
+  Result := False;
+  Path := ExpandConstant('{tmp}\' + FileName);
+  if URLDownloadToFile(0, Url, Path, 0, 0) = 0 then
+  begin
+    if Exec(Path, InstallArgs, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
+      Result := True
+    else
+      MsgBox(DisplayName + ' installer failed (code ' + IntToStr(ResultCode) + ').' + #13#10 +
+             'Please install manually from:' + #13#10 + HelpUrl, mbError, MB_OK);
+  end
+  else
+    MsgBox('Could not download ' + DisplayName + '.' + #13#10 +
+           'Please install manually from:' + #13#10 + HelpUrl, mbError, MB_OK);
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
-var
-  ResultCode: Integer;
-  DownloadPath: string;
 begin
   Result := True;
   if CurPageID = wpReady then
   begin
+    if not IsNet9Installed then
+      if MsgBox('NotAlterra needs ' + DotNet9_Name + '.' + #13#10 +
+                'Download and install it now (~60 MB)?' + #13#10 +
+                'Click No to install manually.', mbConfirmation, MB_YESNO) = IDYES then
+        TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', DotNet9_Name, DotNet9_Help);
+
     if not IsWinAppSDK18Installed then
-    begin
-      if MsgBox('NotAlterra requires the Windows App SDK 1.8 runtime to run.' + #13#10 + #13#10 +
-                'Download and install it now (~60 MB)?' + #13#10 + #13#10 +
-                'Click No to skip and install manually later.',
-                mbConfirmation, MB_YESNO) = IDYES then
-      begin
-        DownloadPath := ExpandConstant('{tmp}\WindowsAppRuntimeInstall-x64.exe');
-        if URLDownloadToFile(0, WinAppSDK_URL, DownloadPath, 0, 0) <> 0 then
-        begin
-          MsgBox('Download failed. Please install the runtime manually:' + #13#10 + WinAppSDK_URL, mbError, MB_OK);
-        end
-        else
-        begin
-          if not Exec(DownloadPath, '-q --msix --force', '', SW_SHOW, ewWaitUntilTerminated, ResultCode) or (ResultCode <> 0) then
-          begin
-            MsgBox('Installation failed (code ' + IntToStr(ResultCode) + '). Please install manually:' + #13#10 + WinAppSDK_URL, mbError, MB_OK);
-          end
-          else
-          begin
-            MsgBox('Windows App SDK runtime installed.' + #13#10 + #13#10 +
-                   'A restart is recommended before launching NotAlterra.',
-                   mbInformation, MB_OK);
-          end;
-        end;
-      end;
-    end;
+      if MsgBox('NotAlterra also needs ' + WinAppSDK_Name + '.' + #13#10 +
+                'Download and install it now (~60 MB)?' + #13#10 +
+                'Click No to install manually.', mbConfirmation, MB_YESNO) = IDYES then
+        TryInstall(WinAppSDK_URL, 'WindowsAppRuntimeInstall-x64.exe', '-q --msix --force', WinAppSDK_Name, WinAppSDK_Help);
   end;
 end;
