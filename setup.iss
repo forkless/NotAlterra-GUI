@@ -92,12 +92,18 @@ begin
     if Exec(Path, InstallArgs, '', SW_SHOW, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0) then
       Result := True
     else
-      MsgBox(DisplayName + ' installer failed (code ' + IntToStr(ResultCode) + ').' + #13#10 +
-             'Please install manually from:' + #13#10 + HelpUrl, mbError, MB_OK);
+    begin
+      MsgBox(DisplayName + ' installer failed (code ' + IntToStr(ResultCode) + ').', mbError, MB_OK);
+      if MsgBox('Open the download page in your browser?', mbConfirmation, MB_YESNO) = IDYES then
+        ShellExec('open', HelpUrl, '', '', SW_SHOW, ewNoWait, ResultCode);
+    end;
   end
   else
-    MsgBox('Could not download ' + DisplayName + '.' + #13#10 +
-           'Please install manually from:' + #13#10 + HelpUrl, mbError, MB_OK);
+  begin
+    MsgBox('Could not download ' + DisplayName + '.', mbError, MB_OK);
+    if MsgBox('Open the download page in your browser?', mbConfirmation, MB_YESNO) = IDYES then
+      ShellExec('open', HelpUrl, '', '', SW_SHOW, ewNoWait, ResultCode);
+  end;
 end;
 
 function NextButtonClick(CurPageID: Integer): Boolean;
@@ -108,13 +114,15 @@ begin
     if not IsNet9Installed then
       if MsgBox('NotAlterra needs ' + DotNet9_Name + '.' + #13#10 +
                 'Download and install it now (~60 MB)?' + #13#10 +
-                'Click No to install manually.', mbConfirmation, MB_YESNO) = IDYES then
+                'Click No to open the download page.',
+                mbConfirmation, MB_YESNO) = IDYES then
         TryInstall(DotNet9_URL, 'dotnet9-win-x64.exe', '/quiet /norestart', DotNet9_Name, DotNet9_Help);
 
     if not IsWinAppSDK18Installed then
       if MsgBox('NotAlterra also needs ' + WinAppSDK_Name + '.' + #13#10 +
                 'Download and install it now (~60 MB)?' + #13#10 +
-                'Click No to install manually.', mbConfirmation, MB_YESNO) = IDYES then
+                'Click No to open the download page.',
+                mbConfirmation, MB_YESNO) = IDYES then
         TryInstall(WinAppSDK_URL, 'WindowsAppRuntimeInstall-x64.exe', '-q --msix --force', WinAppSDK_Name, WinAppSDK_Help);
   end;
 end;
