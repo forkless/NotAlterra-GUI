@@ -69,7 +69,7 @@
                 <StackPanel Spacing="12">
                     <TextBlock Text="About 42MB" FontSize="18" FontWeight="SemiBold"/>
                     <TextBlock TextWrapping="Wrap" Opacity="0.5">
-                        The installer is 19MB. That is not the 3.7MB 40-second video. The real weight (~160MB) is Microsoft's .NET + WinAppSDK runtimes, downloaded and installed if missing. NotAlterra itself is a featherweight. Think of it as the Windows App Tax. You pay it once and forget about it. This could have been a ~150KB PowerShell script but why type when you can click. If you dont like OS overhead you know where the Linux ISO is. Or TempleOS if you hate yourself.</TextBlock>
+                        The installer is 19MB. That is not the 3.7MB 40-second video. The real weight (~160MB) is Microsoft's .NET + WinAppSDK runtimes, downloaded and installed if missing. NotAlterra itself is a featherweight. Think of it as the Windows App Tax. You pay it once and forget about it. This could have been a ~150KB PowerShell script but why type when you can click. If you dont like OS overhead you know where the Linux ISO is.</TextBlock>
                 </StackPanel>
             </Border>
 
