@@ -80,7 +80,7 @@ jobs:
       - name: Draft release
         uses: softprops/action-gh-release@v3
         with:
-          files: publish/*.exe
+          files: publish/NotAlterra-*.exe
           body: |
             ## NotAlterra ${{ github.ref_name }}
 
