@@ -53,6 +53,44 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.5.1] — 2026-06-29
+
+### Added
+- **Inno Setup installer** — MSIX replaced with Inno Setup, two variants (Minimal 19MB, Full 45MB)
+- **Unpackaged WinUI 3** — WindowsPackageType=None, DeploymentManager disabled, UndockedRegFreeWinRT enabled
+- **Title bar icon** — multi-res .ico (16-256px) via AppWindow.SetIcon() in Loaded event
+- **Registry-based config** — replaced app.ini with HKCU\Software\NotAlterra, %LOCALAPPDATA%/%USERPROFILE% substitution
+- **Folder pickers** — Browse + Reset for Game Save Folder and Backup Location in Settings
+- **Production save path detection** — from registry with %LOCALAPPDATA%\Subnautica2 default fallback
+- **Prerequisite installer** — setup.iss detects .NET 9 + WinAppSDK 1.8, downloads and installs if missing
+- **Dynamic version** — Title bar and About page read assembly version, CI patches csproj from git tag
+- **BAFH chronicle** — AN_AGENTS_LAMENT.md for session history
+
+### Changed
+- **About page** — Game Guard, Disclaimer, Planned Features moved from Settings; Privacy merged in
+- **Home page** — Locations card showing active save/backup paths with %LOCALAPPDATA%/%USERPROFILE% display
+- **Accent color** — Amber (#FFE8A84C) → Burnt Orange (#FFe85d04)
+- **Installer logo** — Wizard BMPs generated from na.png, inno setup padded logo (65x65)
+- **License page** — blanked LicenseLabel for clean MIT display
+- **CI pipeline** — builds Minimal only, uploads versioned + version-agnostic installer
+- **Synthetic .sav fixtures** — replaced real save files with generated test data
+- **README** — end-user focused, no build instructions, direct download link
+
+### Fixed
+- **0xc000027b crash** — unpackaged WinUI 3 COM crash fixed (WindowsPackageType=None + UndockedRegFreeWinRT)
+- **Splash DestroyWindow thread safety** — dispatched to DispatcherQueue
+- **Window position after install** — unasoriginaluser flag in Inno Setup [Run] prevents minimized launch
+- **ms-appx:/// URIs** — removed from MainWindow and AboutPage (crash unpackaged)
+- **XAML builds** — FontAwesome ttf URI changed from ms-appx:/// to relative path
+
+### Removed
+- MSIX packaging (replaced by Inno Setup)
+- Disclaimer sentinel file (replaced by Inno Setup License page)
+- app.ini configuration file (replaced by registry)
+- docs/, skills/, plan.md from git history (filter-repo)
+
+---
+
 ## [v0.5.0-alpha] — 2026-06-25
 
 ### Added
