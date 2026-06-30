@@ -87,7 +87,7 @@ jobs:
 
             Subnautica 2 save manager — unofficial, offline, no telemetry.
 
-            **Installer:** `NotAlterra-Windows-x64.exe` (~19 MB)
+            **Installer:** `NotAlterra-Windows-x64.exe`
             Auto-detects missing .NET 9 Desktop Runtime and Windows App SDK 1.8. UAC required.
 
             **Changes:** MSIX → Inno Setup, registry-based config, dynamic version in title bar.
