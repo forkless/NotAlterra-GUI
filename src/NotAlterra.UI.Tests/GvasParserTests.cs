@@ -162,7 +162,8 @@ public class GvasParserTests
     [Fact]
     public void ExtractFullMetadata_TooSmall_DetectsCorruption()
     {
-        var path = WriteTempFile(new byte[100]); // under 500
+        var data = new byte[200]; data[0] = (byte)'G'; Array.Fill(data, (byte)0xFF, 1, 199);
+        var path = WriteTempFile(data); // starts with G, not blank, under 100KB, no metadata
         try
         {
             var meta = GvasParser.ExtractFullMetadata(path);
