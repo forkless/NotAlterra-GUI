@@ -1,6 +1,6 @@
 # NotAlterra
 
-**Subnautica 2 Save Manager — Windows Native GUI**
+**Subnautica 2 Save Manager, Windows Native GUI**
 
 ![NotAlterra screenshot](screenshot/screenshot.jpg)
 
