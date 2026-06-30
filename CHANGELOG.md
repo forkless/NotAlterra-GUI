@@ -53,6 +53,37 @@ All notable changes to NotAlterra are documented in this file.
 
 ---
 
+## [v0.5.3] — 2026-06-30
+
+### Added
+- **Metadata hover card** — hover slot number badge or bak index badge, popup shows all 13 GVAS metadata fields (460px wide, card-relative positioning, vertical flip if near page bottom)
+- **Pre-recovery snapshots** — automatic .bak snapshots now stored in `{BackupRoot}/backups/saves/` instead of game save folder
+- **Pre-recovery Snapshots panel** — collapsible section on Backups page, lists snapshots by slot, Restore and Delete support
+- **Collapsible backup panels** — Manual Backups and Pre-recovery Snapshots sections on Backups page, chevron toggle matching save slots style
+- **Bak index badge** — orange numbered badge on left of each backup entry, serves as hover trigger for metadata card
+- **Synthetic test fixtures** — 4 save slots with all 13 metadata fields, 3 backups, non-corrupt (300KB padded past threshold)
+- **Bad hover indicator** — plain text corruption status with danger triangle glyph in hover card
+- **Windows Sandbox config** — `NotAlterra.wsb` with read-only folder mappings for installer, scripts, and test fixtures
+- **Sandbox setup script** — `_sandbox_setup.ps1` sets burgundy desktop background, removes shortcuts, opens C:\Installer
+
+### Changed
+- **GVAS parser size check** — "too small" corruption only triggers when no metadata is extracted, allowing small valid files through
+- **Corruption tooltips removed** — redundant ToolTips on corruption glyphs removed; hover card provides full metadata including corruption status
+- **Corruption status in card** — plain text "None" or reason, no colored text, no glyph in card value area
+- **Slot card hover** — trigger moved from entire card to the slot number badge only
+- **Hover card border removed** — no orange border, clean card background only
+- **Backups page** — split into two panels instead of one (Manual Backups + Pre-recovery Snapshots)
+- **Hover card width** — 340px to 460px for corruption message fitting
+- **CI release** -- set to draft mode by default
+- **Assets cleaned** -- removed 15 redundant MSIX logo references from csproj, keep wildcard `Assets\**`
+- **Sidebar video** -- converted loop.webm to loop.mp4 (CRF 30, 7.86 MB), ships only MP4 in installer
+
+### Fixed
+- **Pre-recovery snapshot location** — moved from game save folder to backup directory (was polluting slot listing with timestamp bak files)
+- **Bak index display** -- `_pre_recover_` files excluded from backup listing, real backup versions show correct index
+- **Hover card off-screen** -- vertical flip positions popup above card when near page bottom
+- **CI test regression** -- `TooSmall` test updated to match new parser corruption logic
+
 ## [v0.5.1] — 2026-06-29
 
 ### Added
