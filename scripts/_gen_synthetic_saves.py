@@ -11,8 +11,8 @@ def write_str_prop(f, key, val):
     t = b"StrProperty\x00"
     f.write(struct.pack("<I", len(t)))
     f.write(t)
-    f.write(struct.pack("<I", 0))  # size
-    f.write(b"\x00" * 9)           # padding
+    f.write(struct.pack("<I", 0))  # size placeholder
+    f.write(b"\x00" * 5)           # padding
     vb = val.encode("utf-16-le")
     f.write(struct.pack("<i", len(vb) + 2))
     f.write(vb + b"\x00\x00")
@@ -24,8 +24,9 @@ def write_bool_prop(f, key, val):
     t = b"BoolProperty\x00"
     f.write(struct.pack("<I", len(t)))
     f.write(t)
-    f.write(struct.pack("<I", 0))
-    f.write(b"\x00" * 9)
+    f.write(struct.pack("<I", 1))   # value size = 1 byte
+    f.write(b"\x00" * 4)             # 4 bytes field index / padding
+    f.write(b"\x00")                  # 1 byte flag
     f.write(b"\x01" if val else b"\x00")
 
 def write_int_prop(f, key, val):
@@ -35,8 +36,9 @@ def write_int_prop(f, key, val):
     t = b"IntProperty\x00"
     f.write(struct.pack("<I", len(t)))
     f.write(t)
-    f.write(struct.pack("<I", 0))
-    f.write(b"\x00" * 9)
+    f.write(struct.pack("<I", 4))   # value size = 4 bytes
+    f.write(b"\x00" * 4)             # 4 bytes field index / padding
+    f.write(b"\x00")                  # 1 byte flag
     f.write(struct.pack("<I", val))
 
 def write_gvas(path, slot_name, display_name, game_mode, level_name,
