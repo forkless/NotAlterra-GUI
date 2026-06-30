@@ -50,10 +50,10 @@ Downloads and installs both .NET 9 Desktop Runtime and Windows App SDK 1.8 if mi
 
 **NotAlterra makes no network connections. No telemetry. No data leaves your machine.**
 
-- The application never calls home — there are no update checks, no analytics, no crash reporters.
+- The application never calls home, there are no update checks, no analytics, no crash reporters.
 - It runs entirely offline. Your save files and their metadata stay on your machine.
 - The Windows App SDK runtime has opt-in telemetry which NotAlterra does not enable.
-- Configuration is stored in HKCU\Software\NotAlterra registry keys — no config files on disk.
+- Configuration is stored in HKCU\Software\NotAlterra registry keys, no config files on disk.
 
 If network features are added in a future version, they will require explicit user opt-in.
 
