@@ -71,7 +71,7 @@ Backups are stored as `tar.gz` archives: one archive per backup event, containin
 
 ## Credits
 
-- **Sidebar background video** by Pachon in Motion — [@Pachon.In.Motion](https://instagram.com/Pachon.In.Motion), Provincia de Buenos Aires, Argentina
+- **Sidebar background video** by Pachon in Motion, [@Pachon.In.Motion](https://instagram.com/Pachon.In.Motion), Provincia de Buenos Aires, Argentina
 
 ## License
 
