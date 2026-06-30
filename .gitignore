@@ -5,3 +5,25 @@ NUL.obj
 NUL.pdb
 *.tmp
 test_winrt.obj
+# Build outputs
+bin/
+obj/
+tmp/
+tmp_min/
+tmp_full/
+*.pfx
+*.tmp
+
+# Published installer
+publish/*.exe
+
+# Test data artifacts
+gvas-files/*.tar.gz
+gvas-files/_extracted/
+
+# Session
+.deepseek/
+
+# Generated assets
+src/NotAlterra.UI/Assets/setup_logo.bmp
+src/NotAlterra.UI/Assets/setup_bg.bmp
