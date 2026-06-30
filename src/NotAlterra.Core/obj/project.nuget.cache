@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "haHpThQ0bCk=",
+  "success": true,
+  "projectFilePath": "D:\\Development\\NotAlterra-GUI\\src\\NotAlterra.Core\\NotAlterra.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\petemar.UNIVERSE\\.nuget\\packages\\microsoft.windows.cppwinrt\\2.0.250303.1\\microsoft.windows.cppwinrt.2.0.250303.1.nupkg.sha512"
+  ],
+  "logs": []
+}

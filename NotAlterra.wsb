@@ -1,6 +1,11 @@
 <Configuration>
   <MappedFolders>
     <MappedFolder>
+      <HostFolder>D:\Development\NotAlterra-GUI\gvas-files</HostFolder>
+      <SandboxFolder>C:\Users\WDAGUtilityAccount\AppData\Local\Subnautica2\Saved\SaveGames</SandboxFolder>
+      <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+    <MappedFolder>
       <HostFolder>D:\Development\NotAlterra-GUI\publish</HostFolder>
       <SandboxFolder>C:\Installer</SandboxFolder>
       <ReadOnly>true</ReadOnly>

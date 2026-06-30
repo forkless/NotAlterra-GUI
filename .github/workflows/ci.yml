@@ -91,4 +91,4 @@ jobs:
             Auto-detects missing .NET 9 Desktop Runtime and Windows App SDK 1.8. UAC required.
 
             **Changes:** MSIX → Inno Setup, registry-based config, dynamic version in title bar.
-          draft: false
+          draft: true

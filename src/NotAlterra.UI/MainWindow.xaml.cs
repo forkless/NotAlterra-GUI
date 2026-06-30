@@ -96,7 +96,7 @@ public sealed partial class MainWindow : Window
         ((FrameworkElement)Content).Loaded += async (_, _) =>
         {
             var ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            Title = $"NotAlterra v{ver.Major}.{ver.Minor}.{ver.Build}";
+            Title = ver is not null ? $"NotAlterra v{ver.Major}.{ver.Minor}.{ver.Build}" : "NotAlterra";
             AppTitleBar.Title = Title;
             var iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets/AppIcon.ico");
             var iconUri = new System.Uri(iconPath);
@@ -110,12 +110,18 @@ public sealed partial class MainWindow : Window
             bool isPackaged = false;
             try { var _ = Windows.ApplicationModel.Package.Current; isPackaged = true; } catch { }
             var webmUri = isPackaged
-                ? new Uri("ms-appx:///Assets/loop.webm")
-                : new Uri(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "loop.webm"));
+                ? new Uri("ms-appx:///Assets/loop.mp4")
+                : new Uri(System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "loop.mp4"));
+
+            var mp4Path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "loop.mp4");
+            var webmPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "loop.webm");
+            var videoPath = System.IO.File.Exists(mp4Path) ? mp4Path : webmPath;
+            var videoUri = new Uri(videoPath);
+
             SidebarVideo.SetMediaPlayer(new MediaPlayer
             {
                 IsLoopingEnabled = true, AutoPlay = true,
-                Source = MediaSource.CreateFromUri(webmUri)
+                Source = MediaSource.CreateFromUri(videoUri)
             });
 
             bool _wide = true;

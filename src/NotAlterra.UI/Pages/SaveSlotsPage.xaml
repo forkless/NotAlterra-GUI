@@ -43,7 +43,7 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="90"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Width="56" Height="56" CornerRadius="8" Background="#1AE8A84C" VerticalAlignment="Center" Margin="0,0,16,0">
+                                    <Border Grid.Column="0" Width="56" Height="56" CornerRadius="8" Background="#1AE8A84C" VerticalAlignment="Center" Margin="0,0,16,0" PointerEntered="OnSlotPointerEntered" PointerExited="OnSlotPointerExited">
                                         <TextBlock Text="{Binding Number}" FontSize="24" FontWeight="Bold" Foreground="#FFe85d04" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
@@ -74,18 +74,7 @@
                                         </StackPanel>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Spacing="4">
-                                        <TextBlock Text="{Binding CorruptionIcon}" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" Visibility="{Binding CorruptionVisible}">
-                                            <ToolTipService.ToolTip>
-                                                <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
-                                                    <Border Padding="14,10" CornerRadius="4">
-                                                        <StackPanel Spacing="6">
-                                                            <TextBlock Text="Corruption Warning" FontSize="16" FontWeight="SemiBold" Foreground="#FFe85d04"/>
-                                                            <StackPanel MaxWidth="280"><TextBlock Text="{Binding CorruptionPrefix}" FontSize="14" TextWrapping="Wrap"/><TextBlock Text="{Binding CorruptionDetail}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/></StackPanel>
-                                                        </StackPanel>
-                                                    </Border>
-                                                </ToolTip>
-                                            </ToolTipService.ToolTip>
-                                        </TextBlock>
+                                        <TextBlock Text="{Binding CorruptionIcon}" FontFamily="Segoe MDL2 Assets" FontSize="18" HorizontalAlignment="Center" Visibility="{Binding CorruptionVisible}"/>
                                         <Border CornerRadius="4" Background="#1AFFFFFF" Padding="8,3" Opacity="0.4">
                                             <TextBlock Text="{Binding BuildDisplay}" FontSize="14"/>
                                         </Border>
@@ -98,25 +87,18 @@
                                             <Border Margin="0,8,0,0" CornerRadius="6" Background="#1AFFFFFF" BorderBrush="#15FFFFFF" BorderThickness="1" Padding="0,14,14,14">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="40"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                         <ColumnDefinition Width="*"/>
                                                         <ColumnDefinition Width="Auto"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="{Binding CorruptionIcon}" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="{Binding CorruptionVisible}">
-                                                        <ToolTipService.ToolTip>
-                                                            <ToolTip Background="{ThemeResource SystemChromeLowColor}" BorderBrush="Transparent">
-                                                                <Border Padding="14,10" CornerRadius="4">
-                                                                    <StackPanel Spacing="6">
-                                                                        <TextBlock Text="Corruption Warning" FontSize="16" FontWeight="SemiBold" Foreground="#FFe85d04"/>
-                                                                        <StackPanel MaxWidth="280"><TextBlock Text="{Binding CorruptionPrefix}" FontSize="14" TextWrapping="Wrap"/><TextBlock Text="{Binding CorruptionDetail}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap"/></StackPanel>
-                                                                    </StackPanel>
-                                                                </Border>
-                                                            </ToolTip>
-                                                        </ToolTipService.ToolTip>
-                                                    </TextBlock>
-                                                    <Rectangle Grid.Column="1" Width="3" Fill="#FFe85d04" Opacity="0.5" HorizontalAlignment="Left" Margin="6,0,10,0"/>
-                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,0,0">
+                                                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="6" Background="#1AE8A84C" VerticalAlignment="Center" Margin="14,0,8,0" PointerEntered="OnSlotPointerEntered" PointerExited="OnSlotPointerExited">
+                                                        <TextBlock Text="{Binding BackupIndex}" FontSize="14" FontWeight="Bold" Foreground="#FFe85d04" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <TextBlock Grid.Column="1" Text="{Binding CorruptionIcon}" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="Black" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="{Binding CorruptionVisible}"/>
+                                                    <Rectangle Grid.Column="2" Width="3" Fill="#FFe85d04" Opacity="0.5" HorizontalAlignment="Left" Margin="6,0,10,0"/>
+                                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,0,0">
                                                         <StackPanel Orientation="Horizontal" Spacing="4">
                                                             <TextBlock Text="{Binding NameDisplay}" FontSize="18" FontWeight="SemiBold"/>
                                                         </StackPanel>
@@ -130,7 +112,7 @@
                                                             <TextBlock Text="{Binding ModifiedDisplay}" FontSize="14" Opacity="0.4"/>
                                                         </StackPanel>
                                                     </StackPanel>
-                                                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                    <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                         <Button Content="Recover" Tag="{Binding FilePath}" Click="OnRecover" FontSize="12" Padding="10,6" CornerRadius="4"/>
                                         <Button Content="Delete" Tag="{Binding FilePath}" Click="OnDeleteBak" FontSize="12" Padding="10,6" CornerRadius="4" Style="{StaticResource AccentButtonStyle}" FontWeight="SemiBold" Visibility="{Binding CorruptionVisible}"/>
                                     </StackPanel>
@@ -145,6 +127,10 @@
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
         </ScrollViewer>
+
+        <!-- Hover metadata card popup -->
+        <Popup x:Name="MetadataPopup" IsOpen="False" IsLightDismissEnabled="False">
+            <local:MetadataHoverCard x:Name="HoverCard" Margin="12"/>
+        </Popup>
     </Grid>
 </Page>
-

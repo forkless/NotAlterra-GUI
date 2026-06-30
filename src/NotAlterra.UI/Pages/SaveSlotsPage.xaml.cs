@@ -1,4 +1,6 @@
 using Microsoft.UI.Xaml;
+using Windows.Foundation;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Controls;
 using NotAlterra.Gvas;
 using NotAlterra.Services;
@@ -32,6 +34,9 @@ public record BakInfo(FileInfo Info, FullMetadata? Meta)
     public string ModeDisplay => Meta?.IsOnline == true ? "Multiplayer" :
         Meta?.WasMultiplayer == true ? "Was Multiplayer" : "Single Player";
     public string BuildDisplay => Meta?.BuildNumber is uint bn ? $"Build {bn}" : "";
+    public int BackupIndex => int.TryParse(
+        System.IO.Path.GetFileNameWithoutExtension(Info.Name).Split('_').LastOrDefault() ?? "",
+        out var i) ? i : 0;
 }
 
 public record SlotInfo(int Number, string SavPath, long Size, DateTime Modified, FullMetadata? Meta, List<BakInfo> Backups)
@@ -321,5 +326,37 @@ public sealed partial class SaveSlotsPage : Page
             StatusText.Text = $"Delete failed: {ex.Message}";
             StatusText.Visibility = Visibility.Visible;
         }
+    }
+
+    private void OnSlotPointerEntered(object sender, PointerRoutedEventArgs e)
+    {
+        if (sender is not FrameworkElement fe) return;
+
+        // Populate the hover card
+        if (fe.DataContext is SlotInfo si)
+            HoverCard.ShowForSlot(si);
+        else if (fe.DataContext is BakInfo bi)
+            HoverCard.ShowForBak(bi);
+        else
+            return;
+
+        // Position popup relative to the card, not the mouse
+        var transform = fe.TransformToVisual(this);
+        var pos = transform.TransformPoint(new Point(0, 0));
+
+        MetadataPopup.HorizontalOffset = pos.X + fe.ActualWidth + 16;
+        MetadataPopup.VerticalOffset = pos.Y;
+
+        // Flip to left side if popup would overflow the right edge
+        double popupWidth = 460;
+        if (pos.X + fe.ActualWidth + 16 + popupWidth > ActualWidth && pos.X - popupWidth - 16 > 0)
+            MetadataPopup.HorizontalOffset = pos.X - popupWidth - 16;
+
+        MetadataPopup.IsOpen = true;
+    }
+
+    private void OnSlotPointerExited(object sender, PointerRoutedEventArgs e)
+    {
+        MetadataPopup.IsOpen = false;
     }
 }

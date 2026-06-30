@@ -1,1 +1,7 @@
 src/NotAlterra.UI/Assets/splash.png
+
+# Build artifacts
+NUL.obj
+NUL.pdb
+*.tmp
+test_winrt.obj
