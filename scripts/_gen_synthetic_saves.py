@@ -141,3 +141,11 @@ make(os.path.join(DIR, "savegame_1_1.bak"),
      38, 23, 8, 80000.0)
 
 # Keep the existing corrupt files as-is (they're useful)
+
+# Pad all non-corrupt saves past the 100KB corruption threshold
+for pad_name in sorted(os.listdir(DIR)):
+    if 'corrupt' in pad_name: continue
+    if not (pad_name.endswith('.sav') or pad_name.endswith('.bak')): continue
+    p = os.path.join(DIR, pad_name)
+    with open(p, 'ab') as f:
+        f.write(b'\x80' * max(0, 300000 - os.path.getsize(p)))

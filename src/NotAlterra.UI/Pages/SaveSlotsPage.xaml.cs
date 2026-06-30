@@ -122,7 +122,9 @@ public sealed partial class SaveSlotsPage : Page
         var savFiles = Directory.GetFiles(dir, "savegame_*.sav");
         if (savFiles.Length == 0) { SlotCountText.Text = "0"; StatusText.Visibility = Visibility.Visible; return; }
 
-        var bakFiles = Directory.GetFiles(dir, "savegame_*.bak");
+        var bakFiles = Directory.GetFiles(dir, "savegame_*.bak")
+            .Where(f => !Path.GetFileName(f).Contains("_pre_recover_"))
+            .ToArray();
         var allBaks = bakFiles.Select(f => new FileInfo(f)).ToList();
 
         var slots = new List<SlotInfo>();
@@ -242,7 +244,8 @@ public sealed partial class SaveSlotsPage : Page
 
             // Create pre-recovery snapshot (skip if identical to latest existing)
             string? snapName = null;
-            var existingSnapshots = Directory.GetFiles(dir, $"savegame_{slot}_pre_recover_*.bak")
+            var snapDir = NotAlterra.Services.AppConfig.BackupsSavesDir();
+            var existingSnapshots = Directory.GetFiles(snapDir, $"savegame_{slot}_pre_recover_*.bak")
                 .OrderByDescending(f => f)
                 .ToArray();
             bool needSnapshot = true;
@@ -258,7 +261,7 @@ public sealed partial class SaveSlotsPage : Page
             if (needSnapshot)
             {
                 var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss_fff");
-                var snapPath = Path.Combine(dir, $"savegame_{slot}_pre_recover_{timestamp}.bak");
+                var snapPath = Path.Combine(snapDir, $"savegame_{slot}_pre_recover_{timestamp}.bak");
                 File.Copy(canonSav, snapPath, overwrite: false);
                 snapName = Path.GetFileName(snapPath);
                 Guard.LogAction("RECOVER", $"Pre-recovery snapshot: {snapName}", "INFO");
@@ -344,13 +347,19 @@ public sealed partial class SaveSlotsPage : Page
         var transform = fe.TransformToVisual(this);
         var pos = transform.TransformPoint(new Point(0, 0));
 
-        MetadataPopup.HorizontalOffset = pos.X + fe.ActualWidth + 16;
-        MetadataPopup.VerticalOffset = pos.Y;
+        double pw = 460, ph = 440;
+        double hOff = pos.X + fe.ActualWidth + 16;
+        double vOff = pos.Y;
 
-        // Flip to left side if popup would overflow the right edge
-        double popupWidth = 460;
-        if (pos.X + fe.ActualWidth + 16 + popupWidth > ActualWidth && pos.X - popupWidth - 16 > 0)
-            MetadataPopup.HorizontalOffset = pos.X - popupWidth - 16;
+        if (pos.X + fe.ActualWidth + 16 + pw > ActualWidth && pos.X - pw - 16 > 0)
+            hOff = pos.X - pw - 16;
+
+        if (pos.Y + ph > ActualHeight)
+            vOff = pos.Y - ph + fe.ActualHeight;
+        if (vOff < 0) vOff = 4;
+
+        MetadataPopup.HorizontalOffset = hOff;
+        MetadataPopup.VerticalOffset = vOff;
 
         MetadataPopup.IsOpen = true;
     }

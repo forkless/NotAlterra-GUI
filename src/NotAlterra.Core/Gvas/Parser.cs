@@ -178,11 +178,7 @@ public static class GvasParser
     {
         var data = File.ReadAllBytes(filePath);
         var span = new ReadOnlySpan<byte>(data);
-
-        // ── Corruption scan ──
-        string? corruption = data.Length < 100_000
-            ? "File is too small to be a valid save (under 100 KB)"
-            : null;
+        string? corruption = null;
         if (corruption == null && data.AsSpan(0, Math.Min(100, data.Length)).IndexOfAnyExcept((byte)0) < 0)
             corruption = "File appears to be blank or zeroed";
         if (corruption == null && data[0] != 'G')
@@ -196,7 +192,11 @@ public static class GvasParser
 
         // If metadata scan found nothing and corruption not already flagged
         if (corruption == null && slot == null && display == null && game == null)
-            corruption = "No recognizable save metadata found (file structure is corrupt)";
+        {
+            corruption = data.Length < 100_000
+                ? "File is too small to be a valid save (under 100 KB)"
+                : "No recognizable save metadata found (file structure is corrupt)";
+        }
 
         return new FullMetadata
         {
