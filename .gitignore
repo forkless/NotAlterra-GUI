@@ -27,3 +27,5 @@ gvas-files/_extracted/
 # Generated assets
 src/NotAlterra.UI/Assets/setup_logo.bmp
 src/NotAlterra.UI/Assets/setup_bg.bmp
+# DOX
+AGENTS.md
