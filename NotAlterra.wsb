@@ -15,11 +15,7 @@
       <SandboxFolder>C:\Scripts</SandboxFolder>
       <ReadOnly>true</ReadOnly>
     </MappedFolder>
-    <MappedFolder>
-      <HostFolder>C:\Users\petemar.UNIVERSE\AppData\Local\Temp\na_installer</HostFolder>
-      <SandboxFolder>C:\Installer\Latest</SandboxFolder>
-      <ReadOnly>false</ReadOnly>
-    </MappedFolder>
+
   </MappedFolders>
   <LogonCommand>
     <Command>powershell.exe -ExecutionPolicy Bypass -File C:\Scripts\_sandbox_setup.ps1</Command>
