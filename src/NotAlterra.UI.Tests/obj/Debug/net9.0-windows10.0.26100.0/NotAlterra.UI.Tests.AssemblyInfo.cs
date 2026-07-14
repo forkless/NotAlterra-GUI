@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NotAlterra.UI.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1d097d8c045d7b0157f262f11fb2092007561736")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd44ebe37ae5ba2997cecbe953e2d95b7648988f")]
 [assembly: System.Reflection.AssemblyProductAttribute("NotAlterra.UI.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NotAlterra.UI.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
