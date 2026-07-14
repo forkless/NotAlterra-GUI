@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="NotAlterra_UI.Pages.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:NotAlterra_UI.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Padding="32,32,64,32" Spacing="20" MaxWidth="800">
+
+            <!-- Header with logo -->
+            <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                <Image x:Name="LogoImage" Width="80" Height="80" Margin="0,0,16,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Top" Spacing="4">
+                    <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="NotAlterra"/>
+                    <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Subnautica 2 Save Manager" Opacity="0.8"/>
+                </StackPanel>
+            </Grid>
+            
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Quick Start" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap">
+                        ▪ Click <Run FontWeight="SemiBold" Foreground="#FFe85d04">Save Manager</Run> in the sidebar to browse your saves
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap">
+                        ▪ Expand a slot to see available backups
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap">
+                        ▪ Click <Run FontWeight="SemiBold" Foreground="#FFe85d04">Recover</Run> to restore a backup. A snapshot is created automatically.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap">
+                        ▪ Hover warning icons and mode labels for details about each file
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="How It Protects Your Saves" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Read-only inspection</Run> browsing never modifies files</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Pre-recovery snapshots</Run> every Recover creates a backup first</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Game guard</Run> warns if Subnautica 2 is running</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Corruption detection</Run> flags broken files with a warning</TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Understanding the Cards" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Slot number</Run> identifies the save slot (0, 1, 2...)</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Playtime</Run> hours played from save metadata</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Single Player / Multiplayer / Was Multiplayer</Run> game mode with tooltip</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Build</Run> UE5 build number</TextBlock>
+                    <TextBlock TextWrapping="Wrap">▪ <Run FontWeight="SemiBold">Warning icon</Run> corrupted file, hover for details</TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Locations" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">Save folder: <Run x:Name="SavePathRun" FontFamily="Consolas"/></TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">Backup folder: <Run x:Name="BackupPathRun" FontFamily="Consolas"/></TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Backup Files" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap">
+                        Each slot has a <Run FontWeight="SemiBold">canonical</Run> file (<Run FontFamily="Consolas">savegame_N.sav</Run>). The game creates <Run FontWeight="SemiBold" Foreground="#FFe85d04">backups</Run> (<Run FontFamily="Consolas">.bak</Run> files) with each save.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap">
+                        <Run FontWeight="SemiBold" Foreground="#FFe85d04">Recover</Run> copies a .bak over the .sav and creates a pre-recovery snapshot as a courtesy. Always keep your own independent backups. The tool does not guarantee recovery.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

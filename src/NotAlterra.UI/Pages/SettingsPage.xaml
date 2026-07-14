@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="NotAlterra_UI.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:NotAlterra_UI.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer>
+        <StackPanel Padding="32,32,64,32" Spacing="16" MaxWidth="800">
+
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Settings"/>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Game Save Folder" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        Change the game save folder if Subnautica 2 stores its saves in a custom location.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.3" FontFamily="Consolas" FontSize="12">
+                        %LOCALAPPDATA%\Subnautica2\Saved\SaveGames
+                    </TextBlock>
+                    <TextBox x:Name="SaveFolderBox" PlaceholderText="Custom save folder (leave empty for default)" Text="" />
+                    <StackPanel Orientation="Horizontal" Spacing="8"><Button x:Name="BrowseBtn" Content="Browse..." Click="OnBrowseFolder" /><Button x:Name="ResetSaveBtn" Content="Reset" Click="OnResetSaveFolder" /></StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Backup Location" FontSize="18" FontWeight="SemiBold"/>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.5">
+                        Change where backup archives are stored.
+                    </TextBlock>
+                    <TextBlock TextWrapping="Wrap" Opacity="0.3" FontFamily="Consolas" FontSize="12">
+                        %USERPROFILE%\NotAlterra
+                    </TextBlock>
+                    <TextBox x:Name="BackupFolderBox" PlaceholderText="Custom backup folder (leave empty for default)" Text="" />
+                    <StackPanel Orientation="Horizontal" Spacing="8"><Button x:Name="BrowseBackupBtn" Content="Browse..." Click="OnBrowseBackupFolder" /><Button x:Name="ResetBackupBtn" Content="Reset" Click="OnResetBackupFolder" /></StackPanel>
+                </StackPanel>
+            </Border>
+
+
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>

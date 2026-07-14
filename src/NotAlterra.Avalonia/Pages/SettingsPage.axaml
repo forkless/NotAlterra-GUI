@@ -1,0 +1,11 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="NotAlterra.Avalonia.Pages.SettingsPage">
+  <StackPanel>
+    <TextBlock Text="Settings" FontSize="24" FontWeight="Bold"
+               Foreground="#FFe85d04" Margin="0,0,0,16"/>
+    <TextBlock Text="TODO: game guard toggle, path config"
+               Foreground="Gray" FontStyle="Italic"/>
+  </StackPanel>
+</UserControl>
+

@@ -1,0 +1,34 @@
+src/NotAlterra.UI/Assets/splash.png
+
+# Build artifacts
+NUL.obj
+NUL.pdb
+*.tmp
+test_winrt.obj
+# Build outputs
+bin/
+obj/
+tmp/
+tmp_min/
+tmp_full/
+*.pfx
+
+# Local-only private files
+private/
+
+# Published installer
+publish/*.exe
+publish/fixed/
+
+# Test data artifacts
+gvas-files/*.tar.gz
+gvas-files/_extracted/
+
+# Session
+.deepseek/
+
+# Generated assets
+src/NotAlterra.UI/Assets/setup_logo.bmp
+src/NotAlterra.UI/Assets/setup_bg.bmp
+# DOX
+AGENTS.md
